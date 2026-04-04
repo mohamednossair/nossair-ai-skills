@@ -18,6 +18,7 @@ nossair-ai-skills/
 │   │   ├── angular/
 │   │   ├── java/
 │   │   └── ...
+│   ├── commands/          ← Junie-specific custom slash commands
 │   └── guidelines.md      ← Project-wide coding standards
 ├── .windsurf/memories/    ← Windsurf persistent context
 ├── templates/             ← Templates for new skills/commands
@@ -81,6 +82,15 @@ See [AGENTS.md](./AGENTS.md#windsurf) for details.
 | `/git-commit` | Write a conventional commit message for current changes |
 | `/sql-review` | Review/write SQL for Oracle or MySQL |
 | `/maven-help` | Help with Maven POM, dependencies, build config |
+
+---
+
+## Available Junie Slash Commands
+
+| Command | Description |
+|---------|-------------|
+| `/review file="..."` | Review code using specific tech skills and guidelines |
+| `/plan task="..."` | Create a detailed implementation plan for a task |
 
 ---
 

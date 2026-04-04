@@ -49,8 +49,11 @@ Copy-Item -Path .junie -Destination C:\your-project-root\ -Recurse
 ```
 
 ### 🚀 Usage
-1. **Guidelines**: Junie automatically reads `.junie/guidelines.md` at the start of a session. It uses these rules for all code generation and reviews.
-2. **Skills**: You can ask Junie to use a specific skill:
+1. **Slash Commands**: Junie supports custom slash commands for common tasks.
+   - `/review file="path/to/file.java"` — Review a file using the corresponding skill and guidelines.
+   - `/plan task="Describe your task here"` — Create a detailed implementation plan.
+2. **Guidelines**: Junie automatically reads `.junie/guidelines.md` at the start of a session. It uses these rules for all code generation and reviews.
+3. **Skills**: You can ask Junie to use a specific skill:
    - *"Junie, use your Angular skill to review this component."*
    - *"Check this Java code against the project standards."*
    Junie will use the `agent_skill_read_doc` tool to read the corresponding `SKILL.md` from `.junie/skills/<name>/`.
