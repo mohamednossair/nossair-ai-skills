@@ -87,8 +87,10 @@ These are the standing coding standards and preferences to follow in all work on
 - Use Testcontainers for real database testing
 - Do not write tests only for coverage — test behavior
 
-## General
-- No hardcoded secrets, URLs, or environment-specific values — externalize to config/env
-- Max method size: ~20 lines; max class size: ~300 lines
-- Guard clauses (early return) over nested `if` blocks
-- No speculative abstractions, feature flags, or backward-compat shims
+## General Engineering
+- **Follow SOLID, DRY, and Clean Code principles** (See `.junie/skills/global/SKILL.md` for details).
+- **Guard clauses (early return)** over nested `if` blocks.
+- **Fail fast:** Validate inputs at the start of functions.
+- **Max method size:** ~20 lines; max class size: ~300 lines.
+- No hardcoded secrets, URLs, or environment-specific values.
+- No speculative abstractions.

@@ -4,12 +4,16 @@ description: [Short one-line description for listing]
 ---
 
 # [Technology Name] Skill
+Use this skill when developing or reviewing [Technology Name] code. This skill provides the standards and best practices for the project's [Technology Name] stack.
 
-Use this skill when developing or reviewing [Technology Name] code.
+## When to Use
+- [Condition 1, e.g., when creating a new component]
+- [Condition 2, e.g., when reviewing a PR with these changes]
+- [Condition 3, e.g., when troubleshooting a performance issue]
 
 ## Key Principles
-- [Principle 1]
-- [Principle 2]
+- [Principle 1, e.g., Favor composition over inheritance]
+- [Principle 2, e.g., Keep functions pure and side-effect free]
 
 ## Guidelines
 

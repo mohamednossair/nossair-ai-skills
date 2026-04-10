@@ -90,7 +90,7 @@ Windsurf reads these files automatically. No manual command is needed. The agent
 
 ## 🔄 Adding New Skills
 To add a new skill for all agents:
-1. **Reference**: Add a file to `.junie/skills/<tech>/SKILL.md`.
-2. **Claude**: Add a prompt to `.claude/skills/<tech>-action.md`.
-3. **Windsurf**: Update a relevant memory in `.windsurf/memories/`.
-4. **Guidelines**: Update `.junie/guidelines.md` if needed.
+1. **Scaffold**: Run `bash scripts/new-skill.sh <name>` or `.\scripts\new-skill.ps1 <name>`.
+2. **Populate**: Edit the generated files in `.junie/`, `.claude/`, and `.windsurf/`.
+3. **Deploy**: Run the `sync-claude` script to update Claude's global commands.
+4. **Reference**: Always refer to the `global` skill for core engineering principles.

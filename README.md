@@ -4,7 +4,7 @@ Centralized repository for AI agent skills across Claude Code, Junie, and Windsu
 Single source of truth — add a skill once, deploy to all agents.
 
 ## Tech Stack Covered
-Java · TypeScript · Python · Spring Boot · Angular · Maven · Git · Oracle · MySQL · JUnit · Jest
+Global · Java · TypeScript · Python · Spring Boot · Angular · Maven · Git · Oracle · MySQL · JUnit · Jest
 
 ---
 
@@ -15,6 +15,7 @@ nossair-ai-skills/
 ├── .claude/skills/        ← Claude Code slash commands (global deploy)
 ├── .junie/                ← Junie Agent Skills & Coding Guidelines
 │   ├── skills/            ← Detailed skills folders per technology
+│   │   ├── global/        ← Shared engineering principles (SOLID, DRY)
 │   │   ├── angular/
 │   │   ├── java/
 │   │   └── ...
@@ -22,9 +23,11 @@ nossair-ai-skills/
 │   └── guidelines.md      ← Project-wide coding standards
 ├── .windsurf/memories/    ← Windsurf persistent context
 ├── templates/             ← Templates for new skills/commands
-├── scripts/               ← Sync scripts for deployment
-│   ├── sync-claude.sh     ← Linux/macOS/Bash
-│   └── sync-claude.ps1    ← Windows/PowerShell
+├── scripts/               ← Helper scripts
+│   ├── sync-claude.sh     ← Sync Claude commands globally
+│   ├── sync-claude.ps1    ← Sync Claude commands (PowerShell)
+│   ├── new-skill.sh       ← Scaffold a new skill across all agents
+│   └── new-skill.ps1      ← Scaffold a new skill (PowerShell)
 └── ...
 ```
 
@@ -96,11 +99,16 @@ See [AGENTS.md](./AGENTS.md#windsurf) for details.
 
 ## Adding a New Technology
 
-1. **Add reference skill** — Create a folder `.junie/skills/<tech>/` and copy `templates/skill_template.md` to `SKILL.md` inside it.
-2. **Add Claude command** (optional) — Copy `templates/claude_skill_template.md` to `.claude/skills/<tech-action>.md`.
-3. **Update Windsurf memory** (optional) — Add or update a file in `.windsurf/memories/`.
-4. **Update Junie guidelines** — Add relevant rules to `.junie/guidelines.md`.
-5. **Re-sync Claude** — Run `bash scripts/sync-claude.sh` (Linux) or `.\scripts\sync-claude.ps1` (Windows) to push Claude skills globally.
+1. **Scaffold files** — Run the `new-skill` script to generate templates for all agents:
+   - **Linux/macOS:** `bash scripts/new-skill.sh <tech>`
+   - **Windows:** `.\scripts\new-skill.ps1 <tech>`
+2. **Refine skills** — Edit the generated files:
+   - `.junie/skills/<tech>/SKILL.md` (Detailed reference)
+   - `.claude/skills/<tech>-review.md` (Review command)
+   - `.windsurf/memories/<tech>-standards.md` (Context memory)
+3. **Update Junie guidelines** — Add relevant rules to `.junie/guidelines.md` (for core rules).
+4. **Re-sync Claude** — Run `bash scripts/sync-claude.sh` or `.\scripts\sync-claude.ps1` to push skills globally.
+5. **Add to Global** (optional) — If a new principle applies everywhere, update `.junie/skills/global/SKILL.md`.
 
 ---
 
