@@ -1,0 +1,8 @@
+image: atlassian/default-image:4
+
+pipelines:
+  default:
+    - step:
+        name: Unified Command Parity
+        script:
+          - bash scripts/check-command-parity.sh

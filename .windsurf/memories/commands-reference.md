@@ -21,7 +21,8 @@ When the user invokes any of these commands, follow the instructions exactly.
 1. Break the task into logical, actionable steps.
 2. For each step, identify files to create or modify.
 3. Identify applicable coding standards and patterns.
-4. Output a numbered plan with files, standards, and risks per step.
+4. Estimate complexity and flag Risk per step.
+5. Output a numbered plan with files, standards, and Risk per step.
 
 ## /test-generate
 **Usage**: `/test-generate file="path/to/file"`
@@ -55,6 +56,7 @@ When the user invokes any of these commands, follow the instructions exactly.
 4. Each task: Context, Deliverables, Constraints - self-contained for one AI prompt.
 5. Validate every spec requirement is covered by at least one task.
 6. Output a coverage matrix: requirement -> task mapping.
+7. Coverage matrix: requirement -> task mapping
 
 ## /spec-validate
 **Usage**: `/spec-validate`

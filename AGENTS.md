@@ -109,3 +109,7 @@ Memory files loaded automatically:
 After changing unified command definitions, run:
 - Linux/macOS: `bash scripts/check-command-parity.sh`
 - Windows (PowerShell): `powershell -ExecutionPolicy Bypass -File scripts/check-command-parity.ps1`
+
+CI files:
+- GitHub Actions workflow: `.github/workflows/command-parity.yml`
+- Bitbucket Pipelines config: `bitbucket-pipelines.yml`

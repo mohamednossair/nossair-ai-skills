@@ -1,0 +1,18 @@
+name: Command Parity
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  check-parity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run unified command parity check
+        run: bash scripts/check-command-parity.sh

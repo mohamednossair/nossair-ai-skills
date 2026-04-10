@@ -131,3 +131,7 @@ bash scripts/check-command-parity.sh
 # Windows (PowerShell)
 powershell -ExecutionPolicy Bypass -File scripts/check-command-parity.ps1
 ```
+
+CI integration:
+- GitHub Actions: [command-parity.yml](./.github/workflows/command-parity.yml)
+- Bitbucket Pipelines: [bitbucket-pipelines.yml](./bitbucket-pipelines.yml)
