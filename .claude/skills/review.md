@@ -10,7 +10,7 @@ Act as a Senior Software Engineer. Review the provided code file.
 4. Provide actionable improvements with code snippets.
 
 ## Output Format
-Group findings by severity: 🔴 Critical | 🟡 Warning | 🔵 Suggestion
+Group findings by severity: [Critical] | [Warning] | [Suggestion]
 Each entry:
 - **Location**: [File:line]
 - **Issue**: [What is wrong]

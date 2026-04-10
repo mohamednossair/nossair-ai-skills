@@ -1,0 +1,43 @@
+#!/bin/bash
+# check-command-parity.sh
+# Verifies the 7 unified command contracts stay aligned across Claude, Junie, and Windsurf.
+
+set -euo pipefail
+
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+checks=(
+  "review|.claude/skills/review.md|.junie/commands/review.md|.windsurf/memories/commands-reference.md|\\[Critical\\] \\| \\[Warning\\] \\| \\[Suggestion\\]"
+  "plan|.claude/skills/plan.md|.junie/commands/plan.md|.windsurf/memories/commands-reference.md|Risk"
+  "test-generate|.claude/skills/test-generate.md|.junie/commands/test-generate.md|.windsurf/memories/commands-reference.md|pytest"
+  "git-commit|.claude/skills/git-commit.md|.junie/commands/git-commit.md|.windsurf/memories/commands-reference.md|Output only the commit message"
+  "spec-init|.claude/skills/spec-init.md|.junie/commands/spec-init.md|.windsurf/memories/commands-reference.md|constitution.md"
+  "spec-plan|.claude/skills/spec-plan.md|.junie/commands/spec-plan.md|.windsurf/memories/commands-reference.md|Coverage matrix: requirement -> task mapping"
+  "spec-validate|.claude/skills/spec-validate.md|.junie/commands/spec-validate.md|.windsurf/memories/commands-reference.md|\\[Critical\\] \\| \\[Warning\\] \\| \\[Suggestion\\]"
+)
+
+failures=()
+
+for entry in "${checks[@]}"; do
+  IFS='|' read -r name claude junie windsurf pattern <<< "$entry"
+  for rel in "$claude" "$junie" "$windsurf"; do
+    path="$REPO_DIR/$rel"
+    if [[ ! -f "$path" ]]; then
+      failures+=("Missing file: $rel")
+      continue
+    fi
+    if ! grep -Eq "$pattern" "$path"; then
+      failures+=("[$name] pattern '$pattern' not found in $rel")
+    fi
+  done
+done
+
+if (( ${#failures[@]} > 0 )); then
+  echo "Command parity check failed:"
+  for f in "${failures[@]}"; do
+    echo "- $f"
+  done
+  exit 1
+fi
+
+echo "Command parity check passed."

@@ -1,5 +1,5 @@
 ---
-description: Write a conventional commit message for the current staged changes
+description: Write a conventional commit message for current staged or unstaged changes
 ---
 Write a git commit message for the changes described or shown. Follow Conventional Commits format strictly.
 
@@ -7,26 +7,26 @@ Write a git commit message for the changes described or shown. Follow Convention
 ```
 <type>(<scope>): <short description>
 
-[optional body — explain WHY, not what]
+[optional body - explain WHY, not what]
 
 [optional footer: Closes #123, Breaking change: ...]
 ```
 
 ## Types
-- `feat` — new feature (triggers minor version bump)
-- `fix` — bug fix (triggers patch bump)
-- `refactor` — code restructuring without behavior change
-- `test` — adding or modifying tests
-- `docs` — documentation only
-- `chore` — build, tooling, deps, CI
-- `perf` — performance improvement
-- `style` — formatting (no logic change)
+- `feat` - new feature (triggers minor version bump)
+- `fix` - bug fix (triggers patch bump)
+- `refactor` - code restructuring without behavior change
+- `test` - adding or modifying tests
+- `docs` - documentation only
+- `chore` - build, tooling, deps, CI
+- `perf` - performance improvement
+- `style` - formatting (no logic change)
 
 ## Rules
 - Subject line: max 72 chars, imperative mood ("add" not "added")
 - No period at end of subject
 - Body: explain motivation and context, not mechanics
-- Break changes: add `BREAKING CHANGE:` footer or `!` after type: `feat!:`
+- Breaking changes: add `BREAKING CHANGE:` footer or `!` after type: `feat!:`
 
 ## Examples
 ```
@@ -47,4 +47,4 @@ Reproduces when user registers without a display name field.
 refactor(order): extract price calculation to PriceCalculator service
 ```
 
-Output only the commit message — no explanation around it.
+Output only the commit message - no explanation around it.

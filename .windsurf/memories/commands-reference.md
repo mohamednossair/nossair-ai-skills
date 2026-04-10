@@ -10,7 +10,7 @@ When the user invokes any of these commands, follow the instructions exactly.
 1. Identify the technology from the file extension.
 2. Apply coding standards from `coding-standards.md` and `tech-stack.md`.
 3. Analyze: correctness, security, performance, readability, SOLID/DRY.
-4. Output findings grouped by: 🔴 Critical | 🟡 Warning | 🔵 Suggestion
+4. Output findings grouped by: [Critical] | [Warning] | [Suggestion]
    - **Location**: [File:line]
    - **Issue**: [What is wrong]
    - **Why**: [Impact]
@@ -37,25 +37,28 @@ When the user invokes any of these commands, follow the instructions exactly.
 2. Write message: `type(scope): description` (Conventional Commits).
 3. Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `perf`, `style`.
 4. Rules: imperative mood, max 72 chars, no trailing period.
+5. Output only the commit message text.
 
 ## /spec-init
 **Usage**: `/spec-init`
 1. Create `.spec/` directory with `tasks/` subdirectory.
-2. Generate `constitution.md` (Tech Stack, Rules, Testing — max 30 lines).
+2. Generate `constitution.md` (Tech Stack, Rules, Testing - max 30 lines).
 3. Generate `spec.md` template (Goal, Non-Goals, Requirements, Acceptance Criteria).
 4. Generate `plan.md` template (Architecture, Data Model, Implementation Steps).
-5. Generate `tasks/01-example.md` (Context, Deliverables, Constraints — max 20 lines).
+5. Generate `tasks/01-example.md` (Context, Deliverables, Constraints - max 20 lines).
 
 ## /spec-plan
 **Usage**: `/spec-plan task="Describe the feature"`
 1. Read `.spec/constitution.md` and `.spec/spec.md`.
-2. Generate or update `plan.md` (Architecture, Data Model, Steps — max 40 lines).
+2. Generate or update `plan.md` (Architecture, Data Model, Steps - max 40 lines).
 3. Break into atomic task files in `.spec/tasks/` (max 20 lines each).
-4. Each task: Context, Deliverables, Constraints — self-contained for one AI prompt.
+4. Each task: Context, Deliverables, Constraints - self-contained for one AI prompt.
+5. Validate every spec requirement is covered by at least one task.
+6. Output a coverage matrix: requirement -> task mapping.
 
 ## /spec-validate
 **Usage**: `/spec-validate`
 1. Read all `.spec/` artifacts: `constitution.md`, `spec.md`, `plan.md`, `tasks/*.md`.
 2. Check consistency, completeness, and token efficiency.
 3. Flag: prose paragraphs, duplicate info, vague constraints, missing sections.
-4. Output: 🔴 Critical | 🟡 Warning | 🔵 Suggestion with fix for each.
+4. Output: [Critical] | [Warning] | [Suggestion] with fix for each.

@@ -1,25 +1,26 @@
 ---
-description: Generate JUnit (Java) or Jest (TypeScript/Angular) tests for the provided code
+description: Generate unit tests for the provided code using JUnit, Jest, or pytest.
 ---
 Generate comprehensive tests for the provided code. Detect the language/framework and use:
-- **Java / Spring Boot** → JUnit 5 + Mockito + AssertJ
-- **TypeScript / Angular** → Jest + Testing Library or Angular TestBed
+- Java / Spring Boot -> JUnit 5 + Mockito + AssertJ
+- TypeScript / Angular -> Jest + Testing Library or Angular TestBed
+- Python -> pytest
 
 ## Test Requirements
 
-**Coverage:**
+Coverage:
 - Happy path (normal expected behavior)
 - Edge cases (empty input, zero, max value, boundary conditions)
 - Error paths (exceptions thrown, invalid input, not-found cases)
 - Each branch of conditional logic
 
-**Structure:**
-- AAA pattern: Arrange → Act → Assert
+Structure:
+- AAA pattern: Arrange -> Act -> Assert
 - One assertion focus per test
 - Descriptive names: `should<ExpectedBehavior>_when<Condition>()`
-- Group related tests with `@Nested` (JUnit) or `describe()` (Jest)
+- Group related tests with `@Nested` (JUnit) or `describe()` (Jest/pytest)
 
-**For Java (JUnit 5 + Mockito):**
+For Java (JUnit 5 + Mockito):
 ```java
 @ExtendWith(MockitoExtension.class)
 class XxxTest {
@@ -31,7 +32,7 @@ class XxxTest {
 - Use `@WebMvcTest` for controllers, `@DataJpaTest` for repos
 - AssertJ: `assertThat(result).isEqualTo(...)`, `assertThatThrownBy(...)`
 
-**For TypeScript (Jest):**
+For TypeScript (Jest):
 ```typescript
 describe('ClassName', () => {
   beforeEach(() => jest.clearAllMocks());
@@ -41,4 +42,14 @@ describe('ClassName', () => {
 - Spy with `jest.spyOn()`, mock with `jest.fn()`
 - For Angular: `TestBed.configureTestingModule(...)` with mocked providers
 
-Generate complete, runnable test code — not pseudocode or stubs.
+For Python (pytest):
+```python
+def test_should_do_x_when_y():
+    # Arrange
+    # Act
+    # Assert
+```
+- Use fixtures for setup and dependency control
+- Prefer parameterized tests for edge-case matrices
+
+Generate complete, runnable test code - not pseudocode or stubs.

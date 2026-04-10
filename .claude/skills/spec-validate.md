@@ -12,7 +12,7 @@ Act as a Senior SDD Architect. Validate the Spec-Driven Development artifacts in
 6. Check **Token Efficiency**: flag prose paragraphs, duplicate info, vague constraints.
 
 ## Output Format
-Group findings by severity: 🔴 Critical | 🟡 Warning | 🔵 Suggestion
+Group findings by severity: [Critical] | [Warning] | [Suggestion]
 Each entry:
 - **Artifact**: [file]
 - **Issue**: [what is wrong]

@@ -27,4 +27,4 @@ Act as a Senior SDD Architect. Read the project's `.spec/constitution.md` and `.
 ## Output Format
 1. Print `plan.md` content
 2. List all generated task files with one-line summaries
-3. Coverage matrix: requirement → task mapping
+3. Coverage matrix: requirement -> task mapping

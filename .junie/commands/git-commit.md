@@ -9,4 +9,4 @@ Generate a commit message for the current staged or unstaged changes.
 4. Write the message in format: `type(scope): description`
 5. Rules: imperative mood, max 72 chars, no trailing period.
 6. If changes are large, add a body with bullet-point summary of key changes.
-7. Output the complete commit command ready to run.
+7. Output only the commit message text.

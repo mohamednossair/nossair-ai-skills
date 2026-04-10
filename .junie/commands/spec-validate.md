@@ -25,4 +25,4 @@ Validate the Spec-Driven Development artifacts in `.spec/` directory.
    - Flag any prose paragraphs (should be bullet points)
    - Flag duplicate information across artifacts
    - Flag vague constraints ("reasonable", "good", "clean")
-8. Output a report grouped by: 🔴 Critical | 🟡 Warning | 🔵 Suggestion
+8. Output a report grouped by: [Critical] | [Warning] | [Suggestion]

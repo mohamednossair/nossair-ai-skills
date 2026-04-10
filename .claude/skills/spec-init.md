@@ -30,4 +30,4 @@ Act as a Senior SDD Architect. Create the Spec-Driven Development structure for 
 
 ## Output
 Print created file list and the workflow cheat sheet:
-`GUARD → DEFINE → PLAN → BREAK → BUILD → VALIDATE`
+`GUARD -> DEFINE -> PLAN -> BREAK -> BUILD -> VALIDATE`
