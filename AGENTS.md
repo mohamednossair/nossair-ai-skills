@@ -2,95 +2,105 @@
 
 This document explains how to use the skills in this repository for each AI agent: Claude Code, Junie, and Windsurf.
 
+All agents share **7 unified commands** with identical names and behavior. See the [README](./README.md) for the full command table.
+
+---
+
+## 🔗 Unified Commands (All Agents)
+
+| Command | Description |
+|---------|-------------|
+| `/review` | Review code using relevant tech skill & guidelines |
+| `/plan` | Create a detailed implementation plan |
+| `/test-generate` | Generate unit tests (JUnit/Jest/pytest) |
+| `/git-commit` | Generate a conventional commit message |
+| `/spec-init` | Initialize SDD project structure |
+| `/spec-plan` | Generate technical plan and atomic tasks |
+| `/spec-validate` | Validate SDD artifacts for consistency |
+
 ---
 
 ## 🛠️ Claude Code (Slash Commands)
 
-Claude Code uses **slash commands** for skills. These are stored as Markdown files in the `.claude/skills/` directory and must be deployed to your home directory to be available globally.
+Claude Code uses **slash commands** stored as Markdown files in `.claude/skills/`. Deploy globally to `~/.claude/skills/`.
 
 ### 📋 Setup & Deployment
-1. Run the sync script to deploy skills to your `~/.claude/skills/` folder:
-   **Linux/macOS:**
-   ```bash
-   bash scripts/sync-claude.sh
-   ```
-   **Windows (PowerShell):**
-   ```powershell
-   .\scripts\sync-claude.ps1
-   ```
-2. Any new `.md` file added to `.claude/skills/` will automatically become a slash command (e.g., `java-review.md` → `/java-review`).
+Run the sync script to deploy skills globally:
+
+**Linux/macOS:**
+```bash
+bash scripts/sync-claude.sh
+```
+**Windows (PowerShell):**
+```powershell
+.\scripts\sync-claude.ps1
+```
 
 ### 🚀 Usage
-Inside any project, type the command in Claude Code:
-- `/java-review` — Review Java code for best practices.
-- `/spring-api` — Analyze Spring Boot REST controllers and services.
-- `/ts-review` — Review TypeScript and Angular code (Signals, RxJS).
-- `/sql-review` — Review Oracle or MySQL queries.
-- `/test-generate` — Generate JUnit or Jest tests for the current file.
-- `/git-commit` — Generate a conventional commit message.
+Type any command in Claude Code:
+- **Unified**: `/review`, `/plan`, `/test-generate`, `/git-commit`, `/spec-init`, `/spec-plan`, `/spec-validate`
+- **Tech-specific**: `/java-review`, `/spring-api`, `/ts-review`, `/python-review`, `/angular-component`, `/sql-review`, `/maven-help`
 
 ---
 
 ## 👩‍💻 Junie (Agent Skills & Guidelines)
 
-Junie uses **Agent Skills** (via the `agent_skill_read_doc` tool) and **Guidelines** to maintain consistency.
+Junie uses **Agent Skills** (via `agent_skill_read_doc`) and **custom commands** in `.junie/commands/`.
 
 ### 📋 Setup
-For each new project, copy the `.junie/` folder:
+Copy the `.junie/` folder to your project:
 
 **Linux/macOS:**
 ```bash
 cp -r .junie /your-project-root/
 ```
-
 **Windows (PowerShell):**
 ```powershell
 Copy-Item -Path .junie -Destination C:\your-project-root\ -Recurse
 ```
 
 ### 🚀 Usage
-1. **Slash Commands**: Junie supports custom slash commands for common tasks.
-   - `/review file="path/to/file.java"` — Review a file using the corresponding skill and guidelines.
-   - `/plan task="Describe your task here"` — Create a detailed implementation plan.
-2. **Guidelines**: Junie automatically reads `.junie/guidelines.md` at the start of a session. It uses these rules for all code generation and reviews.
-3. **Skills**: You can ask Junie to use a specific skill:
-   - *"Junie, use your Angular skill to review this component."*
+1. **Unified Commands**: `/review file="..."`, `/plan task="..."`, `/test-generate file="..."`, `/git-commit`, `/spec-init`, `/spec-plan task="..."`, `/spec-validate`
+2. **Guidelines**: Junie reads `.junie/guidelines.md` automatically for all code generation and reviews.
+3. **Skills**: Ask Junie to use a specific skill:
+   - *"Use your Angular skill to review this component."*
    - *"Check this Java code against the project standards."*
-   Junie will use the `agent_skill_read_doc` tool to read the corresponding `SKILL.md` from `.junie/skills/<name>/`.
 
 ---
 
 ## 🌊 Windsurf (Persistent Context)
 
-Windsurf uses **Memories** to maintain persistent context across sessions. It automatically loads all Markdown files in the `.windsurf/memories/` directory.
+Windsurf uses **Memories** in `.windsurf/memories/` for persistent context. Commands are defined in `commands-reference.md`.
 
 ### 📋 Setup
-For each new project, copy the `.windsurf/` folder:
+Copy the `.windsurf/` folder to your project:
 
 **Linux/macOS:**
 ```bash
-mkdir -p /your-project-root/.windsurf/memories
-cp .windsurf/memories/*.md /your-project-root/.windsurf/memories/
+cp -r .windsurf /your-project-root/
 ```
-
 **Windows (PowerShell):**
 ```powershell
-New-Item -Path C:\your-project-root\.windsurf\memories -ItemType Directory -Force
-Copy-Item -Path .windsurf\memories\*.md -Destination C:\your-project-root\.windsurf\memories\
+Copy-Item -Path .windsurf -Destination C:\your-project-root\ -Recurse
 ```
 
 ### 🚀 Usage
-Windsurf reads these files automatically. No manual command is needed. The agent will "remember" the coding standards, tech stack, and testing patterns defined in:
-- `tech-stack.md`
-- `coding-standards.md`
-- `testing-standards.md`
-- `spring-angular-patterns.md`
+Windsurf reads memory files automatically. Use the same unified commands:
+- `/review file="src/App.java"` — Windsurf follows instructions from `commands-reference.md`
+- `/spec-init` — Same behavior as Claude and Junie
+
+Memory files loaded automatically:
+- `commands-reference.md` — Unified command definitions
+- `tech-stack.md` — Project technology stack
+- `coding-standards.md` — Coding standards
+- `testing-standards.md` — Testing patterns
+- `spring-angular-patterns.md` — Framework patterns
+- `spec-kit-standards.md` — SDD methodology
 
 ---
 
 ## 🔄 Adding New Skills
-To add a new skill for all agents:
-1. **Scaffold**: Run `bash scripts/new-skill.sh <name>` or `.\scripts\new-skill.ps1 <name>`.
-2. **Populate**: Edit the generated files in `.junie/`, `.claude/`, and `.windsurf/`.
-3. **Deploy**: Run the `sync-claude` script to update Claude's global commands.
+1. **Scaffold**: `bash scripts/new-skill.sh <name>` or `.\scripts\new-skill.ps1 <name>`
+2. **Populate**: Edit generated files in `.junie/`, `.claude/`, and `.windsurf/`.
+3. **Deploy**: Run `sync-claude` script to update Claude's global commands.
 4. **Reference**: Always refer to the `global` skill for core engineering principles.

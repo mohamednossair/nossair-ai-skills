@@ -1,6 +1,5 @@
 # sync-claude.ps1
 # Deploys skills from .claude/skills/ to ~/.claude/skills/ (global Claude Code slash commands)
-# Run this whenever you add or update skills in .claude/skills/
 
 $ErrorActionPreference = "Stop"
 
@@ -27,20 +26,19 @@ $Files = Get-ChildItem -Path $SourceDir -Filter "*.md"
 foreach ($File in $Files) {
     Copy-Item -Path $File.FullName -Destination $DestDir -Force
     $SkillName = $File.BaseName
-    Write-Host "  ✓ /$SkillName"
+    Write-Host "  v /$SkillName"
     $Count++
 }
 
 Write-Host ""
 Write-Host "Done! Synced $Count skill(s) to Claude Code."
-Write-Host "Use them in Claude Code with: /java-review, /spring-api, /ts-review, etc."
 Write-Host ""
-Write-Host "--- Junie & Windsurf ---"
-Write-Host "These are project-specific. Copy to each project as needed:"
+Write-Host "--- Junie and Windsurf ---"
+Write-Host "These are project-specific. Copy to each project as needed."
 Write-Host ""
-Write-Host "  Junie (PowerShell):"
-Write-Host "    Copy-Item -Path '$RepoDir\.junie' -Destination 'C:\your-project\' -Recurse"
+Write-Host "Junie (PowerShell):"
+Write-Host "Copy-Item -Path '$RepoDir\.junie' -Destination 'C:\your-project\' -Recurse"
 Write-Host ""
-Write-Host "  Windsurf (PowerShell):"
-Write-Host "    Copy-Item -Path '$RepoDir\.windsurf' -Destination 'C:\your-project\' -Recurse"
+Write-Host "Windsurf (PowerShell):"
+Write-Host "Copy-Item -Path '$RepoDir\.windsurf' -Destination 'C:\your-project\' -Recurse"
 Write-Host ""
