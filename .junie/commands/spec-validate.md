@@ -24,5 +24,5 @@ Validate the Spec-Driven Development artifacts in `.spec/` directory.
 7. Check **Token Efficiency**:
    - Flag any prose paragraphs (should be bullet points)
    - Flag duplicate information across artifacts
-   - Flag vague constraints ("reasonable", "good", "clean")
+   - Flag vague constraints (`reasonable`, `good`, `clean`)
 8. Output a report grouped by: [Critical] | [Warning] | [Suggestion]

@@ -4,6 +4,11 @@
     <option name="explicitlyEnabledTechs">
       <set>
         <option value="junie.js" />
+        <option value="junie.java" />
+        <option value="junie.python" />
+        <option value="junie.ts" />
+        <option value="junie.markdown" />
+        <option value="junie.shell" />
       </set>
     </option>
   </component>

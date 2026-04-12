@@ -1,6 +1,10 @@
 ---
 name: spec-plan
 description: Generate technical plan and atomic tasks from an existing spec.
+arguments:
+  - name: task
+    description: Description of the feature or change to plan
+    required: true
 ---
 Analyze the task description: $task.
 1. Read `.spec/constitution.md` and `.spec/spec.md` to understand the project context.

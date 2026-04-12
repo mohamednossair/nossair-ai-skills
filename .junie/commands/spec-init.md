@@ -6,7 +6,7 @@ Create the SDD project structure for this project or workspace.
 1. Analyze the current workspace first: identify modules, apps, libraries, or sibling repositories and infer each role from folders, build files, and docs.
 2. Summarize the detected repository/module map and ask the user to confirm or correct it.
 3. Ask targeted follow-up questions for each repository or module: responsibilities, boundaries, forbidden changes, integration points, and best practices the AI must follow.
-4. If repository roles or rules are still unclear, stop and wait for the user's answers â€” do not invent them.
+4. If repository roles or rules are still unclear, stop and wait for the user's answers — do not invent them.
 5. Create `.spec/` directory with subdirectory `tasks/` only after the discovery answers are available.
 6. Generate `constitution.md` with sections: Tech Stack, Workspace Map, Module Selection Rules, Rules, Testing. Pre-fill from `.junie/guidelines.md` if available.
 7. In `constitution.md`, record which module/repository should be used for which kinds of changes so future AI agents write code in the correct place.
