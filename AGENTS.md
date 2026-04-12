@@ -1,6 +1,6 @@
 # Agent Usage Guide
 
-This document explains how to use the skills in this repository for each AI agent: Claude Code, Junie, and Windsurf, plus the shared JetBrains AI Assistant project rules.
+This document explains how to use the skills in this repository for each AI agent: Codex, Claude Code, Junie, and Windsurf, plus the shared JetBrains AI Assistant project rules.
 
 All agents share 7 unified commands with identical names and behavior. See the [README](./README.md) for the full command table.
 
@@ -21,7 +21,7 @@ All agents share 7 unified commands with identical names and behavior. See the [
 ---
 
 ## Setup: All Agents (Quick Start)
-Deploy Claude skills globally AND set up Junie, Windsurf, and AI Assistant project files for your project:
+Deploy Claude and Codex skills globally AND set up Junie, Windsurf, and AI Assistant project files for your project:
 
 **Linux/macOS:**
 ```bash
@@ -54,6 +54,44 @@ bash scripts/sync-claude.sh
 Type any command in Claude Code:
 - Unified: `/review`, `/plan`, `/test-generate`, `/git-commit`, `/spec-init`, `/spec-plan`, `/spec-validate`
 - Tech-specific: `/java-review`, `/spring-api`, `/ts-review`, `/python-review`, `/angular-component`, `/sql-review`, `/maven-help`
+
+---
+
+## Codex (Global Skills)
+
+Codex can use the existing `.junie/skills/` folders directly as installed global skills.
+
+### Setup and Deployment
+Sync the skills into `$CODEX_HOME/skills` (or `~/.codex/skills` if `CODEX_HOME` is not set):
+
+**Linux/macOS:**
+```bash
+bash scripts/sync-codex.sh
+```
+**Windows (PowerShell):**
+```powershell
+.\scripts\sync-codex.ps1
+```
+
+Restart Codex after syncing to pick up new skills.
+
+### Usage
+Codex auto-loads installed skills when the request matches their descriptions. Available skills include:
+- `global`
+- `java`
+- `spring-boot`
+- `typescript`
+- `python`
+- `angular`
+- `git`
+- `maven`
+- `oracle`
+- `mysql`
+- `junit`
+- `jest`
+- `spec-kit`
+
+The source of truth for Codex skills is `.junie/skills/`.
 
 ---
 
@@ -149,7 +187,7 @@ Workflow files (slash commands in `.windsurf/workflows/`):
 ## Adding New Skills
 1. Scaffold: `bash scripts/new-skill.sh <name>` or `.\scripts\new-skill.ps1 <name>`
 2. Populate: Edit generated files in `.junie/`, `.claude/`, and `.windsurf/`.
-3. Deploy: Run `sync-claude` script to update Claude's global commands.
+3. Deploy: Run `sync-claude` for Claude and `sync-codex` for Codex.
 4. Reference: Always refer to the `global` skill for core engineering principles.
 
 ## Maintenance Check

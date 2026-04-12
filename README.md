@@ -1,6 +1,6 @@
 # nossair-ai-skills
 
-Centralized repository for AI agent skills across Claude Code, Junie, and Windsurf, plus shared JetBrains AI Assistant project rules.
+Centralized repository for AI agent skills across Codex, Claude Code, Junie, and Windsurf, plus shared JetBrains AI Assistant project rules.
 Single source of truth: add a skill once, deploy to all agents.
 
 ## Tech Stack Covered
@@ -16,8 +16,8 @@ Global, Java, TypeScript, Python, Spring Boot, Angular, Maven, Git, Oracle, MySQ
 nossair-ai-skills/
 |-- .claude/skills/        <- Claude Code slash commands (global deploy)
 |-- .aiassistant/rules/    <- JetBrains AI Assistant project rules
-|-- .junie/                <- Junie Agent Skills and Coding Guidelines
-|   |-- skills/            <- Detailed skills folders per technology
+|-- .junie/                <- Junie Agent Skills and Codex-compatible skill sources
+|   |-- skills/            <- Detailed skill folders per technology
 |   |-- commands/          <- Junie CLI custom slash commands
 |   `-- guidelines.md      <- Project-wide coding standards
 |-- .windsurf/memories/    <- Windsurf persistent context and commands
@@ -39,7 +39,7 @@ For detailed agent-specific usage, see [AGENTS.md](./AGENTS.md).
 ## Setup: Deploy Skills to Your Agents
 
 ### 🚀 Quick Start: All Agents (Recommended)
-Install Claude Code skills globally AND set up Junie, Windsurf, and AI Assistant project files in one command:
+Install Claude Code and Codex skills globally AND set up Junie, Windsurf, and AI Assistant project files in one command:
 
 **Linux/macOS:**
 ```bash
@@ -61,6 +61,35 @@ bash scripts/sync-claude.sh
 ```powershell
 .\scripts\sync-claude.ps1
 ```
+
+### Codex (global, one-time)
+Codex can use the existing `.junie/skills/` folders directly. Sync them to `$CODEX_HOME/skills` (or `~/.codex/skills` if `CODEX_HOME` is not set):
+
+**Linux/macOS:**
+```bash
+bash scripts/sync-codex.sh
+```
+**Windows (PowerShell):**
+```powershell
+.\scripts\sync-codex.ps1
+```
+
+Restart Codex after syncing to pick up newly installed skills.
+
+Installed skills include:
+- `global`
+- `java`
+- `spring-boot`
+- `typescript`
+- `python`
+- `angular`
+- `git`
+- `maven`
+- `oracle`
+- `mysql`
+- `junit`
+- `jest`
+- `spec-kit`
 
 ### Junie (per project)
 **Linux/macOS:**
@@ -139,7 +168,8 @@ All commands work the same way across Claude Code, Junie, and Windsurf.
    - `.windsurf/memories/<tech>-standards.md` (Context memory)
 3. **Update Junie guidelines**: Add relevant rules to `.junie/guidelines.md`.
 4. **Re-sync Claude**: Run `bash scripts/sync-claude.sh` or `.\scripts\sync-claude.ps1`.
-5. **Add to Global** (optional): Update `.junie/skills/global/SKILL.md` for shared principles.
+5. **Re-sync Codex**: Run `bash scripts/sync-codex.sh` or `.\scripts\sync-codex.ps1`.
+6. **Add to Global** (optional): Update `.junie/skills/global/SKILL.md` for shared principles.
 
 ---
 
@@ -151,6 +181,15 @@ bash scripts/sync-claude.sh
 
 # Windows (PowerShell)
 .\scripts\sync-claude.ps1
+```
+
+Any time you update or add a `.junie/skills/` folder for Codex:
+```bash
+# Linux/macOS
+bash scripts/sync-codex.sh
+
+# Windows (PowerShell)
+.\scripts\sync-codex.ps1
 ```
 
 ## Validate Unified Command Parity

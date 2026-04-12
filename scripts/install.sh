@@ -2,7 +2,8 @@
 # install.sh
 # One-stop installation for all agents:
 # 1. Deploys Claude Code skills globally (~/.claude/skills/)
-# 2. Copies Junie, Windsurf, and AI Assistant project configuration to the target project
+# 2. Deploys Codex skills globally ($CODEX_HOME/skills or ~/.codex/skills)
+# 3. Copies Junie, Windsurf, and AI Assistant project configuration to the target project
 
 set -e
 
@@ -12,7 +13,10 @@ TARGET_PROJECT="$1"
 # 1. Deploy Claude Code Skills (Global)
 bash "$REPO_DIR/scripts/sync-claude.sh"
 
-# 2. Deploy Project-Specific Skills (if target project provided)
+# 2. Deploy Codex Skills (Global)
+bash "$REPO_DIR/scripts/sync-codex.sh"
+
+# 3. Deploy Project-Specific Skills (if target project provided)
 if [ -z "$TARGET_PROJECT" ]; then
   echo ""
   echo "Tip: To install Junie, Windsurf, and AI Assistant project files for a specific project, provide the path:"
@@ -42,4 +46,4 @@ else
   echo "Done! Junie, Windsurf, and AI Assistant project files installed to $TARGET_PROJECT."
 fi
 
-echo "All agents setup complete!"
+echo "All supported agents setup complete!"
