@@ -16,7 +16,7 @@ description: [One-line description shown in the /skill list — be specific]
 
 ## Output Format
 [Define the response structure clearly.]
-Group findings by severity: 🔴 Critical | 🟡 Warning | 🔵 Suggestion
+Group findings by severity: [Critical] | [Warning] | [Suggestion]
 Each entry must include:
 - **Location**: [File:line]
 - **Issue**: [What is wrong?]

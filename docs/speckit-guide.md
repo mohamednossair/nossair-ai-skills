@@ -130,25 +130,23 @@ Implement Task 01 from tasks/01-setup.md.
 
 ---
 
-## Agent-Specific Commands
+## Unified Commands Across All Agents
 
-### Junie
+Use the same Spec-Kit commands in Junie, Claude Code, and Windsurf:
+
 | Command | When to Use |
 |---------|-------------|
-| `/spec-init` | Start a new SDD project by mapping the workspace, asking for repository rules, then generating `.spec/` |
-| `/spec-task task="..."` | Break a spec into atomic AI-ready tasks |
-| `/spec-validate` | Validate all SDD artifacts for consistency and gaps |
-| `/review file="spec.md"` | Review any SDD artifact against best practices |
+| `/spec-init` | Start a new SDD project by mapping the workspace, asking for repository and module rules, then generating `.spec/` |
+| `/spec-plan task="..."` | Generate or update the technical plan and break the spec into atomic AI-ready task files |
+| `/spec-validate` | Validate all SDD artifacts for consistency, gaps, and token efficiency |
+| `/review file="spec.md"` | Review any specific SDD artifact against project standards and best practices |
 
-### Claude Code
-| Command | When to Use |
-|---------|-------------|
-| `/spec-kit-review` | Review and validate existing SDD artifacts |
-| `/spec-start` | Initialize SDD structure with constitution template |
-| `/spec-plan` | Generate technical plan from spec |
+### Agent Notes
+- **Junie**: Uses custom commands in `.junie/commands/`.
+- **Claude Code**: Uses slash command files in `.claude/skills/`.
+- **Windsurf**: Uses the same command definitions from `.windsurf/memories/commands-reference.md`.
 
-### Windsurf
-Automatically loads SDD rules from `.windsurf/memories/spec-kit-standards.md`. No commands needed — just follow the workflow above.
+Legacy names such as `/spec-task`, `/spec-start`, and `/spec-kit-review` are replaced by the unified commands above.
 
 ---
 
