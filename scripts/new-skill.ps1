@@ -12,6 +12,7 @@ $RepoDir = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Defini
 $JunieSkillDir = Join-Path $RepoDir ".junie\skills\$TechName"
 $ClaudeSkillFile = Join-Path $RepoDir ".claude\skills\$TechName-review.md"
 $WindsurfMemoryFile = Join-Path $RepoDir ".windsurf\memories\$TechName-standards.md"
+$WindsurfWorkflowFile = Join-Path $RepoDir ".windsurf\workflows\$TechName-review.md"
 
 # 1. Create Junie Skill folder and file
 if (-not (Test-Path $JunieSkillDir)) {
@@ -43,6 +44,24 @@ if (-not (Test-Path $WindsurfMemoryFile)) {
     Write-Host "  * Created Windsurf Memory: .windsurf\memories\$TechName-standards.md"
 } else {
     Write-Warning "  ! Windsurf Memory file already exists: $WindsurfMemoryFile"
+}
+
+# 4. Create Windsurf Workflow file
+if (-not (Test-Path $WindsurfWorkflowFile)) {
+    $CapTechName = $TechName.ToUpper().Substring(0,1) + $TechName.Substring(1)
+    $WorkflowContent = "---`ndescription: Review $CapTechName code using tech standards and guidelines`n---`n`n**Usage**: ``/$TechName-review file=`"path/to/file`"```"`n"
+    $WorkflowContent += "`n1. Identify $CapTechName-specific patterns and anti-patterns.`n"
+    $WorkflowContent += "2. Apply standards from ``.windsurf/memories/$TechName-standards.md`` and ``coding-standards.md``.`n"
+    $WorkflowContent += "3. Analyze: correctness, security, performance, readability, SOLID/DRY.`n"
+    $WorkflowContent += "4. Output findings grouped by: [Critical] | [Warning] | [Suggestion]`n"
+    $WorkflowContent += "   - **Location**: [File:line]`n"
+    $WorkflowContent += "   - **Issue**: [What is wrong]`n"
+    $WorkflowContent += "   - **Why**: [Impact]`n"
+    $WorkflowContent += "   - **Fix**: [Corrected code]`n"
+    $WorkflowContent | Out-File -FilePath $WindsurfWorkflowFile -Encoding utf8
+    Write-Host "  * Created Windsurf Workflow: .windsurf\workflows\$TechName-review.md"
+} else {
+    Write-Warning "  ! Windsurf Workflow file already exists: $WindsurfWorkflowFile"
 }
 
 Write-Host "`nSkill scaffolding complete for: $TechName"

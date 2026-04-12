@@ -82,9 +82,9 @@ Copy-Item -Path .junie -Destination C:\your-project-root\ -Recurse
 
 ---
 
-## Windsurf (Persistent Context)
+## Windsurf (Persistent Context + Workflows)
 
-Windsurf uses Memories in `.windsurf/memories/` for persistent context. Commands are defined in `commands-reference.md`.
+Windsurf uses Memories in `.windsurf/memories/` for persistent context and Workflows in `.windsurf/workflows/` for slash commands.
 
 ### Setup
 Copy the `.windsurf/` folder to your project:
@@ -110,6 +110,15 @@ Memory files loaded automatically:
 - `testing-standards.md` - Testing patterns
 - `spring-angular-patterns.md` - Framework patterns
 - `spec-kit-standards.md` - SDD methodology
+
+Workflow files (slash commands in `.windsurf/workflows/`):
+- `review.md` → `/review`
+- `plan.md` → `/plan`
+- `test-generate.md` → `/test-generate`
+- `git-commit.md` → `/git-commit`
+- `spec-init.md` → `/spec-init`
+- `spec-plan.md` → `/spec-plan`
+- `spec-validate.md` → `/spec-validate`
 
 ---
 

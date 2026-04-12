@@ -13,6 +13,7 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 JUNIE_SKILL_DIR="$REPO_DIR/.junie/skills/$TECH_NAME"
 CLAUDE_SKILL_FILE="$REPO_DIR/.claude/skills/$TECH_NAME-review.md"
 WINDSURF_MEMORY_FILE="$REPO_DIR/.windsurf/memories/$TECH_NAME-standards.md"
+WINDSURF_WORKFLOW_FILE="$REPO_DIR/.windsurf/workflows/$TECH_NAME-review.md"
 
 # Helper for title case
 CAP_TECH_NAME=$(echo "$TECH_NAME" | sed 's/./\U&/')
@@ -46,6 +47,30 @@ if [ ! -f "$WINDSURF_MEMORY_FILE" ]; then
     echo "  ✓ Created Windsurf Memory: .windsurf/memories/$TECH_NAME-standards.md"
 else
     echo "  ! Windsurf Memory file already exists: $WINDSURF_MEMORY_FILE"
+fi
+
+# 4. Create Windsurf Workflow file
+if [ ! -f "$WINDSURF_WORKFLOW_FILE" ]; then
+    mkdir -p "$(dirname "$WINDSURF_WORKFLOW_FILE")"
+    cat > "$WINDSURF_WORKFLOW_FILE" << EOF
+---
+description: Review $CAP_TECH_NAME code using tech standards and guidelines
+---
+
+**Usage**: \`/$TECH_NAME-review file="path/to/file"\`
+
+1. Identify $CAP_TECH_NAME-specific patterns and anti-patterns.
+2. Apply standards from \`.windsurf/memories/$TECH_NAME-standards.md\` and \`coding-standards.md\`.
+3. Analyze: correctness, security, performance, readability, SOLID/DRY.
+4. Output findings grouped by: [Critical] | [Warning] | [Suggestion]
+   - **Location**: [File:line]
+   - **Issue**: [What is wrong]
+   - **Why**: [Impact]
+   - **Fix**: [Corrected code]
+EOF
+    echo "  ✓ Created Windsurf Workflow: .windsurf/workflows/$TECH_NAME-review.md"
+else
+    echo "  ! Windsurf Workflow file already exists: $WINDSURF_WORKFLOW_FILE"
 fi
 
 echo -e "\nSkill scaffolding complete for: $TECH_NAME"
