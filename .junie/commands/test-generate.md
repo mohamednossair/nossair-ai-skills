@@ -13,5 +13,5 @@ Generate tests for $file.
 4. Apply AAA pattern (Arrange, Act, Assert) for all tests.
 5. Name tests: `should<Behavior>_when<Condition>`.
 6. Cover: happy path, edge cases, error paths.
-7. Use mocks/spies only for external dependencies — test real behavior.
+7. Use mocks/spies only for external dependencies - test real behavior.
 8. Output the complete test file ready to save.

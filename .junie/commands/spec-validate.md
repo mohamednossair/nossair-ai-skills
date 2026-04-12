@@ -4,7 +4,7 @@ description: Validate all SDD artifacts for consistency, gaps, and token efficie
 ---
 Validate the Spec-Driven Development artifacts in `.spec/` directory.
 1. Read all files: `constitution.md`, `spec.md`, `plan.md`, and all files in `tasks/`.
-2. Use the spec-kit skill from `.junie/skills/spec-kit/SKILL.md` as the validation reference.
+2. Use the `spec-kit` skill as the validation reference.
 3. Check **Constitution**:
    - Are all rules specific and actionable (not generic)?
    - Is the tech stack explicitly defined?
