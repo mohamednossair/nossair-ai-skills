@@ -91,6 +91,21 @@ foreach ($check in $checks) {
     }
 }
 
+$junieCommandPaths = $checks | ForEach-Object { Join-Path $RepoDir $_.Junie }
+foreach ($path in $junieCommandPaths) {
+    if (-not (Test-Path $path)) {
+        continue
+    }
+
+    $content = Get-Content -Raw -Path $path
+    if ($content -match '(?m)^name:') {
+        $failures.Add("Junie command uses unsupported 'name' frontmatter: $([System.IO.Path]::GetRelativePath($RepoDir, $path))")
+    }
+    if ($content -match '(?m)^arguments:') {
+        $failures.Add("Junie command uses unsupported 'arguments' frontmatter: $([System.IO.Path]::GetRelativePath($RepoDir, $path))")
+    }
+}
+
 if ($failures.Count -gt 0) {
     Write-Host 'Command parity check failed:' -ForegroundColor Red
     foreach ($failure in $failures) {

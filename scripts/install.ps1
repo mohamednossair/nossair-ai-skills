@@ -1,7 +1,7 @@
 # install.ps1
 # One-stop installation for all agents:
 # 1. Deploys Claude Code skills globally ($HOME\.claude\skills\)
-# 2. Copies Junie and Windsurf configurations to the target project
+# 2. Copies Junie, Windsurf, and AI Assistant project configuration to the target project
 
 $ErrorActionPreference = "Stop"
 
@@ -14,7 +14,7 @@ $TargetProject = $args[0]
 # 2. Deploy Project-Specific Skills (if target project provided)
 if (-not $TargetProject) {
     Write-Host ""
-    Write-Host "Tip: To install Junie & Windsurf skills for a specific project, provide the path:"
+    Write-Host "Tip: To install Junie, Windsurf, and AI Assistant project files for a specific project, provide the path:"
     Write-Host "  .\scripts\install.ps1 C:\path\to\your-project"
     Write-Host ""
 } else {
@@ -33,8 +33,12 @@ if (-not $TargetProject) {
     Write-Host "  Copying .windsurf..."
     Copy-Item -Path "$RepoDir\.windsurf" -Destination $TargetProject -Recurse -Force
 
+    # Copy .aiassistant
+    Write-Host "  Copying .aiassistant..."
+    Copy-Item -Path "$RepoDir\.aiassistant" -Destination $TargetProject -Recurse -Force
+
     Write-Host ""
-    Write-Host "Done! Junie and Windsurf skills installed to $TargetProject."
+    Write-Host "Done! Junie, Windsurf, and AI Assistant project files installed to $TargetProject."
 }
 
 Write-Host "All agents setup complete!"

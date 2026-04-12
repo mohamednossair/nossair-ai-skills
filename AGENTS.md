@@ -1,6 +1,6 @@
 # Agent Usage Guide
 
-This document explains how to use the skills in this repository for each AI agent: Claude Code, Junie, and Windsurf.
+This document explains how to use the skills in this repository for each AI agent: Claude Code, Junie, and Windsurf, plus the shared JetBrains AI Assistant project rules.
 
 All agents share 7 unified commands with identical names and behavior. See the [README](./README.md) for the full command table.
 
@@ -21,7 +21,7 @@ All agents share 7 unified commands with identical names and behavior. See the [
 ---
 
 ## Setup: All Agents (Quick Start)
-Deploy Claude skills globally AND set up Junie & Windsurf for your project:
+Deploy Claude skills globally AND set up Junie, Windsurf, and AI Assistant project files for your project:
 
 **Linux/macOS:**
 ```bash
@@ -59,7 +59,7 @@ Type any command in Claude Code:
 
 ## Junie (Agent Skills and Guidelines)
 
-Junie uses Agent Skills (via `agent_skill_read_doc`) and custom commands in `.junie/commands/`.
+Junie uses Agent Skills (via `agent_skill_read_doc`) and Junie custom slash commands in `.junie/commands/`.
 
 ### Setup
 Copy the `.junie/` folder to your project:
@@ -79,6 +79,30 @@ Copy-Item -Path .junie -Destination C:\your-project-root\ -Recurse
 3. Skills: Ask Junie to use a specific skill:
    - "Use your Angular skill to review this component."
    - "Check this Java code against the project standards."
+4. Important: `.junie/commands/` targets Junie custom slash commands. JetBrains AI Assistant prompt shortcuts are managed through the IDE Prompt Library and are not auto-loaded from this folder.
+
+---
+
+## JetBrains AI Assistant (Project Rules + Prompt Library)
+
+JetBrains AI Assistant can use shared project rules stored in `.aiassistant/rules/`.
+
+### Setup
+Copy the `.aiassistant/` folder to your project:
+
+**Linux/macOS:**
+```bash
+cp -r .aiassistant /your-project-root/
+```
+**Windows (PowerShell):**
+```powershell
+Copy-Item -Path .aiassistant -Destination C:\your-project-root\ -Recurse
+```
+
+### Usage
+1. Project rules: `.aiassistant/rules/*.md` provides project-shared guidance that JetBrains AI Assistant can use inside the IDE.
+2. Prompt Library: custom prompt shortcuts are still configured in the IDE Prompt Library and are not auto-loaded from `.junie/commands/`.
+3. Keep repo rules concise and project-specific so they are useful across chat and code actions.
 
 ---
 

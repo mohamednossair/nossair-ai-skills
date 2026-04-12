@@ -1,10 +1,5 @@
 ---
-name: review
 description: Review code in a file using the relevant skill and guidelines.
-arguments:
-  - name: file
-    description: Path to the file to review
-    required: true
 ---
 Review the code in $file.
 1. Identify the technology used (Java, TypeScript, Python, etc.) from the file extension.

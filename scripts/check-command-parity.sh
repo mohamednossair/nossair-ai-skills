@@ -32,6 +32,20 @@ for entry in "${checks[@]}"; do
   done
 done
 
+for entry in "${checks[@]}"; do
+  IFS='|' read -r _ _ junie _ _ <<< "$entry"
+  path="$REPO_DIR/$junie"
+  if [[ ! -f "$path" ]]; then
+    continue
+  fi
+  if grep -Eq '^name:' "$path"; then
+    failures+=("Junie command uses unsupported 'name' frontmatter: $junie")
+  fi
+  if grep -Eq '^arguments:' "$path"; then
+    failures+=("Junie command uses unsupported 'arguments' frontmatter: $junie")
+  fi
+done
+
 if (( ${#failures[@]} > 0 )); then
   echo "Command parity check failed:"
   for f in "${failures[@]}"; do

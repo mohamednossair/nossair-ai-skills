@@ -1,6 +1,6 @@
 # nossair-ai-skills
 
-Centralized repository for AI agent skills across Claude Code, Junie, and Windsurf.
+Centralized repository for AI agent skills across Claude Code, Junie, and Windsurf, plus shared JetBrains AI Assistant project rules.
 Single source of truth: add a skill once, deploy to all agents.
 
 ## Tech Stack Covered
@@ -15,9 +15,10 @@ Global, Java, TypeScript, Python, Spring Boot, Angular, Maven, Git, Oracle, MySQ
 ```
 nossair-ai-skills/
 |-- .claude/skills/        <- Claude Code slash commands (global deploy)
+|-- .aiassistant/rules/    <- JetBrains AI Assistant project rules
 |-- .junie/                <- Junie Agent Skills and Coding Guidelines
 |   |-- skills/            <- Detailed skills folders per technology
-|   |-- commands/          <- Junie custom slash commands
+|   |-- commands/          <- Junie CLI custom slash commands
 |   `-- guidelines.md      <- Project-wide coding standards
 |-- .windsurf/memories/    <- Windsurf persistent context and commands
 |-- templates/             <- Templates for new skills and commands
@@ -38,7 +39,7 @@ For detailed agent-specific usage, see [AGENTS.md](./AGENTS.md).
 ## Setup: Deploy Skills to Your Agents
 
 ### 🚀 Quick Start: All Agents (Recommended)
-Install Claude Code skills globally AND set up Junie & Windsurf for your project in one command:
+Install Claude Code skills globally AND set up Junie, Windsurf, and AI Assistant project files in one command:
 
 **Linux/macOS:**
 ```bash
@@ -70,6 +71,20 @@ cp -r .junie /your-project/
 ```powershell
 Copy-Item -Path .junie -Destination C:\your-project\ -Recurse
 ```
+
+> Note: `.junie/commands/` is loaded by Junie custom slash commands. JetBrains AI Assistant prompt shortcuts are configured separately through the IDE Prompt Library, so these files are not auto-imported there as generic prompts.
+
+### JetBrains AI Assistant (per project rules)
+**Linux/macOS:**
+```bash
+cp -r .aiassistant /your-project/
+```
+**Windows (PowerShell):**
+```powershell
+Copy-Item -Path .aiassistant -Destination C:\your-project\ -Recurse
+```
+
+> Note: `.aiassistant/rules/` provides shareable project rules for JetBrains AI Assistant. Prompt Library shortcuts are still managed manually inside the IDE.
 
 ### Windsurf (per project)
 **Linux/macOS:**
@@ -146,6 +161,16 @@ bash scripts/check-command-parity.sh
 
 # Windows (PowerShell)
 powershell -ExecutionPolicy Bypass -File scripts/check-command-parity.ps1
+```
+
+## Validate Installation Flow
+Run this after changing install scripts or project-scoped agent assets:
+```bash
+# Linux/macOS
+bash scripts/test-install.sh
+
+# Windows (PowerShell)
+powershell -ExecutionPolicy Bypass -File scripts/test-install.ps1
 ```
 
 CI integration:

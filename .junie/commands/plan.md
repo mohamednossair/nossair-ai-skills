@@ -1,10 +1,5 @@
 ---
-name: plan
 description: Create a detailed plan for a task or issue.
-arguments:
-  - name: task
-    description: Description of the task to plan
-    required: true
 ---
 Analyze the following task: $task.
 1. Break down the task into logical, actionable steps.

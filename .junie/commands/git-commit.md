@@ -1,5 +1,4 @@
 ---
-name: git-commit
 description: Generate a conventional commit message for current changes.
 ---
 Generate a commit message for the current staged or unstaged changes.

@@ -5,7 +5,8 @@ $ErrorActionPreference = "Stop"
 
 $RepoDir = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Definition)
 $SourceDir = Join-Path $RepoDir ".claude\skills"
-$DestDir = Join-Path $HOME ".claude\skills"
+$ClaudeHome = if ($env:HOME) { $env:HOME } else { $HOME }
+$DestDir = Join-Path $ClaudeHome ".claude\skills"
 
 if (-not (Test-Path $SourceDir)) {
     Write-Error "Error: Source directory not found: $SourceDir"
@@ -33,7 +34,7 @@ foreach ($File in $Files) {
 Write-Host ""
 Write-Host "Done! Synced $Count skill(s) to Claude Code."
 Write-Host ""
-Write-Host "--- Junie and Windsurf ---"
+Write-Host "--- Project-specific agent files ---"
 Write-Host "These are project-specific. Copy to each project as needed."
 Write-Host ""
 Write-Host "Junie (PowerShell):"
@@ -41,4 +42,7 @@ Write-Host "Copy-Item -Path '$RepoDir\.junie' -Destination 'C:\your-project\' -R
 Write-Host ""
 Write-Host "Windsurf (PowerShell):"
 Write-Host "Copy-Item -Path '$RepoDir\.windsurf' -Destination 'C:\your-project\' -Recurse"
+Write-Host ""
+Write-Host "AI Assistant project rules (PowerShell):"
+Write-Host "Copy-Item -Path '$RepoDir\.aiassistant' -Destination 'C:\your-project\' -Recurse"
 Write-Host ""

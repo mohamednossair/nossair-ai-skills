@@ -1,10 +1,5 @@
 ---
-name: test-generate
 description: Generate unit tests for provided code using the appropriate testing framework.
-arguments:
-  - name: file
-    description: Path to the file to generate tests for
-    required: true
 ---
 Generate tests for $file.
 1. Identify the technology from the file extension.

@@ -142,9 +142,12 @@ Use the same Spec-Kit commands in Junie, Claude Code, and Windsurf:
 | `/review file="spec.md"` | Review any specific SDD artifact against project standards and best practices |
 
 ### Agent Notes
-- **Junie**: Uses custom commands in `.junie/commands/`.
+- **Junie**: Uses Junie custom slash commands in `.junie/commands/`.
+- **JetBrains AI Assistant**: Can use shared project rules from `.aiassistant/rules/`; Prompt Library shortcuts are still configured in the IDE.
 - **Claude Code**: Uses slash command files in `.claude/skills/`.
 - **Windsurf**: Uses the same command definitions from `.windsurf/memories/commands-reference.md`.
+
+If you are using JetBrains AI Assistant prompt shortcuts instead of Junie custom slash commands, configure those in the IDE Prompt Library; they are not loaded from `.junie/commands/`.
 
 Legacy names such as `/spec-task`, `/spec-start`, and `/spec-kit-review` are replaced by the unified commands above.
 

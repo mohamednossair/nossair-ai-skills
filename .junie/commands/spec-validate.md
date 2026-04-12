@@ -1,5 +1,4 @@
 ---
-name: spec-validate
 description: Validate all SDD artifacts for consistency, gaps, and token efficiency.
 ---
 Validate the Spec-Driven Development artifacts in `.spec/` directory.

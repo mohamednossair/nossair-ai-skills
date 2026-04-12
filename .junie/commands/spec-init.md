@@ -1,5 +1,4 @@
 ---
-name: spec-init
 description: Initialize Spec-Driven Development structure from workspace analysis, repository rules, and templates.
 ---
 Create the SDD project structure for this project or workspace.
