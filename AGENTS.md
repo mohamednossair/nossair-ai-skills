@@ -20,6 +20,20 @@ All agents share 7 unified commands with identical names and behavior. See the [
 
 ---
 
+## Setup: All Agents (Quick Start)
+Deploy Claude skills globally AND set up Junie & Windsurf for your project:
+
+**Linux/macOS:**
+```bash
+bash scripts/install.sh /your-project-root/
+```
+**Windows (PowerShell):**
+```powershell
+.\scripts\install.ps1 C:\your-project-root\
+```
+
+---
+
 ## Claude Code (Slash Commands)
 
 Claude Code uses slash commands stored as Markdown files in `.claude/skills/`. Deploy globally to `~/.claude/skills/`.

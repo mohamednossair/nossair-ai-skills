@@ -22,6 +22,8 @@ nossair-ai-skills/
 |-- .windsurf/memories/    <- Windsurf persistent context and commands
 |-- templates/             <- Templates for new skills and commands
 |-- scripts/               <- Helper scripts
+|   |-- install.sh         <- Install all skills for all agents (unified)
+|   |-- install.ps1        <- Install all skills (PowerShell unified)
 |   |-- sync-claude.sh     <- Sync Claude commands globally
 |   |-- sync-claude.ps1    <- Sync Claude commands (PowerShell)
 |   |-- new-skill.sh       <- Scaffold a new skill across all agents
@@ -34,6 +36,20 @@ For detailed agent-specific usage, see [AGENTS.md](./AGENTS.md).
 ---
 
 ## Setup: Deploy Skills to Your Agents
+
+### 🚀 Quick Start: All Agents (Recommended)
+Install Claude Code skills globally AND set up Junie & Windsurf for your project in one command:
+
+**Linux/macOS:**
+```bash
+bash scripts/install.sh /your-project-root/
+```
+**Windows (PowerShell):**
+```powershell
+.\scripts\install.ps1 C:\your-project-root\
+```
+
+---
 
 ### Claude Code (global, one-time)
 **Linux/macOS:**
