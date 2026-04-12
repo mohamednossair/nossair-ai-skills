@@ -36,6 +36,14 @@ your-project/
 ## Tech Stack
 - Java 21, Spring Boot 3.3, PostgreSQL
 - Angular 20, Signals, Standalone Components
+## Workspace Map
+- `frontend/` — Angular UI and page composition
+- `backend-api/` — Spring APIs, validation, business rules
+- `shared-contracts/` — shared DTOs, schemas, generated clients
+## Module Selection Rules
+- UI behavior changes go to `frontend/`
+- API and domain logic go to `backend-api/`
+- Cross-repo contracts start in `shared-contracts/`
 ## Rules
 - No hardcoded secrets or URLs
 - All public methods must have tests
@@ -44,7 +52,7 @@ your-project/
 - JUnit 5 + Mockito + Testcontainers
 - Jest for Angular
 ```
-> **Tip**: Keep it under 30 lines. These are non-negotiable rules, not preferences.
+> **Tip**: Keep it concise. Capture non-negotiable rules plus a repo/module map so future AI agents choose the right module before writing code.
 
 ### Step 3: Write Spec for a Feature
 ```markdown
@@ -106,6 +114,7 @@ Give the AI: **Constitution + Task file only**. Not the entire spec.
 Use my constitution.md as project rules.
 Implement Task 01 from tasks/01-setup.md.
 ```
+> **Before Step 2**: If your workspace has multiple modules or repositories, make `/spec-init` inspect the workspace, summarize the detected roles, then ask you for missing ownership rules, boundaries, and best practices before it writes `constitution.md`. If anything is unclear, the agent should stop and ask instead of guessing.
 
 ---
 
@@ -126,7 +135,7 @@ Implement Task 01 from tasks/01-setup.md.
 ### Junie
 | Command | When to Use |
 |---------|-------------|
-| `/spec-init` | Start a new SDD project — generates `.spec/` folder and templates |
+| `/spec-init` | Start a new SDD project by mapping the workspace, asking for repository rules, then generating `.spec/` |
 | `/spec-task task="..."` | Break a spec into atomic AI-ready tasks |
 | `/spec-validate` | Validate all SDD artifacts for consistency and gaps |
 | `/review file="spec.md"` | Review any SDD artifact against best practices |
@@ -160,10 +169,11 @@ Automatically loads SDD rules from `.windsurf/memories/spec-kit-standards.md`. N
 
 ```
 1. INIT     → /spec-init or create .spec/ manually
-2. GUARD    → Write constitution.md (rules, stack, constraints)
-3. DEFINE   → Write spec.md (goals, non-goals, requirements)
-4. PLAN     → Write plan.md (architecture, data model, steps)
-5. BREAK    → Split into tasks/*.md (atomic, contextual)
-6. BUILD    → Feed AI: constitution + one task at a time
-7. VALIDATE → /spec-validate after each phase
+2. DISCOVER → Map modules/repos and confirm their roles
+3. GUARD    → Write constitution.md (rules, stack, routing constraints)
+4. DEFINE   → Write spec.md (goals, non-goals, requirements)
+5. PLAN     → Write plan.md (architecture, data model, steps)
+6. BREAK    → Split into tasks/*.md (atomic, contextual)
+7. BUILD    → Feed AI: constitution + one task at a time
+8. VALIDATE → /spec-validate after each phase
 ```

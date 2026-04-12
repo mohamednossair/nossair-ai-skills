@@ -14,7 +14,7 @@ All agents share 7 unified commands with identical names and behavior. See the [
 | `/plan` | Create a detailed implementation plan |
 | `/test-generate` | Generate unit tests (JUnit/Jest/pytest) |
 | `/git-commit` | Generate a conventional commit message |
-| `/spec-init` | Initialize SDD project structure |
+| `/spec-init` | Analyze the workspace, collect repository rules, and initialize SDD project structure |
 | `/spec-plan` | Generate technical plan and atomic tasks |
 | `/spec-validate` | Validate SDD artifacts for consistency |
 
