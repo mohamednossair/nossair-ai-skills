@@ -1,7 +1,7 @@
 ---
-description: Write a conventional commit message for current staged or unstaged changes
+description: Create a conventional commit for current staged or unstaged changes
 ---
-Write a git commit message for the changes described or shown. Follow Conventional Commits format strictly.
+Create a git commit for the changes described or shown. Follow Conventional Commits format strictly.
 
 ## Format
 ```
@@ -28,6 +28,13 @@ Write a git commit message for the changes described or shown. Follow Convention
 - Body: explain motivation and context, not mechanics
 - Breaking changes: add `BREAKING CHANGE:` footer or `!` after type: `feat!:`
 
+## Workflow
+1. Run `git status --short`, `git diff --stat`, `git diff --cached`, and `git diff`.
+2. If there is nothing to commit, say so and stop.
+3. Determine the best Conventional Commit type and scope from the changes.
+4. Stage the intended files if needed.
+5. Run `git commit` with the generated message, adding a body when helpful.
+
 ## Examples
 ```
 feat(auth): add JWT refresh token rotation
@@ -47,4 +54,4 @@ Reproduces when user registers without a display name field.
 refactor(order): extract price calculation to PriceCalculator service
 ```
 
-Output only the commit message - no explanation around it.
+Output only the created commit hash and final commit message.

@@ -138,7 +138,7 @@ All commands work the same way across Claude Code, Junie, and Windsurf.
 | `/review` | Review code using relevant tech skill and guidelines | `/review file="src/App.java"` |
 | `/plan` | Create a detailed implementation plan for a task | `/plan task="Add user auth"` |
 | `/test-generate` | Generate unit tests (JUnit/Jest/pytest) | `/test-generate file="src/Service.java"` |
-| `/git-commit` | Generate a conventional commit message | `/git-commit` |
+| `/git-commit` | Create a conventional commit for current changes | `/git-commit` |
 | `/spec-init` | Analyze the workspace, collect repository rules, and initialize SDD project structure | `/spec-init` |
 | `/spec-plan` | Generate technical plan and atomic tasks from spec | `/spec-plan task="User profile API"` |
 | `/spec-validate` | Validate SDD artifacts for consistency and efficiency | `/spec-validate` |

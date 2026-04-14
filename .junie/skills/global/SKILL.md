@@ -12,6 +12,12 @@ Use this skill for all code reviews and development tasks to ensure high-quality
 - **YAGNI (You Ain't Gonna Need It)**: Don't implement features until they are actually needed.
 - **Clean Code**: Meaningful names, small functions, no side effects, self-documenting code.
 
+## LLM Behavioral Guidelines
+- **Think Before Coding**: State assumptions explicitly, surface tradeoffs, and ask when requirements are unclear.
+- **Simplicity First**: Prefer the minimum code that solves the problem; avoid speculative features and unnecessary abstractions.
+- **Surgical Changes**: Touch only what is required for the task, keep changes tightly scoped, and match the surrounding style.
+- **Goal-Driven Execution**: Turn vague requests into verifiable outcomes, ideally with a failing test or concrete success criteria before implementation.
+
 ## Guidelines
 
 ### Naming Conventions

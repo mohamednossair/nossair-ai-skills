@@ -39,7 +39,8 @@ $checks = @(
         Junie = '.junie/commands/git-commit.md'
         Windsurf = '.windsurf/memories/commands-reference.md'
         Patterns = @(
-            'Output only the commit message'
+            'run `git commit`',
+            'created commit hash and final commit message'
         )
     },
     @{
