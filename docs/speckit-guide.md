@@ -109,10 +109,9 @@ See: spec.md#Data-Model, constitution.md#Tech-Stack
 ```
 
 ### Step 6: Feed to AI
-Give the AI: **Constitution + Task file only**. Not the entire spec.
+Give the AI: **Constitution + Task file only**. Not the entire spec. The unified command for this is `/spec-implement`.
 ```
-Use my constitution.md as project rules.
-Implement Task 01 from tasks/01-setup.md.
+/spec-implement task=".spec/tasks/01-setup.md"
 ```
 > **Before Step 2**: If your workspace has multiple modules or repositories, make `/spec-init` inspect the workspace, summarize the detected roles, then ask you for missing ownership rules, boundaries, and best practices before it writes `constitution.md`. If anything is unclear, the agent should stop and ask instead of guessing.
 
@@ -138,6 +137,7 @@ Use the same Spec-Kit commands in Junie, Claude Code, and Windsurf:
 |---------|-------------|
 | `/spec-init` | Start a new SDD project by mapping the workspace, asking for repository and module rules, then generating `.spec/` |
 | `/spec-plan task="..."` | Generate or update the technical plan and break the spec into atomic AI-ready task files |
+| `/spec-implement task="..."` | Implement a single generated task file using `constitution.md` as the execution guardrail |
 | `/spec-validate` | Validate all SDD artifacts for consistency, gaps, and token efficiency |
 | `/review file="spec.md"` | Review any specific SDD artifact against project standards and best practices |
 
@@ -175,6 +175,6 @@ Legacy names such as `/spec-task`, `/spec-start`, and `/spec-kit-review` are rep
 4. DEFINE   → Write spec.md (goals, non-goals, requirements)
 5. PLAN     → Write plan.md (architecture, data model, steps)
 6. BREAK    → Split into tasks/*.md (atomic, contextual)
-7. BUILD    → Feed AI: constitution + one task at a time
+7. BUILD    → /spec-implement task=".spec/tasks/01-setup.md"
 8. VALIDATE → /spec-validate after each phase
 ```

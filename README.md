@@ -141,6 +141,7 @@ All commands work the same way across Claude Code, Junie, and Windsurf.
 | `/git-commit` | Create a conventional commit for current changes | `/git-commit` |
 | `/spec-init` | Analyze the workspace, collect repository rules, and initialize SDD project structure | `/spec-init` |
 | `/spec-plan` | Generate technical plan and atomic tasks from spec | `/spec-plan task="User profile API"` |
+| `/spec-implement` | Implement one generated Spec-Kit task with constitution-guided scope | `/spec-implement task=".spec/tasks/01-setup.md"` |
 | `/spec-validate` | Validate SDD artifacts for consistency and efficiency | `/spec-validate` |
 
 ### Additional Claude Code Tech-Review Commands

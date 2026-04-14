@@ -1,6 +1,6 @@
 #!/bin/bash
 # check-command-parity.sh
-# Verifies the 7 unified command contracts stay aligned across Claude, Junie, and Windsurf.
+# Verifies the 8 unified command contracts stay aligned across Claude, Junie, and Windsurf.
 
 set -euo pipefail
 
@@ -14,6 +14,8 @@ checks=(
   "git-commit-result|.claude/skills/git-commit.md|.junie/commands/git-commit.md|.windsurf/memories/commands-reference.md|created commit hash and final commit message"
   "spec-init|.claude/skills/spec-init.md|.junie/commands/spec-init.md|.windsurf/memories/commands-reference.md|constitution.md"
   "spec-plan|.claude/skills/spec-plan.md|.junie/commands/spec-plan.md|.windsurf/memories/commands-reference.md|Coverage matrix: requirement -> task mapping"
+  "spec-implement|.claude/skills/spec-implement.md|.junie/commands/spec-implement.md|.windsurf/memories/commands-reference.md|Changed files"
+  "spec-implement-result|.claude/skills/spec-implement.md|.junie/commands/spec-implement.md|.windsurf/memories/commands-reference.md|Remaining blockers or follow-up tasks"
   "spec-validate|.claude/skills/spec-validate.md|.junie/commands/spec-validate.md|.windsurf/memories/commands-reference.md|\\[Critical\\] \\| \\[Warning\\] \\| \\[Suggestion\\]"
 )
 

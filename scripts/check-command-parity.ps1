@@ -1,5 +1,5 @@
 # check-command-parity.ps1
-# Verifies the 7 unified command contracts stay aligned across Claude, Junie, and Windsurf.
+# Verifies the 8 unified command contracts stay aligned across Claude, Junie, and Windsurf.
 
 $ErrorActionPreference = 'Stop'
 
@@ -59,6 +59,16 @@ $checks = @(
         Windsurf = '.windsurf/memories/commands-reference.md'
         Patterns = @(
             'Coverage matrix: requirement -> task mapping'
+        )
+    },
+    @{
+        Name = 'spec-implement'
+        Claude = '.claude/skills/spec-implement.md'
+        Junie = '.junie/commands/spec-implement.md'
+        Windsurf = '.windsurf/memories/commands-reference.md'
+        Patterns = @(
+            'Changed files',
+            'Remaining blockers or follow-up tasks'
         )
     },
     @{

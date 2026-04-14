@@ -2,7 +2,7 @@
 
 This document explains how to use the skills in this repository for each AI agent: Codex, Claude Code, Junie, and Windsurf, plus the shared JetBrains AI Assistant project rules.
 
-All agents share 7 unified commands with identical names and behavior. See the [README](./README.md) for the full command table.
+All agents share 8 unified commands with identical names and behavior. See the [README](./README.md) for the full command table.
 
 ---
 
@@ -16,6 +16,7 @@ All agents share 7 unified commands with identical names and behavior. See the [
 | `/git-commit` | Create a conventional commit for current changes |
 | `/spec-init` | Analyze the workspace, collect repository rules, and initialize SDD project structure |
 | `/spec-plan` | Generate technical plan and atomic tasks |
+| `/spec-implement` | Implement one generated Spec-Kit task |
 | `/spec-validate` | Validate SDD artifacts for consistency |
 
 ---
@@ -52,7 +53,7 @@ bash scripts/sync-claude.sh
 
 ### Usage
 Type any command in Claude Code:
-- Unified: `/review`, `/plan`, `/test-generate`, `/git-commit`, `/spec-init`, `/spec-plan`, `/spec-validate`
+- Unified: `/review`, `/plan`, `/test-generate`, `/git-commit`, `/spec-init`, `/spec-plan`, `/spec-implement`, `/spec-validate`
 - Tech-specific: `/java-review`, `/spring-api`, `/ts-review`, `/python-review`, `/angular-component`, `/sql-review`, `/maven-help`
 
 ---
@@ -112,7 +113,7 @@ Copy-Item -Path .junie -Destination C:\your-project-root\ -Recurse
 ```
 
 ### Usage
-1. Unified Commands: `/review file="..."`, `/plan task="..."`, `/test-generate file="..."`, `/git-commit`, `/spec-init`, `/spec-plan task="..."`, `/spec-validate`
+1. Unified Commands: `/review file="..."`, `/plan task="..."`, `/test-generate file="..."`, `/git-commit`, `/spec-init`, `/spec-plan task="..."`, `/spec-implement task="..."`, `/spec-validate`
 2. Guidelines: Junie reads `.junie/guidelines.md` automatically for all code generation and reviews.
 3. Skills: Ask Junie to use a specific skill:
    - "Use your Angular skill to review this component."
@@ -180,6 +181,7 @@ Workflow files (slash commands in `.windsurf/workflows/`):
 - `git-commit.md` → `/git-commit`
 - `spec-init.md` → `/spec-init`
 - `spec-plan.md` → `/spec-plan`
+- `spec-implement.md` → `/spec-implement`
 - `spec-validate.md` → `/spec-validate`
 
 ---
