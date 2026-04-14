@@ -13,11 +13,15 @@ All agents share 8 unified commands with identical names and behavior. See the [
 | `/review` | Review code using relevant tech skill and guidelines |
 | `/plan` | Create a detailed implementation plan |
 | `/test-generate` | Generate unit tests (JUnit/Jest/pytest) |
-| `/git-commit` | Create a conventional commit for current changes |
+| `/git-commit` | Create a work branch if needed, then a conventional commit for current changes |
 | `/spec-init` | Analyze the workspace, collect repository rules, and initialize SDD project structure |
 | `/spec-plan` | Generate technical plan and atomic tasks |
 | `/spec-implement` | Implement one generated Spec-Kit task |
 | `/spec-validate` | Validate SDD artifacts for consistency |
+
+Git workflow note:
+- `/git-commit` should create a dedicated branch with `git switch -c <branch-name>` when invoked from `main`, `master`, or `develop`.
+- Branch names should use `feature/`, `bugfix/`, `docs/`, or `chore/`, and include a Bitbucket/Jira issue ID only when one is clearly available.
 
 ---
 

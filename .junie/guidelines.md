@@ -78,6 +78,11 @@ These are the standing coding standards and preferences to follow in all work on
 - Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `perf`, `style`
 - Imperative mood, max 72 chars, no trailing period
 
+## Git Branching
+- Before committing work from `main`, `master`, or `develop`, create a dedicated branch with `git switch -c <branch-name>` so local changes remain attached to that branch.
+- Prefer branch prefixes `feature/`, `bugfix/`, `docs/`, or `chore/` based on the nature of the work.
+- Include a Bitbucket/Jira issue ID in the branch name only when one is clearly available; otherwise use a descriptive slug without an ID.
+
 ## Testing
 - **JUnit 5 (Java)**: AAA pattern, `@ExtendWith(MockitoExtension.class)`, AssertJ assertions
 - **Jest (TypeScript/Angular)**: AAA pattern, `jest.spyOn()` for mocks, `jest.clearAllMocks()` in `beforeEach()`
