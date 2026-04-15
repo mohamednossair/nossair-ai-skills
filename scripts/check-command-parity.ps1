@@ -1,5 +1,5 @@
 # check-command-parity.ps1
-# Verifies the 8 unified command contracts stay aligned across Claude, Junie, and Windsurf.
+# Verifies the 4 unified command contracts stay aligned across Claude, Junie, and Windsurf.
 
 $ErrorActionPreference = 'Stop'
 
@@ -41,43 +41,6 @@ $checks = @(
         Patterns = @(
             'run `git commit`',
             'created commit hash and final commit message'
-        )
-    },
-    @{
-        Name = 'spec-init'
-        Claude = '.claude/skills/spec-init.md'
-        Junie = '.junie/commands/spec-init.md'
-        Windsurf = '.windsurf/memories/commands-reference.md'
-        Patterns = @(
-            'constitution\.md'
-        )
-    },
-    @{
-        Name = 'spec-plan'
-        Claude = '.claude/skills/spec-plan.md'
-        Junie = '.junie/commands/spec-plan.md'
-        Windsurf = '.windsurf/memories/commands-reference.md'
-        Patterns = @(
-            'Coverage matrix: requirement -> task mapping'
-        )
-    },
-    @{
-        Name = 'spec-implement'
-        Claude = '.claude/skills/spec-implement.md'
-        Junie = '.junie/commands/spec-implement.md'
-        Windsurf = '.windsurf/memories/commands-reference.md'
-        Patterns = @(
-            'Changed files',
-            'Remaining blockers or follow-up tasks'
-        )
-    },
-    @{
-        Name = 'spec-validate'
-        Claude = '.claude/skills/spec-validate.md'
-        Junie = '.junie/commands/spec-validate.md'
-        Windsurf = '.windsurf/memories/commands-reference.md'
-        Patterns = @(
-            '\[Critical\] \| \[Warning\] \| \[Suggestion\]'
         )
     }
 )

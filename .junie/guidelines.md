@@ -92,14 +92,6 @@ These are the standing coding standards and preferences to follow in all work on
 - Use Testcontainers for real database testing
 - Do not write tests only for coverage — test behavior
 
-## Spec-Driven Development (SDD)
-- **Spec-First approach**: No code implementation until `constitution.md`, `spec.md`, and `plan.md` are validated.
-- **Intent over Implementation**: Clear specifications define the "what" and "why" before the "how".
-- **Phased Workflow**: Sequential progression (Constitution -> Spec -> Plan -> Tasks -> Code).
-- **Validation Gates**: Each phase must be analyzed for consistency and feasibility before moving to the next.
-- **Task Breakdown**: Break implementation into atomic, executable tasks in `tasks/*.md`.
-- **Token Efficiency**: Use concise technical language, bullet points, and avoid verbose paragraphs in all SDD artifacts.
-
 ## General Engineering
 - **Follow SOLID, DRY, and Clean Code principles** (See `.junie/skills/global/SKILL.md` for details).
 - **Guard clauses (early return)** over nested `if` blocks.

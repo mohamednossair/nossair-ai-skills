@@ -4,9 +4,8 @@ Centralized repository for AI agent skills across Codex, Claude Code, Junie, and
 Single source of truth: add a skill once, deploy to all agents.
 
 ## Tech Stack Covered
-Global, Java, TypeScript, Python, Spring Boot, Angular, Maven, Git, Oracle, MySQL, JUnit, Jest, Spec-Kit (SDD)
+Global, Java, TypeScript, Python, Spring Boot, Angular, Maven, Git, Oracle, MySQL, JUnit, Jest
 
-[Spec-Kit Usage Guide](./docs/speckit-guide.md): Step-by-step guide for token-efficient AI development with SDD.
 
 ---
 
@@ -89,7 +88,6 @@ Installed skills include:
 - `mysql`
 - `junit`
 - `jest`
-- `spec-kit`
 
 ### Junie (per project)
 **Linux/macOS:**
@@ -139,10 +137,6 @@ All commands work the same way across Claude Code, Junie, and Windsurf.
 | `/plan` | Create a detailed implementation plan for a task | `/plan task="Add user auth"` |
 | `/test-generate` | Generate unit tests (JUnit/Jest/pytest) | `/test-generate file="src/Service.java"` |
 | `/git-commit` | Create a work branch if needed, then a conventional commit for current changes | `/git-commit` |
-| `/spec-init` | Analyze the workspace, collect repository rules, and initialize SDD project structure | `/spec-init` |
-| `/spec-plan` | Generate technical plan and atomic tasks from spec | `/spec-plan task="User profile API"` |
-| `/spec-implement` | Implement one generated Spec-Kit task with constitution-guided scope | `/spec-implement task=".spec/tasks/01-setup.md"` |
-| `/spec-validate` | Validate SDD artifacts for consistency and efficiency | `/spec-validate` |
 
 Git workflow note:
 - `/git-commit` should create a dedicated branch with `git switch -c <branch-name>` when invoked from `main`, `master`, or `develop`.

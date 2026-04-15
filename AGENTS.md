@@ -2,7 +2,7 @@
 
 This document explains how to use the skills in this repository for each AI agent: Codex, Claude Code, Junie, and Windsurf, plus the shared JetBrains AI Assistant project rules.
 
-All agents share 8 unified commands with identical names and behavior. See the [README](./README.md) for the full command table.
+All agents share 4 unified commands with identical names and behavior. See the [README](./README.md) for the full command table.
 
 ---
 
@@ -14,10 +14,6 @@ All agents share 8 unified commands with identical names and behavior. See the [
 | `/plan` | Create a detailed implementation plan |
 | `/test-generate` | Generate unit tests (JUnit/Jest/pytest) |
 | `/git-commit` | Create a work branch if needed, then a conventional commit for current changes |
-| `/spec-init` | Analyze the workspace, collect repository rules, and initialize SDD project structure |
-| `/spec-plan` | Generate technical plan and atomic tasks |
-| `/spec-implement` | Implement one generated Spec-Kit task |
-| `/spec-validate` | Validate SDD artifacts for consistency |
 
 Git workflow note:
 - `/git-commit` should create a dedicated branch with `git switch -c <branch-name>` when invoked from `main`, `master`, or `develop`.
@@ -57,7 +53,7 @@ bash scripts/sync-claude.sh
 
 ### Usage
 Type any command in Claude Code:
-- Unified: `/review`, `/plan`, `/test-generate`, `/git-commit`, `/spec-init`, `/spec-plan`, `/spec-implement`, `/spec-validate`
+- Unified: `/review`, `/plan`, `/test-generate`, `/git-commit`
 - Tech-specific: `/java-review`, `/spring-api`, `/ts-review`, `/python-review`, `/angular-component`, `/sql-review`, `/maven-help`
 
 ---
@@ -94,7 +90,6 @@ Codex auto-loads installed skills when the request matches their descriptions. A
 - `mysql`
 - `junit`
 - `jest`
-- `spec-kit`
 
 The source of truth for Codex skills is `.junie/skills/`.
 
@@ -117,7 +112,7 @@ Copy-Item -Path .junie -Destination C:\your-project-root\ -Recurse
 ```
 
 ### Usage
-1. Unified Commands: `/review file="..."`, `/plan task="..."`, `/test-generate file="..."`, `/git-commit`, `/spec-init`, `/spec-plan task="..."`, `/spec-implement task="..."`, `/spec-validate`
+1. Unified Commands: `/review file="..."`, `/plan task="..."`, `/test-generate file="..."`, `/git-commit`
 2. Guidelines: Junie reads `.junie/guidelines.md` automatically for all code generation and reviews.
 3. Skills: Ask Junie to use a specific skill:
    - "Use your Angular skill to review this component."
@@ -168,7 +163,6 @@ Copy-Item -Path .windsurf -Destination C:\your-project-root\ -Recurse
 ### Usage
 Windsurf reads memory files automatically. Use the same unified commands:
 - `/review file="src/App.java"` - Windsurf follows instructions from `commands-reference.md`
-- `/spec-init` - Same behavior as Claude and Junie
 
 Memory files loaded automatically:
 - `commands-reference.md` - Unified command definitions
@@ -176,17 +170,12 @@ Memory files loaded automatically:
 - `coding-standards.md` - Coding standards
 - `testing-standards.md` - Testing patterns
 - `spring-angular-patterns.md` - Framework patterns
-- `spec-kit-standards.md` - SDD methodology
 
 Workflow files (slash commands in `.windsurf/workflows/`):
 - `review.md` → `/review`
 - `plan.md` → `/plan`
 - `test-generate.md` → `/test-generate`
 - `git-commit.md` → `/git-commit`
-- `spec-init.md` → `/spec-init`
-- `spec-plan.md` → `/spec-plan`
-- `spec-implement.md` → `/spec-implement`
-- `spec-validate.md` → `/spec-validate`
 
 ---
 
