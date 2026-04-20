@@ -45,3 +45,12 @@ When the user invokes any of these commands, follow the instructions exactly.
 9. Rules: imperative mood, max 72 chars, no trailing period.
 10. Stage the intended files if needed, then run `git commit`.
 11. Output only the created commit hash and final commit message.
+
+## /speckit.document-generate
+**Usage**: `/speckit.document-generate module="<module-name>" [project="<project-name>"] [output="docs/ba/<module-name>.md"]`
+1. Read any existing `.spec/spec.md`, `.spec/plan.md`, or `docs/` files for context.
+2. Ask the user for module name, project name, and domain if not provided via parameters.
+3. Generate a structured BA document at `docs/ba/<module-name>.md` (or the `output` path) with all 15 required sections:
+   Executive Summary, Business Goals, Stakeholders, Scope, Business Context (As-Is / To-Be / Flow), Functional Requirements (user stories), Business Rules, Use Cases, Acceptance Criteria, Key Entities & Data Dictionary, KPIs & Reporting, Assumptions & Constraints, Risks & Open Questions, Glossary, Revision History.
+4. Fill every section; use `TBD` for unknowns — never omit a section.
+5. Confirm the output path, list any `TBD` sections, and suggest `/speckit.specify` as a follow-up to convert the BA doc into a technical spec.

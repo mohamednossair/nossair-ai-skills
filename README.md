@@ -89,6 +89,8 @@ Installed skills include:
 - `junit`
 - `jest`
 
+ - `speckit`
+
 ### Junie (per project)
 **Linux/macOS:**
 ```bash
@@ -141,6 +143,18 @@ All commands work the same way across Claude Code, Junie, and Windsurf.
 Git workflow note:
 - `/git-commit` should create a dedicated branch with `git switch -c <branch-name>` when invoked from `main`, `master`, or `develop`.
 - Branch names should use `feature/`, `bugfix/`, `docs/`, or `chore/`, and include a Bitbucket/Jira issue ID only when one is clearly available.
+
+### Speckit Toolkit (Spec → Plan → Tasks → Validate/Analyze → Implement)
+
+Available as Junie commands and Windsurf workflows, and as a Codex skill:
+- `/speckit.specify feature="..."` — captures goals, NFRs, ACs, glossary/data model, risks. Prompts to create/switch to a `feature/spec/<id>-<slug>` branch before writing.
+- `/speckit.clarify context="..."` — generates up to 5 targeted questions.
+- `/speckit.plan spec="..."` — milestones with DoD, dependencies, owners.
+- `/speckit.tasks plan="..."` — dependency-ordered tasks with DoD, estimates, risk flags.
+- `/speckit.validate spec="..." plan="..." tasks="..."` — cross-artifact checks and traceability.
+- `/speckit.analyze spec="..." plan="..." tasks="..."` — automated gap detection and prioritized fixes.
+- `/speckit.implement tasks="..."` — dependency-ordered execution runbook with branch/commit/test/review gates.
+- `/speckit.document-generate module="..." [project="..."] [output="docs/ba/<module>.md"]` — generate a full Business Analysis document (BA) for a module under `docs/ba/`.
 
 ### Additional Claude Code Tech-Review Commands
 

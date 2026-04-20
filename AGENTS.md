@@ -90,6 +90,7 @@ Codex auto-loads installed skills when the request matches their descriptions. A
 - `mysql`
 - `junit`
 - `jest`
+ - `speckit`
 
 The source of truth for Codex skills is `.junie/skills/`.
 
@@ -176,6 +177,15 @@ Workflow files (slash commands in `.windsurf/workflows/`):
 - `plan.md` → `/plan`
 - `test-generate.md` → `/test-generate`
 - `git-commit.md` → `/git-commit`
+ - `speckit.specify.md` → `/speckit.specify`
+ - `speckit.plan.md` → `/speckit.plan`
+ - `speckit.tasks.md` → `/speckit.tasks`
+ - `speckit.validate.md` → `/speckit.validate`
+ - `speckit.clarify.md` → `/speckit.clarify`
+ - `speckit.checklist.md` → `/speckit.checklist`
+ - `speckit.analyze.md` → `/speckit.analyze`
+ - `speckit.implement.md` → `/speckit.implement`
+ - `speckit.document-generate.md` → `/speckit.document-generate`
 
 ---
 
