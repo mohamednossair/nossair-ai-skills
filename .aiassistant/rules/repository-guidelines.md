@@ -1,3 +1,7 @@
+---
+apply: always
+---
+
 # JetBrains AI Assistant Project Rules
 
 - This repository maintains shared AI workflows for Claude Code, Junie, Windsurf, and JetBrains AI Assistant project rules.

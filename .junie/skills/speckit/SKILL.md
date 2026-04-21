@@ -16,7 +16,7 @@ Use this skill to create concise specs, convert them into actionable plans and t
 - /speckit.checklist: Produce a short, verifiable review checklist from requirements.
  - /speckit.analyze: Automated cross-artifact analysis and gap detection.
  - /speckit.implement: Produce a dependency-ordered execution runbook with test/review gates.
-- /speckit.document-generate: Generate a full Business Analysis (BA) document for a module, stored under docs/ba/.
+- /speckit.document-generate: Reverse-engineer a Business Analysis (BA) document set from the current codebase -- no manual writing required.
 
 ## Usage Patterns
 - Keep artifacts brief and outcome-focused.
