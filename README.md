@@ -155,6 +155,7 @@ Available as Junie commands and Windsurf workflows, and as a Codex skill:
 - `/speckit.analyze spec="..." plan="..." tasks="..."` — automated gap detection and prioritized fixes.
 - `/speckit.implement tasks="..."` — dependency-ordered execution runbook with branch/commit/test/review gates.
 - `/speckit.document-generate module="..." [project="..."] [output="docs/ba/<module>.md"]` — generate a full Business Analysis document (BA) for a module under `docs/ba/`.
+- `/speckit.test-generate file="..." [spec="..."] [ac="AC-1,AC-2"]` — generate spec-linked unit tests (JUnit/Jest/pytest) with AC traceability annotations.
 
 ### Additional Claude Code Tech-Review Commands
 

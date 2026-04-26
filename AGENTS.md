@@ -186,6 +186,7 @@ Workflow files (slash commands in `.windsurf/workflows/`):
  - `speckit.analyze.md` → `/speckit.analyze`
  - `speckit.implement.md` → `/speckit.implement`
  - `speckit.document-generate.md` → `/speckit.document-generate`
+ - `speckit.test-generate.md` → `/speckit.test-generate`
 
 ---
 
