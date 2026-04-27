@@ -154,7 +154,7 @@ Available as Junie commands and Windsurf workflows, and as a Codex skill:
 - `/speckit.validate spec="..." plan="..." tasks="..."` — cross-artifact checks and traceability.
 - `/speckit.analyze spec="..." plan="..." tasks="..."` — automated gap detection and prioritized fixes.
 - `/speckit.implement tasks="..."` — dependency-ordered execution runbook with branch/commit/test/review gates.
-- `/speckit.document-generate module="..." [project="..."] [output="docs/ba/<module>.md"]` — generate a full Business Analysis document (BA) for a module under `docs/ba/`.
+- `/speckit.document-generate module="..." [project="..."] [parts="..."]` — generate a 10-file Business Analysis document set under `docs/ba/<module>/` (README + 01-overview through 09-page-catalog). Always unified — treats all sub-projects as one system.
 - `/speckit.test-generate file="..." [spec="..."] [ac="AC-1,AC-2"]` — generate spec-linked unit tests (JUnit/Jest/pytest) with AC traceability annotations.
 
 ### Additional Claude Code Tech-Review Commands

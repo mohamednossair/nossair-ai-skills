@@ -47,10 +47,18 @@ When the user invokes any of these commands, follow the instructions exactly.
 11. Output only the created commit hash and final commit message.
 
 ## /speckit.document-generate
-**Usage**: `/speckit.document-generate module="<module-name>" [project="<project-name>"] [output="docs/ba/<module-name>.md"]`
-1. Read any existing `.spec/spec.md`, `.spec/plan.md`, or `docs/` files for context.
-2. Ask the user for module name, project name, and domain if not provided via parameters.
-3. Generate a structured BA document at `docs/ba/<module-name>.md` (or the `output` path) with all 15 required sections:
-   Executive Summary, Business Goals, Stakeholders, Scope, Business Context (As-Is / To-Be / Flow), Functional Requirements (user stories), Business Rules, Use Cases, Acceptance Criteria, Key Entities & Data Dictionary, KPIs & Reporting, Assumptions & Constraints, Risks & Open Questions, Glossary, Revision History.
-4. Fill every section; use `TBD` for unknowns — never omit a section.
-5. Confirm the output path, list any `TBD` sections, and suggest `/speckit.specify` as a follow-up to convert the BA doc into a technical spec.
+**Usage**: `/speckit.document-generate module="<module-name>" [project="<project-name>"] [parts="<path1>, <path2>, <path3>"]`
+
+> **IMPORTANT**: This command has a detailed workflow file. Follow **`.windsurf/workflows/speckit.document-generate.md`** for the complete step-by-step instructions. The summary below is for quick reference only — the workflow file is the source of truth.
+
+**Quick summary:**
+1. Always unified — treats all sub-projects (frontend, backend, admin) as one integrated system.
+2. Frontend-first approach: screens and user actions define the structure.
+3. Full independent backend extraction: read every method, every rule, every role.
+4. Pause and confirm discovered business picture with the user before generating.
+5. Build per-page extraction plan for every screen (buttons, fields, rules, errors).
+6. Generate **10 files** in `docs/ba/<module-name>/`: `README.md` + `01-overview.md` through `09-page-catalog.md`.
+7. `09-page-catalog.md` = complete per-page business reference (every button, field, rule, backend rule, error per screen).
+8. Strict hard ban on technical jargon in output — plain business language only.
+9. Quality checks cross-verify every screen, rule, and action across all files before saving.
+10. Output confirmation with counts: journeys, screens, rules, buttons, fields, errors.
