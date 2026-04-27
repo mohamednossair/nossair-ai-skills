@@ -9,17 +9,19 @@ description: Reverse-engineer a Business Analysis document set from the current 
 Generate a useful Business Analysis document for the **active project** by extracting business meaning from the source code.
 
 **Goals:**
-- Explain what the system does in business terms
-- Help humans understand the project quickly
+- Explain what the system does in business terms — for a product owner, not a developer
+- Help humans understand the project quickly through user journeys and screen-by-screen walkthroughs
 - Help AI plan and perform tasks correctly
-- Give business analysts and product owners a clear, readable project summary
+- Give business analysts and product owners a clear, readable project summary they can act on immediately
 
 **Guiding principles:**
+- **Frontend first**: if a frontend exists, treat it as the primary source of business truth — screens and user actions define the structure
+- **User journeys first, screens inside**: group everything around end-to-end user journeys; list the screens and steps inside each journey
 - Focus on **business behavior**, not implementation details
 - Translate technical code into **plain business language**
+- **NEVER include** in any output file: API endpoint URLs (e.g. `/api/users`), class names, method names, DTO/entity names, framework terms (e.g. "controller", "service", "repository", "component", "hook"), HTTP verbs, or database table names. These are **strictly forbidden** in all prose, tables, and lists
 - Mark anything that cannot be inferred from code as `TBD` -- never leave a section blank
 - Keep output structured, practical, and based on code evidence
-- Do not include code-level detail unless it is necessary to explain a business behavior
 - Make the output readable for: business analysts, product owners, and AI planning/task-execution agents
 - The final document must be understandable by a non-technical product owner with no explanation
 
@@ -28,58 +30,97 @@ Generate a useful Business Analysis document for the **active project** by extra
 ## Steps
 
 ### 1. Discover Project Structure
+
 - **Determine the active project root**: use the git root of the file the user has open (or the workspace folder that was explicitly active when the command was invoked). If ambiguous, ask the user which workspace to use BEFORE proceeding.
 - **Scope ONLY to that single project root.** Do NOT read, list, or reference files from any other open workspace, sibling workspace, or parent directory. Ignore any other projects visible in the IDE workspace layout.
-- Detect whether the project has:
-  - A **backend** only (single repo)
-  - A **frontend** only (single repo)
-  - **Both** in the same repo (monorepo) or as sibling directories
-- If `frontend` or `backend` parameters are provided, use those paths. Otherwise auto-detect by looking for:
+- **Check for a frontend first** — this is mandatory:
+  - Frontend indicators: `src/app/`, `src/components/`, `pages/`, `angular.json`, `package.json` with a UI framework dependency (Angular, React, Vue, etc.)
+  - If `frontend` parameter is provided, use that path
+- Then check for a backend:
   - Backend indicators: `src/main/java`, `src/main/kotlin`, `controllers/`, `routes/`, `app.py`, `Program.cs`
-  - Frontend indicators: `src/app/`, `src/components/`, `pages/`, `angular.json`, `package.json` with a framework dependency
+  - If `backend` parameter is provided, use that path
+- Record what was found: Frontend only / Backend only / Both
 
 ### 2. Read and Extract Business Meaning from Code
 
-Scan and read the codebase in order of priority. **Translate everything into business language** -- avoid technical jargon in the output. Identify:
-- Business goals and purpose of the system
-- Main users / stakeholders and their roles
-- Screens and user actions (what users can do)
-- Backend processes and APIs (what the system does)
-- Business rules and validations (what is enforced)
-- Data entities and important fields (what data is managed)
-- Reporting or KPI needs (how success is measured)
-- Assumptions, risks, and open questions
+**If a frontend exists, start here.** The frontend defines the user's reality — screens, journeys, and actions. The backend is used only to fill in business rules, data details, and constraints that the frontend does not reveal.
 
-For each layer, extract the listed signals (read in the order shown -- Specs/Docs first, then API, then logic, then data):
+**Translate everything into plain business language** — what the user sees, does, and gets as a result. Never extract technical details into the output.
 
-#### Backend
-| Layer | What to Read | Signals to Extract |
-|-------|-------------|-------------------|
+#### Step A — Frontend (Primary Source, always first if present)
+
+Read in this order and extract only business signals:
+
+| Layer | What to Read | Business Signals to Extract (translate, do not copy) |
+|-------|-------------|------------------------------------------------------|
+| Routing / Pages | Route files, page folder names | Screen names and navigation paths (translate to plain names: "User List Screen", "Order Detail Screen") |
+| Access Control | Auth guards, role guards | Who can access which screen (translate to role names: "Administrator", "Sales Manager") |
+| Forms & Inputs | Reactive forms, form validation | What information the user fills in; what the system requires before accepting it |
+| Screen Interactions | Page components, feature components | What actions the user can perform on each screen (buttons, selections, searches) |
+| State & Data Shown | State/store, data bindings | What information is displayed to the user on each screen |
+
+From the frontend, build:
+1. **Screen inventory** — a plain-language list of every screen the user can visit, grouped by role/access
+2. **User journey map** — group screens into end-to-end journeys (e.g. "Place an Order", "Manage Users", "Review Reports"). Each journey is a named goal a user can accomplish from start to finish
+3. **User actions per screen** — for each screen, what can the user do?
+4. **Validation rules visible to the user** — what does the system tell the user when input is wrong?
+
+#### Step B — Backend (Secondary Source, fills in what the frontend does not reveal)
+
+Read backend files only to extract:
+
+| Layer | What to Read | Business Signals to Extract (translate, do not copy) |
+|-------|-------------|------------------------------------------------------|
 | Specs/Docs | `.spec/spec.md`, `.spec/plan.md`, `docs/` | Existing requirements, constraints |
-| API | Controllers, routes, REST/GraphQL endpoints | Operations, HTTP methods, URL patterns, request/response shapes |
-| Business Logic | Services, use cases, command/query handlers | Flows, decisions, business rules |
-| Data | Entities, models, DTOs, DB schemas, migrations | Entities, fields, relationships, constraints |
-| Security | Security config, roles, guards, JWT claims | Actors, permissions, access rules |
-| Config | `application.properties`, `application.yml`, env files | Defaults, limits, integration targets |
+| Business Logic | Services, use cases, command/query handlers | Business rules enforced by the system, decisions made automatically |
+| Data | Entities, models, DB schemas, migrations | What data is stored; translate field names to plain business labels |
+| Security | Security config, roles, JWT claims | Roles and what each role is allowed to do |
+| Config | `application.properties`, `application.yml`, env files | Limits, defaults (translate: "Maximum file size: 10 MB", not "MAX_UPLOAD_BYTES=10485760") |
 | Tests | Unit and integration tests | Business intent, edge cases, acceptance signals |
 | Comments | TODO, FIXME, HACK | Risks, open questions, known gaps |
 
-#### Frontend
-| Layer | What to Read | Signals to Extract |
-|-------|-------------|-------------------|
-| Routing | `app-routing.module.ts`, `router/index.js`, `pages/` | Screens/pages, navigation flows, route guards |
-| Components | Page and feature components | UI interactions, forms, user actions |
-| Services/HTTP | API service files, HTTP client calls | Which backend endpoints are consumed, request payloads |
-| State/Store | Redux, NgRx, Vuex, signals, context | Data the UI depends on, state transitions |
-| Forms | Reactive forms, validation decorators | Input rules, field constraints from the user's perspective |
-| Guards | Auth guards, role guards | Who can access which screen |
+**Do NOT extract from backend**: endpoint URLs, HTTP methods, class names, method names, DTO names, framework terms. These must not appear anywhere in the output.
 
-#### Cross-Layer Correlation
-After reading both sides, **map frontend to backend**:
-- Match each frontend HTTP call to its backend endpoint.
-- Map each UI screen/component to the business use case it supports.
-- Compare DTO fields returned by API vs. fields bound in UI components/forms.
-- Flag mismatches: UI calls endpoint that does not exist, endpoint exists but unused by UI, field gaps.
+#### Step C — Cross-Layer Correlation (Both present)
+
+After reading both sides, identify:
+- Which screens support which user journeys
+- What information the user sees on screen vs. what the system actually stores (flag gaps)
+- Business rules enforced only in the backend that the user never sees explained
+- Screens that exist in the frontend but have no corresponding backend behavior (flag as risk)
+- Backend capabilities that no screen exposes to the user (flag as potential missing feature)
+
+**If only frontend exists**: document what can be inferred from screens and forms; mark backend-dependent sections `TBD`.
+**If only backend exists**: derive journeys from business logic and data flows; mark screen-level sections `TBD`.
+
+### 2.5 Pause and Confirm — User Journey Review (REQUIRED when frontend exists)
+
+**Before generating any file**, present the following to the user and wait for confirmation:
+
+```
+## Discovered User Journeys and Screens
+
+I found the following in [project name]:
+
+### User Journeys
+| # | Journey Name | Who Does This | Screens Involved |
+|---|-------------|---------------|-----------------|
+| 1 | <plain-language journey name> | <Role> | <Screen 1>, <Screen 2> |
+
+### Screens Inventory
+| Screen Name | Who Can Access It | Main Actions Available |
+|-------------|------------------|----------------------|
+| <Screen Name> | <Role(s)> | <action 1>, <action 2> |
+
+### Open Questions Before I Generate
+- <Any ambiguity found — e.g. "Found a screen with no clear role access — should it be available to all users?">
+
+**Please confirm, correct, or add to this list before I generate the full document set.**
+Type 'ok' to proceed, or tell me what to change.
+```
+
+Only proceed to Step 3 after the user confirms.
+**Exception**: if no frontend exists (backend-only project), skip this pause and proceed directly.
 
 ### 3. Determine Output Directory
 - Default directory: `<current-project-root>/docs/ba/<module-name>/`
@@ -109,6 +150,16 @@ At the end of Step 4, report per file: `CREATED`, `UPDATED (sections: ...)`, or 
 - Every table row and bullet must say something real -- no placeholder text left in the final output.
 - Use `TBD` only when the code gives no evidence at all, and add a note explaining what is missing.
 - Navigation links: first line `[<- Back to Index](./README.md)`, last line prev/next (first file: no Previous; last file: no Next).
+- **Hard ban — never write any of the following anywhere in the output files:**
+  - API endpoint URLs (e.g. `/api/users`, `/v1/orders`)
+  - HTTP methods (GET, POST, PUT, DELETE, PATCH)
+  - Class names, method names, function names (e.g. `UserService`, `createOrder()`)
+  - DTO or entity names (e.g. `UserDTO`, `OrderEntity`)
+  - Framework or library terms (e.g. "controller", "service bean", "repository", "component", "hook", "reducer", "selector", "interceptor", "module")
+  - Database or table names (e.g. `users_table`, `tbl_orders`)
+  - Config key names (e.g. `spring.datasource.url`, `JWT_SECRET`)
+  - If any such term is the only way to identify something, translate it: `UserController` → "User Management feature", `/api/orders` → "the order submission process"
+- **Structure use cases and flows around user journeys** — each journey is a named goal (e.g. "Register a New Customer", "Approve a Purchase Request"). Screens are steps inside a journey, not top-level items.
 
 ---
 
@@ -205,24 +256,35 @@ List each goal as a plain statement, not a technical requirement.>
 # 2. Scope & Context -- <Module Name>
 
 ## 2.1 What Is Included (In Scope)
-<List every feature or capability that is implemented and working, based on code evidence.
-Write as user-facing capabilities, not endpoint names.>
+<List every capability the user can do, based on what the screens and business logic reveal.
+Write as user-facing capabilities using plain language — no endpoint names, no feature flags, no class names.>
 - ...
 
 ## 2.2 How the System Works Today (As-Is)
-<Describe the current state in business terms. What happens when a user interacts with the system?
-Write as a short narrative, not a technical description.>
+<Describe the current state in business terms. What can a user do when they log in? What are the main areas of the system?
+Write as a short narrative a product owner can read in under a minute. No technical description.>
 
-## 2.3 End-to-End Business Flow
-<Write one named flow per distinct user role found in the codebase. Label each flow as shown below.
-If only one role exists, write one flow. Focus on WHAT happens (not HOW it happens technically).>
+## 2.3 User Journeys and End-to-End Business Flows
 
-### Flow: <Role> — <Goal>
-1. The user opens the <screen name> screen.
-2. The user <performs action>.
-3. The system validates <what> and <does what>.
-4. The system saves / retrieves <data description>.
-5. The user sees <result>.
+<Write one journey per distinct end-to-end goal a user can accomplish.
+Each journey starts with a user intent and ends with a business outcome.
+Group the screens the user visits inside the journey as numbered steps.
+Focus on WHAT the user does and WHAT the system does for them — not HOW it works technically.
+Example journey name: "Register a New Supplier", "Approve a Leave Request", "Submit a Monthly Report".>
+
+### Journey: <Plain-language name of what the user is trying to accomplish> — <Role who does this>
+
+**Goal**: <One sentence — what the user wants to achieve by the end of this journey.>
+**Starting point**: <Where does the user begin? e.g. "The user opens the Dashboard and clicks 'New Order'">
+
+| Step | Screen | What the User Does | What the System Does |
+|------|--------|--------------------|---------------------|
+| 1 | <Screen Name> | <plain action, e.g. "Selects a customer from the list"> | <plain result, e.g. "Loads the customer's existing orders"> |
+| 2 | <Screen Name> | <plain action> | <plain result> |
+| 3 | <Screen Name> | <plain action, e.g. "Reviews the summary and clicks Submit"> | <plain result, e.g. "Saves the order and sends a confirmation to the customer"> |
+
+**End result**: <What has changed for the user or the business after this journey completes?>
+**What if something goes wrong**: <What does the user see if a step fails? e.g. "The system shows an error message and keeps the user on the same screen.">
 
 ---
 [<- Previous: Overview](./01-overview.md) | [-> Next: Requirements](./03-requirements.md)
@@ -265,22 +327,29 @@ Example: "A user cannot submit the form without a valid email address.">
 
 # 4. Use Cases -- <Module Name>
 
-<Each use case is a complete story of one user achieving one goal. Write it so a product owner can read it,
-understand what the system does, and decide whether it meets business needs.>
+<Each use case is a complete story of one user achieving one end-to-end goal (a journey).
+Screens are listed as steps inside the journey — not as separate use cases.
+Write it so a product owner can read it, walk through it mentally, and decide whether it meets business needs.
+No technical terms, endpoint names, class names, or framework words anywhere in this file.>
 
-## UC-01: <Plain-language name of what the user is trying to achieve>
-- **Who does this**: <Role in plain business language, e.g. "Sales Manager", "Customer", "Administrator">
-- **Starting point**: <Which screen or entry point does the user start from?>
-- **Before they can start**: <What must be true first? e.g. "The user must be logged in", "A record must already exist">
-- **What happens step by step**:
-  1. The user opens <screen> and sees <what>.
-  2. The user <fills in / selects / clicks> <what>.
-  3. The system checks <what rule or condition>.
-  4. The system saves / retrieves / sends <what data>.
-  5. The user sees <result or confirmation>.
-- **What if something goes wrong**: <What does the user see if validation fails or an error occurs?>
-- **Business value**: <What business goal does this use case advance? e.g. "Reduces manual data entry time", "Enables compliance with X regulation".>
-- **End result**: <What has changed after this use case completes? What can the user do next?>
+## UC-01: <Plain-language name of the user's goal, e.g. "Register a New Customer", "Submit a Monthly Expense Report">
+
+- **Who does this**: <Role in plain business language, e.g. "Sales Manager", "Customer", "Procurement Officer">
+- **What they want to achieve**: <One sentence — the business outcome the user is trying to get to.>
+- **Before they can start**: <What must be true first? e.g. "The user must be signed in", "A product catalogue must already be set up">
+- **Screens visited in this journey**:
+
+| Step | Screen | What the User Does Here | What the System Does |
+|------|--------|------------------------|---------------------|
+| 1 | <Screen Name, e.g. "Dashboard"> | <e.g. "Clicks 'Add New Customer'"> | <e.g. "Opens the customer registration form with empty fields"> |
+| 2 | <Screen Name, e.g. "Customer Registration"> | <e.g. "Fills in name, email, phone, and company name, then clicks Save"> | <e.g. "Checks that the email is not already registered and saves the customer record"> |
+| 3 | <Screen Name, e.g. "Customer List"> | <e.g. "Reviews the updated list and confirms the new customer appears"> | <e.g. "Displays the full customer list with the new entry at the top"> |
+
+- **What if something goes wrong**:
+  - <Scenario 1: e.g. "If the email is already in use, the system highlights the email field and shows a message asking the user to use a different address.">
+  - <Scenario 2: e.g. "If the user leaves a required field empty, the system prevents saving and marks the missing fields.">
+- **Business value**: <What business goal does completing this use case advance? e.g. "Allows the sales team to onboard new customers without manual paperwork.">
+- **End result**: <What has changed for the business after this use case completes? e.g. "A new customer record is available for the sales team to create orders against.">
 
 ---
 [<- Previous: Requirements](./03-requirements.md) | [-> Next: Acceptance Criteria](./05-acceptance-criteria.md)
@@ -405,21 +474,32 @@ A product owner should be able to look up any term they encounter in this docume
 ```
 
 ### 5. Quality Checks Before Saving
+
+**Hard-ban check (scan every generated file before saving):**
+- Search for: `/api/`, `/v1/`, `Controller`, `Service`, `Repository`, `Entity`, `DTO`, `GET `, `POST `, `PUT `, `DELETE `, `PATCH `, `component`, `hook`, `reducer`, `selector`, `interceptor`, `tbl_`, `_table`
+- If any of these are found in prose, table cells, or bullet points — rewrite that item in plain business language before saving.
+
+**Content checks:**
 - Every section filled from code evidence -- not left blank without reason.
 - Use `TBD` only when no code evidence exists for that section -- never leave a section blank.
 - Language must be **plain business language** -- no class names, method signatures, or framework jargon in prose sections.
 - User stories follow `As a / I want / So that` format and include screen reference.
-- Business rules note whether enforced in frontend, backend, or both, and include rule type.
-- Use cases trace the full path: UI screen -> HTTP call -> backend service -> data layer, and include business value.
-- Field mapping table in `06-data-reporting.md` must flag any mismatches found.
-- Glossary translates frontend component names and backend class names into business language.
+- Business rules note whether enforced in frontend, backend, or both, and include rule type (Policy / Compliance / Technical Default / UX Constraint).
+- Use cases are structured as user journeys — each UC traces the screens visited, what the user does at each screen, and what the system does in response. No technical trace (no endpoint → service → DB chain).
+- Field mapping table in `06-data-reporting.md` describes what the user sees vs. what the system stores — no column/field names from code.
+- Glossary translates screen names, feature names, and any domain terms into plain business meaning.
 - Every file has `[<- Back to Index]` at top and prev/next navigation at bottom.
 - The final document must be understandable by a non-technical product owner with no explanation.
 
 ### 6. Output Confirmation
-- List all 8 files created with their full paths.
-- Summarize key findings: entities found, endpoints mapped, UI screens identified, roles detected, mismatches flagged.
-- List sections left as `TBD` and explain what code evidence is missing.
+- List all 8 files created with their full paths and status (CREATED / UPDATED / SKIPPED).
+- Summarize key findings in business language:
+  - User journeys identified (list names)
+  - Screens discovered (count and list)
+  - User roles found (list plain names)
+  - Business rules captured (count)
+  - Mismatches flagged (count and brief description)
+- List sections left as `TBD` and explain what information is missing (in plain language — not "no entity found" but "no data structure could be identified for this section").
 - Suggest follow-ups:
   - `/speckit.specify feature="..."` to convert this BA doc set into a technical spec.
   - `/speckit.document-generate module="..."` to generate a BA doc set for another module.
