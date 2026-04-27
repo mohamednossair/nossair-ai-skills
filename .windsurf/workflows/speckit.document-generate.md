@@ -43,66 +43,92 @@ Generate a useful Business Analysis document for the **active project** by extra
 
 ### 2. Read and Extract Business Meaning from Code
 
-**If a frontend exists, start here.** The frontend defines the user's reality — screens, journeys, and actions. The backend is used only to fill in business rules, data details, and constraints that the frontend does not reveal.
+**Reading discipline — this is mandatory:**
+- Do NOT skim. Read every file in each layer listed below, one by one.
+- For every file you read, ask: "What business action, rule, or data does this file reveal?" Write the answer before moving to the next file.
+- Do not stop after finding the obvious screens or main flows. Keep reading until you have covered every file in the project.
+- If a file seems purely technical (e.g. a config loader, a logger setup), still check it for business limits, defaults, or constraints before skipping.
+- Depth required: for every service/logic file, read **every individual method or function** and ask what business decision or action it performs. A service with 10 methods = 10 potential business rules to extract.
 
 **Translate everything into plain business language** — what the user sees, does, and gets as a result. Never extract technical details into the output.
 
 #### Step A — Frontend (Primary Source, always first if present)
 
-Read in this order and extract only business signals:
+List every file you will read before you start. Then read each one and record what business signal it gives.
 
-| Layer | What to Read | Business Signals to Extract (translate, do not copy) |
-|-------|-------------|------------------------------------------------------|
-| Routing / Pages | Route files, page folder names | Screen names and navigation paths (translate to plain names: "User List Screen", "Order Detail Screen") |
-| Access Control | Auth guards, role guards | Who can access which screen (translate to role names: "Administrator", "Sales Manager") |
-| Forms & Inputs | Reactive forms, form validation | What information the user fills in; what the system requires before accepting it |
-| Screen Interactions | Page components, feature components | What actions the user can perform on each screen (buttons, selections, searches) |
-| State & Data Shown | State/store, data bindings | What information is displayed to the user on each screen |
+| Layer | What to Read — read EVERY file, not just the first one found | Business Signals to Extract (translate, do not copy) |
+|-------|--------------------------------------------------------------|------------------------------------------------------|
+| Routing / Pages | **Every** route file and every page/folder name | Every screen name and navigation path — translate to plain names: "User List Screen", "Order Detail Screen" |
+| Access Control | **Every** auth guard and role guard file | Who can access which screen — translate to role names: "Administrator", "Sales Manager" |
+| Forms & Inputs | **Every** form file, every validation rule, every field definition | Every piece of information the user fills in; every rule the system enforces on that input |
+| Screen Interactions | **Every** page component and feature component | Every button, action, selection, search, and trigger available to the user on each screen |
+| State & Data Shown | **Every** store, state slice, context, and data binding | Every piece of information displayed to the user — what they see, what they can filter/sort |
+| Error & Empty States | Error messages, empty state text, toast/snackbar messages | What the system tells the user when something goes wrong or is empty |
 
-From the frontend, build:
-1. **Screen inventory** — a plain-language list of every screen the user can visit, grouped by role/access
-2. **User journey map** — group screens into end-to-end journeys (e.g. "Place an Order", "Manage Users", "Review Reports"). Each journey is a named goal a user can accomplish from start to finish
-3. **User actions per screen** — for each screen, what can the user do?
-4. **Validation rules visible to the user** — what does the system tell the user when input is wrong?
+After reading ALL frontend files, produce:
+1. **Screen inventory** — every screen, grouped by role. Must be exhaustive — if you found 12 screens, list all 12.
+2. **User journey map** — group screens into named end-to-end goals. Every screen must belong to at least one journey.
+3. **User actions per screen** — for every screen, every action available (not just the main one).
+4. **All validation rules visible to the user** — every error message and constraint the user can encounter.
+5. **All statuses and states shown** — every status label, badge, or state the user sees (e.g. "Pending", "Approved", "Rejected").
 
-#### Step B — Backend (Secondary Source, fills in what the frontend does not reveal)
+#### Step B — Backend (Full Independent Extraction)
 
-Read backend files only to extract:
+List every file you will read before you start. Then read each one. Do not stop early.
 
-| Layer | What to Read | Business Signals to Extract (translate, do not copy) |
-|-------|-------------|------------------------------------------------------|
-| Specs/Docs | `.spec/spec.md`, `.spec/plan.md`, `docs/` | Existing requirements, constraints |
-| Business Logic | Services, use cases, command/query handlers | Business rules enforced by the system, decisions made automatically |
-| Data | Entities, models, DB schemas, migrations | What data is stored; translate field names to plain business labels |
-| Security | Security config, roles, JWT claims | Roles and what each role is allowed to do |
-| Config | `application.properties`, `application.yml`, env files | Limits, defaults (translate: "Maximum file size: 10 MB", not "MAX_UPLOAD_BYTES=10485760") |
-| Tests | Unit and integration tests | Business intent, edge cases, acceptance signals |
-| Comments | TODO, FIXME, HACK | Risks, open questions, known gaps |
+Read the backend **completely and independently** — not just to fill frontend gaps. Extract every business capability, rule, and data object the system has, whether or not the frontend exposes it.
 
-**Do NOT extract from backend**: endpoint URLs, HTTP methods, class names, method names, DTO names, framework terms. These must not appear anywhere in the output.
+| Layer | What to Read — read EVERY file, not just the obvious ones | Business Signals to Extract (translate, do not copy) |
+|-------|-----------------------------------------------------------|------------------------------------------------------|
+| Specs/Docs | Every `.spec/`, `docs/`, `README` file | Requirements, constraints, stated business goals |
+| Business Logic | **Every method in every service/use-case/handler file** | Each method = one potential business rule or action. Ask: "What decision does this method make? What does it allow or prevent?" |
+| Data | **Every entity, model, schema, migration, and enum/constant file** | Every data object (translate name to business label), every field that matters, every status/state enum translated to plain values (e.g. `STATUS_PENDING` → "Waiting for approval") |
+| Security | **Every** security config, role definition, permission list, JWT claim | Every role, every permission granted or denied — translate to plain: "Sales Manager can view but not edit prices" |
+| Config | **Every** config/env file | Every limit, threshold, default (translate: "Maximum file size: 10 MB", session timeout: "Users are logged out after 30 minutes of inactivity") |
+| Tests | **Every** test file — read each test name and assertion | Each test = one piece of intended business behavior. Extract what it proves the system does. |
+| Comments | Every TODO, FIXME, HACK, NOTE comment in the codebase | Risks, open questions, known gaps — translate to business impact |
+| Error Handling | Every custom error, exception, and error message string | What can go wrong for the business; what the system refuses to do |
 
-#### Step C — Cross-Layer Correlation
+After reading ALL backend files, produce independently:
+1. **Complete business rules list** — every rule found, numbered, in plain language. Include: who it applies to, when it triggers, what it allows or prevents. Target: capture every rule, even minor ones.
+2. **Backend-only journeys** — every automated process, scheduled job, batch operation, or capability that has no user screen (e.g. "Nightly stock recalculation", "Auto-expire pending requests after 7 days").
+3. **Complete data picture** — every business object, every meaningful field, every relationship, every status/lifecycle.
+4. **Complete role & permission picture** — every role, every capability granted, every restriction enforced.
+5. **System limits & policies** — every threshold, limit, timeout, and default that affects the user or business.
 
-**If only frontend exists**: document what can be inferred from screens and forms; mark backend-dependent sections `TBD`. Skip the bullets below.
-**If only backend exists**: derive journeys from business logic and data flows; mark screen-level sections `TBD`. Skip the bullets below.
-**If both exist**, identify:
-- Which screens support which user journeys
-- What information the user sees on screen vs. what the system actually has or returns (flag gaps)
-- Business rules enforced only in the backend that the user never sees explained
-- Screens that exist in the frontend but have no corresponding backend behavior (flag as risk)
-- Backend capabilities that no screen exposes to the user (flag as potential missing feature)
+**Do NOT copy into output**: endpoint URLs, HTTP methods, class names, method names, DTO names, framework terms. Translate everything.
+
+#### Step C — Merge Both Layers into One Complete Business Picture
+
+**If only frontend exists**: document what can be inferred from screens and forms; mark backend-dependent sections `TBD`. Skip the merge bullets below.
+**If only backend exists**: derive journeys from business logic and data flows; mark screen-level sections `TBD`. Skip the merge bullets below.
+**If both exist**, do all of the following:
+
+**Merge — enrich the document with backend business:**
+- For every backend business rule found in Step B that is NOT visible on any frontend screen: add it to `03-requirements.md` as a business rule (BR-xx) and note "Enforced by the system, not shown to the user"
+- For every backend-only journey or automated process found in Step B: add it to `02-scope-context.md` as a separate journey section labelled "System Journey" (no user interaction required) and to `04-use-cases.md` as a UC with "Who does this: System (automated)"
+- For every data object found in Step B that is not visible on any frontend screen: add it to `06-data-reporting.md` section 6.1 with `Visible to User? No`
+- For every role or permission found in the backend that has no matching frontend guard: add it to the stakeholders table in `01-overview.md` and note the permission in `03-requirements.md`
+
+**Flag — identify gaps for the product owner:**
+- Screens that exist in the frontend but have no backend business logic behind them (flag in `07-supporting.md` 7.3 as a mismatch)
+- Backend capabilities that no screen exposes to the user yet (flag in `07-supporting.md` 7.4 as an open question: "Should this capability be exposed to users?")
+- Business rules enforced in the backend that contradict or conflict with frontend validation (flag in `07-supporting.md` 7.3)
 
 ### 2.5 Pause and Confirm — User Journey Review (REQUIRED when frontend exists)
 
 **Before generating any file**, output a live populated summary using the actual data discovered — do NOT print placeholder text. Structure it as follows:
 
-1. Heading: `## Discovered User Journeys and Screens — [actual project name]`
-2. **User Journeys** table — one row per journey found:
+1. Heading: `## Discovered Business Picture — [actual project name]`
+2. **User Journeys** table — one row per journey a user initiates:
    - Journey Name (plain language goal) | Who Does This (plain role name) | Screens Involved (plain screen names, comma-separated)
-3. **Screens Inventory** table — one row per screen found:
+3. **System Journeys** table — one row per automated process or backend-only capability found (no user screen required). Omit if none found:
+   - Process Name (plain language) | What Triggers It | What It Does for the Business
+4. **Screens Inventory** table — one row per screen found:
    - Screen Name | Who Can Access It (role) | Main Actions Available (plain verbs, e.g. "Search, View details, Export")
-4. **Open Questions** — list any ambiguities found (e.g. a screen with no clear role, a form with no visible outcome). Omit this section entirely if there are none.
-5. Close with: `Please confirm, correct, or add to this list. Type 'ok' to proceed, or tell me what to change.`
+5. **Backend Business Rules** — count only: "Found N business rules enforced by the system. These will be added to the Requirements document."
+6. **Open Questions** — list any ambiguities found (e.g. a screen with no backend logic, a backend capability with no screen). Omit if none.
+7. Close with: `Please confirm, correct, or add to this list. Type 'ok' to proceed, or tell me what to change.`
 
 Only proceed to Step 3 after the user confirms.
 **Exception**: if no frontend exists (backend-only project), skip this pause and proceed directly.
@@ -273,6 +299,17 @@ Example journey name: "Register a New Supplier", "Approve a Leave Request", "Sub
 **What if something goes wrong**: <What does the user see if a step fails? e.g. "The system shows an error message and keeps the user on the same screen.">
 
 ---
+
+### System Journey: <Plain-language name of an automated process, e.g. "Send Order Confirmation", "Recalculate Stock Levels Nightly">
+<Use this pattern for backend-only processes — automated actions the system performs with no user screen involved.
+Only include if evidence exists in the backend code. If none found, remove this section entirely.>
+
+**What triggers it**: <e.g. "Runs automatically every night", "Triggered when an order is submitted", "Runs when a user's account is deactivated">
+**What it does for the business**: <Plain description of the business outcome, e.g. "Sends a confirmation email to the customer and updates the order status to Confirmed">
+**Who benefits**: <e.g. "Customer receives confirmation", "Finance team sees updated figures">
+**If it fails**: <What happens if this process does not complete? e.g. "The order stays in Pending status and the operations team must resolve it manually.">
+
+---
 [<- Previous: Overview](./01-overview.md) | [-> Next: Requirements](./03-requirements.md)
 ```
 
@@ -336,6 +373,22 @@ No technical terms, endpoint names, class names, or framework words anywhere in 
   - <Scenario 2: e.g. "If the user leaves a required field empty, the system prevents saving and marks the missing fields.">
 - **Business value**: <What business goal does completing this use case advance? e.g. "Allows the sales team to onboard new customers without manual paperwork.">
 - **End result**: <What has changed for the business after this use case completes? e.g. "A new customer record is available for the sales team to create orders against.">
+
+---
+
+## UC-XX: <Plain-language name of an automated system process, e.g. "Automatically Notify Customer After Order Is Confirmed">
+<Use this pattern for backend-only processes with no user screen. Only include if found in backend code.>
+
+- **Who does this**: System (automated — no user action required)
+- **What it does**: <One sentence — the business outcome this process produces.>
+- **What triggers it**: <e.g. "Runs every night at midnight", "Triggered automatically when a customer places an order">
+- **What it does step by step**:
+  1. The system detects <condition or event in plain language>.
+  2. The system checks <rule or condition>.
+  3. The system <performs action, e.g. "sends a notification", "updates the record", "marks the request as expired">.
+  4. The result is <business outcome>.
+- **What if it fails**: <What happens to the business if this process does not complete? Who is affected?>
+- **Business value**: <Why does this process exist? What would break without it?>
 
 ---
 [<- Previous: Requirements](./03-requirements.md) | [-> Next: Acceptance Criteria](./05-acceptance-criteria.md)
@@ -476,6 +529,17 @@ A product owner should be able to look up any term they encounter in this docume
 ```
 
 ### 5. Quality Checks Before Saving
+
+**Coverage verification (do this FIRST, before any other check):**
+Before saving any file, answer these questions internally and correct any gaps:
+- Did I read every route/page file? (not just the routing module — every page folder too)
+- Did I read every form file and extract every field and validation rule?
+- Did I read every service/use-case/handler method individually? (not just the class name)
+- Did I read every entity/model and every enum/status constant?
+- Did I read every test file and extract business intent from each test?
+- Did I read every config/env file for limits and defaults?
+- Did I read every error/exception message?
+- If any answer is NO — go back and read those files before saving.
 
 **Hard-ban check (scan every generated file before saving):**
 - Search for: `/api/`, `/v1/`, `Controller`, `Service`, `Repository`, `Entity`, `DTO`, `GET `, `POST `, `PUT `, `DELETE `, `PATCH `, `component`, `hook`, `reducer`, `selector`, `interceptor`, `tbl_`, `_table`
