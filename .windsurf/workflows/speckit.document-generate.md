@@ -1,5 +1,5 @@
 ---
-description: Reverse-engineer a Business Analysis document set from the current codebase -- always treats all parts found (frontend, backend, admin, etc.) as one unified integrated system
+description: Reverse-engineer a Technical Business Analysis document set from the current codebase -- always treats all parts found (frontend, backend, admin, etc.) as one unified integrated system
 ---
 
 **Usage**: `/speckit.document-generate module="<module-name>" [project="<project-name>"] [parts="<path1>, <path2>, <path3>"]`
@@ -8,25 +8,26 @@ description: Reverse-engineer a Business Analysis document set from the current 
 
 ## Purpose
 
-Generate a useful Business Analysis document for the **active project** by extracting business meaning from the source code.
+Generate a **Technical Business Analysis** document set for the **active project** — a hybrid that gives product owners the full business picture AND gives developers/architects the technical context, all in one place.
 
 **Goals:**
 - Explain what the system does in business terms — for a product owner, not a developer
+- Also capture the technical implementation behind each business action — for developers and architects
 - Help humans understand the project quickly through user journeys and screen-by-screen walkthroughs
-- Help AI plan and perform tasks correctly
-- Give business analysts and product owners a clear, readable project summary they can act on immediately
+- Help AI plan and perform tasks correctly with both business intent and technical context
+- Give business analysts, product owners, and developers a complete, actionable reference
 
 **Guiding principles:**
 - **Frontend first**: if a frontend exists, treat it as the primary source of business truth — screens and user actions define the structure
 - **User journeys first, screens inside**: group everything around end-to-end user journeys; list the screens and steps inside each journey
 - **Always unified**: always treat every part found (customer app, admin panel, backend, shared libraries) as one integrated system. A journey may start in one part and complete in another — document the full journey, not each part in isolation. Never generate separate documents per part.
-- Focus on **business behavior**, not implementation details
-- Translate technical code into **plain business language**
-- **NEVER include** in any output file: API endpoint URLs (e.g. `/api/users`), class names, method names, DTO/entity names, framework terms (e.g. "controller", "service", "repository", "component", "hook"), HTTP verbs, or database table names. These are **strictly forbidden** in all prose, tables, and lists
+- **Two-layer documentation**: every business action must be paired with its technical implementation. Use clearly labelled sections: business language first, technical notes after.
+- Focus on **business behavior** as the primary narrative — the "what" and "why"
+- Add **technical notes** as a secondary layer — the "how": which API is called, which service handles it, what data model is used
+- **Writing rule for technical notes**: technical terms ARE allowed in `> 🔧 Technical Notes` blocks and dedicated technical columns — but the main prose, tables headers, and business sections must remain in plain business language
 - Mark anything that cannot be inferred from code as `TBD` -- never leave a section blank
 - Keep output structured, practical, and based on code evidence
-- Make the output readable for: business analysts, product owners, and AI planning/task-execution agents
-- The final document must be understandable by a non-technical product owner with no explanation
+- Make the business sections understandable by a non-technical product owner; make the technical notes actionable by a developer
 
 ---
 
@@ -92,25 +93,25 @@ List every file you will read before you start. Then read each one. Do not stop 
 
 Read the backend **completely and independently** — not just to fill frontend gaps. Extract every business capability, rule, and data object the system has, whether or not the frontend exposes it.
 
-| Layer | What to Read — read EVERY file, not just the obvious ones | Business Signals to Extract (translate, do not copy) |
-|-------|-----------------------------------------------------------|------------------------------------------------------|
-| Specs/Docs | Every `.spec/`, `docs/`, `README` file | Requirements, constraints, stated business goals |
-| Business Logic | **Every method in every service/use-case/handler file** | Each method = one potential business rule or action. Ask: "What decision does this method make? What does it allow or prevent?" |
-| Data | **Every entity, model, schema, migration, and enum/constant file** | Every data object (translate name to business label), every field that matters, every status/state enum translated to plain values (e.g. `STATUS_PENDING` → "Waiting for approval") |
-| Security | **Every** security config, role definition, permission list, JWT claim | Every role, every permission granted or denied — translate to plain: "Sales Manager can view but not edit prices" |
-| Config | **Every** config/env file | Every limit, threshold, default (translate: "Maximum file size: 10 MB", session timeout: "Users are logged out after 30 minutes of inactivity") |
-| Tests | **Every** test file — read each test name and assertion | Each test = one piece of intended business behavior. Extract what it proves the system does. |
-| Comments | Every TODO, FIXME, HACK, NOTE comment in the codebase | Risks, open questions, known gaps — translate to business impact |
-| Error Handling | Every custom error, exception, and error message string | What can go wrong for the business; what the system refuses to do |
+| Layer | What to Read — read EVERY file, not just the obvious ones | Business Signals to Extract (translate) | Technical Signals to Record (exact — for technical notes) |
+|-------|-----------------------------------------------------------|-----------------------------------------|-----------------------------------------------------------|
+| Specs/Docs | Every `.spec/`, `docs/`, `README` file | Requirements, constraints, stated business goals | N/A |
+| Business Logic | **Every method in every service/use-case/handler file** | Each method = one business rule or action. Ask: "What decision does this method make?" | Exact method name, class name, service name — record for technical notes |
+| Data | **Every entity, model, schema, migration, and enum/constant file** | Every data object translated to business label; every status enum in plain values (e.g. `STATUS_PENDING` → "Waiting for approval") | Entity/table name, field names, enum constants — record for technical notes |
+| API / Routes | **Every controller, route handler, or gateway route file** | What operation the user is performing (translate: "Submit an order", "Retrieve customer details") | Exact endpoint URL, HTTP method, request/response DTO names — record for technical notes |
+| Security | **Every** security config, role definition, permission list, JWT claim | Every role and permission in plain language: "Sales Manager can view but not edit prices" | Role constant names, permission strings, JWT claim keys — record for technical notes |
+| Config | **Every** config/env file | Every limit, threshold, default translated: "Maximum file size: 10 MB", "Session timeout: 30 minutes" | Config key names, exact values — record for technical notes |
+| Tests | **Every** test file — read each test name and assertion | Each test = one piece of intended business behavior | Test class and method names — useful for tracing implementation |
+| Comments | Every TODO, FIXME, HACK, NOTE comment in the codebase | Risks, open questions, known gaps translated to business impact | Exact comment text — preserve for technical notes |
+| Error Handling | Every custom error, exception, and error message string | What can go wrong for the business; what the system refuses to do | Exception class names, error codes — record for technical notes |
 
 After reading ALL backend files, produce independently:
-1. **Complete business rules list** — every rule found, numbered, in plain language. Include: who it applies to, when it triggers, what it allows or prevents. Target: capture every rule, even minor ones.
-2. **Backend-only journeys** — every automated process, scheduled job, batch operation, or capability that has no user screen (e.g. "Nightly stock recalculation", "Auto-expire pending requests after 7 days").
-3. **Complete data picture** — every business object, every meaningful field, every relationship, every status/lifecycle.
-4. **Complete role & permission picture** — every role, every capability granted, every restriction enforced.
-5. **System limits & policies** — every threshold, limit, timeout, and default that affects the user or business.
-
-**Do NOT copy into output**: endpoint URLs, HTTP methods, class names, method names, DTO names, framework terms. Translate everything.
+1. **Complete business rules list** — every rule found, numbered, in plain language. Include: who it applies to, when it triggers, what it allows or prevents.
+2. **Technical implementation map** — for every business rule, record: which service class enforces it, which method, and which API endpoint triggers it.
+3. **Backend-only journeys** — every automated process, scheduled job, batch operation, or capability that has no user screen.
+4. **Complete data picture** — every business object, every meaningful field, every relationship, every status/lifecycle. Also record the technical entity/table name.
+5. **Complete role & permission picture** — every role, every capability granted, every restriction enforced. Also record the technical role constant.
+6. **System limits & policies** — every threshold, limit, timeout, and default that affects the user or business. Also record the config key.
 
 #### Step C — Merge All Layers into One Complete Business Picture
 
@@ -165,8 +166,11 @@ For each screen, build the following extraction record. This data feeds directly
 ```
 Screen: <Plain screen name>
 Role(s) who access it: <role 1>, <role 2>
+Linked to journey(s): <Journey name(s) this screen is part of>
+
+--- BUSINESS LAYER ---
 Buttons / Actions available:
-  - <Button or action label in plain language> → <what it does>
+  - <Button or action label in plain language> → <what it does for the user>
   - ...
 Input fields on this screen:
   - <Field label in plain language> | Required? | Validation rule (plain language)
@@ -178,9 +182,23 @@ Business rules that apply on this screen:
   - ...
 Error messages the user can see:
   - <Error text or plain description of when it appears>
-Linked to journey(s): <Journey name(s) this screen is part of>
 Backend rules that apply but are NOT shown on screen:
   - <Rule in plain language — silent backend enforcement>
+
+--- TECHNICAL LAYER ---
+API calls made from this screen:
+  - <Button/action label> → <HTTP method> <endpoint URL> (handled by: <ServiceClass.methodName()>)
+  - ...
+Request payload fields:
+  - <Field label> → <DTO field name> (<type>, <validation annotation if any>)
+  - ...
+Response / data loaded:
+  - <What is displayed> → <DTO/entity field name> (from: <EntityClass or table>)
+  - ...
+Frontend component / file:
+  - <Component or page file name>
+Security guard(s):
+  - <Guard name or role check — e.g. "RoleGuard: ROLE_ADMIN">
 ```
 
 **Verification gate — before moving to Step 3:**
@@ -209,8 +227,8 @@ If no frontend screens were found, skip the per-page extraction above but verify
 #### 4.0 Pre-Generation Check (Existing Files)
 
 Before writing any file, **check if it already exists** in `docs/ba/<module-name>/`.
-There are **10 files** to generate: `README.md` (index) plus the 9 numbered files `01-overview.md` through `09-page-catalog.md`.
-For each of the 10 files apply the following decision:
+There are **11 files** to generate: `README.md` (index) plus the 10 numbered files `01-overview.md` through `10-technical-map.md`.
+For each of the 11 files apply the following decision:
 
 | Condition | Action |
 |-----------|--------|
@@ -218,7 +236,7 @@ For each of the 10 files apply the following decision:
 | File exists but has empty or `TBD`-only sections that the current code can now fill | **Update** those sections; keep human-edited content intact |
 | File exists and is already accurate and complete | **Skip** -- do not overwrite |
 
-At the end of Step 4, report per file (all 10): `CREATED`, `UPDATED (sections: ...)`, or `SKIPPED (already up to date)`.
+At the end of Step 4, report per file (all 11): `CREATED`, `UPDATED (sections: ...)`, or `SKIPPED (already up to date)`.
 
 ---
 
@@ -229,43 +247,49 @@ At the end of Step 4, report per file (all 10): `CREATED`, `UPDATED (sections: .
 - Every table row and bullet must say something real -- no placeholder text left in the final output.
 - Use `TBD` only when the code gives no evidence at all, and add a note explaining what is missing.
 - Navigation links: first line `[<- Back to Index](./README.md)`, last line prev/next (first file: no Previous; last file: no Next).
-- **Hard ban — the following terms are banned in the generated output files only** (they are fine inside these workflow instructions as source-reading guidance):
-  - API endpoint URLs (e.g. `/api/users`, `/v1/orders`)
-  - HTTP methods (GET, POST, PUT, DELETE, PATCH)
-  - Class names, method names, function names (e.g. `UserService`, `createOrder()`)
-  - DTO or entity names (e.g. `UserDTO`, `OrderEntity`)
-  - Framework or library terms (e.g. "controller", "service bean", "repository", "component", "hook", "reducer", "selector", "interceptor", "module")
-  - Database or table names (e.g. `users_table`, `tbl_orders`)
-  - Config key names (e.g. `spring.datasource.url`, `JWT_SECRET`)
-  - If any such term is the only way to identify something, translate it: `UserController` → "User Management feature", `/api/orders` → "the order submission process"
+- **Two-layer rule — strictly enforced in every generated file:**
+  - **Business sections** (all main prose, tables, journey steps, use cases, business rules): plain language only. No class names, endpoint URLs, HTTP methods, DTO names, framework terms, table names, or config keys.
+  - **Technical blocks**: technical terms ARE allowed — but ONLY inside clearly labelled `> 🔧 Technical Notes` blockquotes or in columns explicitly labelled `Technical Implementation`. Never mix them into the business narrative.
+  - If any technical term appears in the main prose — rewrite it: `UserController` → "User Management feature", `POST /api/orders` → "the order submission step", `OrderEntity` → "Order record".
 - **Structure use cases and flows around user journeys** — each journey is a named goal (e.g. "Register a New Customer", "Approve a Purchase Request"). Screens are steps inside a journey, not top-level items.
+- **`> 🔧 Technical Notes` format** — use this exact blockquote style for all technical blocks:
+  ```
+  > 🔧 Technical Notes
+  > - API: POST /api/v1/orders (OrderController.createOrder)
+  > - Service: OrderService.validateAndCreate()
+  > - Entity: OrderEntity (table: orders)
+  > - DTO: CreateOrderRequest / OrderResponse
+  ```
 
 ---
 
 #### Files to Generate
 
-| File | What a product owner will find here |
-|------|--------------------------------------|
-| `README.md` | What the system does, who uses it, and a guide to all 10 documents |
-| `01-overview.md` | What the system does, why it exists, who uses it -- in 30-second readable form |
-| `02-scope-context.md` | What is built, how the system works today, and the end-to-end business flow |
-| `03-requirements.md` | User stories (As a / I want / So that) and rules the system enforces in plain language |
-| `04-use-cases.md` | Step-by-step walkthroughs written as user stories, not technical flows |
-| `05-acceptance-criteria.md` | Given/When/Then criteria a product owner can verify manually |
-| `06-data-reporting.md` | What data the system manages, what users see vs. what is stored, how success is measured |
-| `07-supporting.md` | Assumptions, constraints, mismatches flagged as plain questions, risks as decisions needed |
-| `08-reference.md` | Glossary translating every term to plain business language, change history |
-| `09-page-catalog.md` | Complete page-by-page business catalog — every screen's buttons, fields, rules, backend rules, and errors in one place |
+There are **11 files** to generate: `README.md` (index) plus the 10 numbered files `01-overview.md` through `10-technical-map.md`.
+
+| File | Who it is for | What they will find here |
+|------|---------------|--------------------------|
+| `README.md` | Everyone | What the system does, who uses it, and a guide to all 11 documents |
+| `01-overview.md` | Product owners | What the system does, why it exists, who uses it — in 30-second readable form |
+| `02-scope-context.md` | Product owners | What is built, how the system works today, and the end-to-end business flow |
+| `03-requirements.md` | Product owners + Developers | User stories and rules — business language with technical implementation notes |
+| `04-use-cases.md` | Product owners + Developers | Step-by-step walkthroughs with technical notes per step |
+| `05-acceptance-criteria.md` | Product owners + QA | Given/When/Then criteria a product owner can verify; automated test hooks noted |
+| `06-data-reporting.md` | Product owners + Developers | What data the system manages, what users see vs. what is stored, technical field mapping |
+| `07-supporting.md` | Everyone | Assumptions, constraints, mismatches, risks, and integration points |
+| `08-reference.md` | Everyone | Glossary translating every term to plain business language, change history |
+| `09-page-catalog.md` | Product owners + Developers | Complete page-by-page reference — every button, field, rule, error + technical API/component notes per screen |
+| `10-technical-map.md` | Developers + Architects | Full technical implementation map — APIs, services, entities, config, security, and component structure |
 
 ### 4.2 File Templates
 
 #### `README.md` -- Index
 
 ```markdown
-# Business Analysis -- <Module Name>
+# Technical Business Analysis -- <Module Name>
 
 **Project**: <Project Name> | **Module**: <Module Name> | **Version**: 1.0 | **Date**: <Today> | **Status**: Draft
-> Auto-generated from source code. Written for product owners and business analysts. Review and adjust for accuracy.
+> Auto-generated from source code. Written for product owners, business analysts, and developers.
 
 ## What is this system?
 <2-3 sentences: what does this system do, who uses it, and what problem does it solve? Plain language only.>
@@ -280,23 +304,27 @@ At the end of Step 4, report per file (all 10): `CREATED`, `UPDATED (sections: .
 | Business rules captured | <N> (frontend: <n>, backend-only: <n>) |
 | Buttons / actions documented | <N> |
 | Input fields documented | <N> |
+| API endpoints mapped | <N> |
+| Service classes documented | <N> |
+| Data entities mapped | <N> |
 | TBD sections | <N> |
 | Mismatches flagged | <N> |
 | Open questions | <N> |
 
 ## Contents
 
-| # | Group | File | What a product owner will find here | Status |
-|---|-------|------|--------------------------------------|--------|
-| 1 | Overview | [01-overview.md](./01-overview.md) | What the system does, why it exists, who uses it | Complete / Partial / TBD |
-| 2 | Scope & Context | [02-scope-context.md](./02-scope-context.md) | What is built, how the system works today, and the end-to-end business flow | Complete / Partial / TBD |
-| 3 | Requirements | [03-requirements.md](./03-requirements.md) | What users need to do (user stories) and the rules the system enforces | Complete / Partial / TBD |
-| 4 | Use Cases | [04-use-cases.md](./04-use-cases.md) | Step-by-step walkthroughs of each main user scenario | Complete / Partial / TBD |
-| 5 | Acceptance Criteria | [05-acceptance-criteria.md](./05-acceptance-criteria.md) | How to verify the system works correctly | Complete / Partial / TBD |
-| 6 | Data & Reporting | [06-data-reporting.md](./06-data-reporting.md) | What data the system manages and how it is measured | Complete / Partial / TBD |
-| 7 | Supporting | [07-supporting.md](./07-supporting.md) | Assumptions, constraints, risks, and open questions | Complete / Partial / TBD |
-| 8 | Reference | [08-reference.md](./08-reference.md) | Glossary of terms and change history | Complete / Partial / TBD |
-| 9 | Page Catalog | [09-page-catalog.md](./09-page-catalog.md) | Every screen's buttons, fields, rules, backend rules, and errors — the full business detail per page | Complete / Partial / TBD |
+| # | Group | File | Audience | What you will find here | Status |
+|---|-------|------|----------|--------------------------|--------|
+| 1 | Overview | [01-overview.md](./01-overview.md) | Product owners | What the system does, why it exists, who uses it | Complete / Partial / TBD |
+| 2 | Scope & Context | [02-scope-context.md](./02-scope-context.md) | Product owners | What is built, how the system works today, and the end-to-end business flow | Complete / Partial / TBD |
+| 3 | Requirements | [03-requirements.md](./03-requirements.md) | PO + Developers | User stories and rules with technical implementation notes | Complete / Partial / TBD |
+| 4 | Use Cases | [04-use-cases.md](./04-use-cases.md) | PO + Developers | Step-by-step walkthroughs with technical notes per step | Complete / Partial / TBD |
+| 5 | Acceptance Criteria | [05-acceptance-criteria.md](./05-acceptance-criteria.md) | PO + QA | How to verify the system works correctly | Complete / Partial / TBD |
+| 6 | Data & Reporting | [06-data-reporting.md](./06-data-reporting.md) | PO + Developers | What data the system manages, field mapping, and reporting | Complete / Partial / TBD |
+| 7 | Supporting | [07-supporting.md](./07-supporting.md) | Everyone | Assumptions, constraints, risks, integration points, open questions | Complete / Partial / TBD |
+| 8 | Reference | [08-reference.md](./08-reference.md) | Everyone | Glossary of terms and change history | Complete / Partial / TBD |
+| 9 | Page Catalog | [09-page-catalog.md](./09-page-catalog.md) | PO + Developers | Every screen's buttons, fields, rules, errors, and technical API notes | Complete / Partial / TBD |
+| 10 | Technical Map | [10-technical-map.md](./10-technical-map.md) | Developers + Architects | Full API, service, entity, security, and component map | Complete / Partial / TBD |
 ```
 
 ---
@@ -403,15 +431,20 @@ Priority: High = core flow, Medium = important but not blocking, Low = nice-to-h
 |----|---------|--------------|------------|---------|----------------|------|----------|
 | FR-01 | | | | | | <Part name, e.g. Customer App> | High |
 
+> 🔧 Technical Notes
+> <For each FR above, list: API endpoint + HTTP method, controller/handler class, and frontend component/page file that implements it.>
+> - FR-01: `POST /api/v1/...` → `ServiceClass.methodName()` | Component: `feature-name.component.ts`
+
 ## 3.2 Rules the System Enforces (Business Rules)
 <List every validation, constraint, or policy the system applies. Write in plain language.
 Type: Policy = a business decision that can be changed; Compliance = a legal/regulatory requirement; Technical Default = a system limit; UX Constraint = an interface restriction.
 Example: "A user cannot submit the form without a valid email address.">
-| ID | Rule (plain language) | When It Applies | Where (Screen) | Type | Enforced In | Who Sees the Effect |
-|----|-----------------------|-----------------|----------------|------|-------------|---------------------|
-| BR-01 | | | <Screen name(s), or "All" / "System-wide"> | Policy / Compliance / Technical Default / UX Constraint | Frontend / Backend / Both / System Only | User / Admin / System (silent) |
+| ID | Rule (plain language) | When It Applies | Where (Screen) | Type | Enforced In | Who Sees the Effect | Technical Implementation |
+|----|-----------------------|-----------------|----------------|------|-------------|---------------------|--------------------------|
+| BR-01 | | | <Screen name(s), or "All" / "System-wide"> | Policy / Compliance / Technical Default / UX Constraint | Frontend / Backend / Both / System Only | User / Admin / System (silent) | <e.g. `@NotNull` on `OrderRequest.customerId`; enforced in `OrderService.validate()`> |
 
 > **See also**: [Page Catalog](./09-page-catalog.md) for the complete per-page breakdown of every button, field, rule, and error message.
+> **See also**: [Technical Map](./10-technical-map.md) for the full API and service implementation details.
 
 ---
 [<- Previous: Scope & Context](./02-scope-context.md) | [-> Next: Use Cases](./04-use-cases.md)
@@ -450,6 +483,14 @@ No technical terms, endpoint names, class names, or framework words anywhere in 
 - **Business value**: <What business goal does completing this use case advance? e.g. "Allows the sales team to onboard new customers without manual paperwork.">
 - **End result**: <What has changed for the business after this use case completes? e.g. "A new customer record is available for the sales team to create orders against.">
 
+> 🔧 Technical Notes
+> - APIs called in this use case:
+>   - Step 1 → `GET /api/v1/...` (ControllerClass.method)
+>   - Step 2 → `POST /api/v1/...` (ControllerClass.method) — validates via ServiceClass.validate()
+> - Frontend components: `PageComponent`, `FormComponent`
+> - Entities written: `EntityName` (table: `table_name`)
+> - Security: Route guarded by `RoleName` / JWT claim `claim_key`
+
 ---
 
 ## UC-XX: <Plain-language name of an automated system process, e.g. "Automatically Notify Customer After Order Is Confirmed">
@@ -465,6 +506,12 @@ No technical terms, endpoint names, class names, or framework words anywhere in 
   4. The result is <business outcome>.
 - **What if it fails**: <What happens to the business if this process does not complete? Who is affected?>
 - **Business value**: <Why does this process exist? What would break without it?>
+
+> 🔧 Technical Notes
+> - Trigger mechanism: `@Scheduled(cron="...")` / event listener class / message queue
+> - Service class: `ServiceClass.methodName()`
+> - Data affected: `EntityName` (table: `table_name`)
+> - Error handling: `ExceptionClass` → logged to `...` / retried `N` times
 
 > **See also**: [Page Catalog](./09-page-catalog.md) for the complete per-page breakdown of every button, field, rule, and error message.
 
@@ -540,6 +587,17 @@ If no reporting is found in the code, write TBD and explain what is missing.>
 | Metric / Report | What It Measures | Who Needs It |
 |-----------------|------------------|--------------|
 | | | |
+
+## 6.4 Technical Data Model Reference
+<Maps each business data object to its technical implementation. Written for developers.>
+| Business Object | Entity / Table | Key Fields (technical name → business label) | Relationships | Status Enum Values |
+|-----------------|---------------|----------------------------------------------|---------------|--------------------|
+| <e.g. "Customer"> | `CustomerEntity` / `customers` | `customer_id` → ID, `full_name` → Full Name, `status` → Account Status | One Customer → Many Orders | `ACTIVE`, `INACTIVE`, `SUSPENDED` |
+
+> 🔧 Technical Notes
+> - ORM: JPA / Hibernate / Mongoose / Prisma / SQLAlchemy
+> - Migration tool: Flyway / Liquibase / Alembic
+> - Any notable indexes, constraints, or cascade rules found in migrations
 
 ---
 [<- Previous: Acceptance Criteria](./05-acceptance-criteria.md) | [-> Next: Supporting](./07-supporting.md)
@@ -678,18 +736,133 @@ A product owner should be able to look up any term they encounter in this docume
 | 2 | <e.g. "Network connection lost while saving"> | <e.g. "'Unable to save. Please try again.'"> | Blocking |
 | 3 | <e.g. "No records match the search"> | <e.g. "'No results found. Try adjusting your filters.'"> | Informational |
 
+### Technical Implementation
+> 🔧 Technical Notes
+> - **Frontend component**: `<component-file-name>.component.ts` / `<page-file-name>.tsx`
+> - **Route / path**: `<frontend-route-path>` (guard: `<GuardClass>` — requires role `<ROLE_CONSTANT>`)
+> - **APIs called on this page**:
+>   | Action / Button | HTTP Method | Endpoint URL | Handler | Service |
+>   |-----------------|------------|--------------|---------|---------|
+>   | <e.g. "Save"> | `POST` | `/api/v1/...` | `ControllerClass.method()` | `ServiceClass.method()` |
+>   | <e.g. "Load page"> | `GET` | `/api/v1/...` | `ControllerClass.method()` | `ServiceClass.method()` |
+> - **DTOs used**: `RequestDtoName` (request), `ResponseDtoName` (response)
+> - **Entities read/written**: `EntityClass` (table: `table_name`)
+> - **Notable validations in backend**: `@Annotation` on `field_name` in `DtoClass`
+
 ---
 <Repeat the full "Page: ..." section above for EVERY screen in the system. No screen may be skipped.>
 
 ---
-[<- Previous: Reference](./08-reference.md)
+[<- Previous: Reference](./08-reference.md) | [-> Next: Technical Map](./10-technical-map.md)
+```
+
+---
+
+#### `10-technical-map.md` -- Technical Implementation Map
+
+```markdown
+[<- Back to Index](./README.md)
+
+# 10. Technical Implementation Map -- <Module Name>
+
+> This document is for developers and architects. It maps every business capability to its technical implementation: API endpoints, service classes, entities, DTOs, security config, and frontend components. Written from code evidence.
+
+## 10.1 API Endpoint Map
+
+<List every API endpoint found. Group by functional area (translate to plain names for the group header).>
+
+### <Functional Area — plain name, e.g. "Customer Management">
+| # | Business Action | Method | Endpoint URL | Controller Class | Service Class | Request DTO | Response DTO | Auth Required |
+|---|----------------|--------|--------------|-----------------|---------------|-------------|--------------|---------------|
+| 1 | <e.g. "Create a new customer"> | `POST` | `/api/v1/customers` | `CustomerController.create()` | `CustomerService.create()` | `CreateCustomerRequest` | `CustomerResponse` | `ROLE_ADMIN` |
+| 2 | <e.g. "Get customer details"> | `GET` | `/api/v1/customers/{id}` | `CustomerController.getById()` | `CustomerService.findById()` | — | `CustomerResponse` | `ROLE_USER` |
+
+## 10.2 Service & Business Logic Map
+
+<For every service class found, list what it does in business terms alongside its technical name.>
+
+| Service Class | Business Responsibility | Key Methods | Depends On |
+|---------------|------------------------|-------------|------------|
+| `CustomerService` | Manages customer lifecycle — creation, updates, deactivation | `create()`, `update()`, `deactivate()` | `CustomerRepository`, `NotificationService` |
+
+## 10.3 Data Model Map
+
+<Every entity / table with its fields, types, and constraints.>
+
+### <Entity name> (`table_name`)
+| Field Name | Type | Nullable | Constraint | Business Meaning |
+|------------|------|----------|------------|-----------------|
+| `id` | `BIGINT` / `UUID` | No | Primary Key, auto-generated | Unique record identifier |
+| `status` | `VARCHAR(20)` | No | Enum: `ACTIVE`, `INACTIVE` | Current account status |
+| `created_at` | `TIMESTAMP` | No | Default: now() | When the record was created |
+
+**Relationships**:
+- `CustomerEntity` (1) → `OrderEntity` (many) via `customer_id` FK
+- <Add all FK relationships found in code>
+
+## 10.4 DTOs & Validation
+
+<Every request/response DTO with validation annotations.>
+
+| DTO Class | Used For | Key Fields & Validation |
+|-----------|---------|------------------------|
+| `CreateCustomerRequest` | Create customer API request | `name: @NotBlank`, `email: @Email @NotNull`, `phone: @Pattern(...)` |
+| `CustomerResponse` | All customer API responses | `id`, `name`, `email`, `status`, `createdAt` |
+
+## 10.5 Security Configuration
+
+<Roles, permissions, and endpoint security rules.>
+
+### Roles Defined
+| Role Constant | Business Name | Capabilities |
+|---------------|--------------|--------------|
+| `ROLE_ADMIN` | Administrator | Full access to all endpoints |
+| `ROLE_USER` | Standard User | Read-only access to own data |
+
+### Endpoint Security Rules
+| Endpoint Pattern | Required Role(s) | Notes |
+|-----------------|-----------------|-------|
+| `POST /api/v1/customers` | `ROLE_ADMIN` | Create only by admins |
+| `GET /api/v1/customers/**` | `ROLE_ADMIN`, `ROLE_USER` | Read by all authenticated users |
+
+> 🔧 Security implementation: `SecurityConfig.java` / `SecurityFilterChain` / JWT claims / `@PreAuthorize`
+
+## 10.6 Frontend Component Map
+
+<Every screen mapped to its frontend component file(s) and route.>
+
+| Screen (Business Name) | Part | Route Path | Component File | Guard(s) | Key Services Called |
+|------------------------|------|------------|---------------|----------|---------------------|
+| <e.g. "Customer List"> | Customer App | `/customers` | `customer-list.component.ts` | `AuthGuard`, `RoleGuard(ADMIN)` | `CustomerService.getAll()` |
+| <e.g. "Customer Detail"> | Customer App | `/customers/:id` | `customer-detail.component.ts` | `AuthGuard` | `CustomerService.getById()` |
+
+## 10.7 Configuration & Environment
+
+<All business-relevant configuration values found.>
+
+| Config Key | Current Value / Default | Business Meaning | Where Used |
+|------------|------------------------|-----------------|------------|
+| `app.session.timeout` | `1800` (seconds) | Users are logged out after 30 minutes of inactivity | `SecurityConfig` |
+| `app.file.max-size` | `10MB` | Maximum allowed file upload size | `FileUploadService` |
+
+## 10.8 External Integrations
+
+<Any external systems, APIs, or message queues found.>
+<Omit this section entirely if no external integrations are found.>
+
+| Integration | Business Purpose | Technical Details |
+|------------|-----------------|-------------------|
+| <e.g. "Email Service"> | Sends confirmation emails to customers | `NotificationService` → `POST https://api.sendgrid.com/v3/mail/send` |
+
+---
+[<- Previous: Page Catalog](./09-page-catalog.md)
 ```
 
 ### 5. Quality Checks Before Saving
 
 **Coverage verification (do this FIRST, before any other check):**
 Use the per-page extraction records built in Step 2.7 as the source of truth. For every generated file, verify:
-- Every screen from Step 2.7 has a full entry in `09-page-catalog.md` with ALL five sections (Actions & Buttons, Input Fields, Data Displayed, Business Rules, Error Messages)
+- Every screen from Step 2.7 has a full entry in `09-page-catalog.md` with ALL six sections (Actions & Buttons, Input Fields, Data Displayed, Business Rules, Error Messages, Technical Implementation)
 - Every screen from Step 2.7 appears in `02-scope-context.md` (journey steps) and `04-use-cases.md`
 - Every button/action from Step 2.7 appears in `09-page-catalog.md` Actions table AND as a user story in `03-requirements.md` or as a step in `04-use-cases.md`
 - Every input field and its validation rule from Step 2.7 appears in `09-page-catalog.md` Input Fields table AND as a business rule (BR-xx) in `03-requirements.md`
@@ -699,35 +872,43 @@ Use the per-page extraction records built in Step 2.7 as the source of truth. Fo
 - The Quick Summary table in `09-page-catalog.md` has correct counts matching the detailed sections below it
 - If any of the above is missing — add it before saving.
 
-**Hard-ban check (scan every generated file before saving):**
-- Search for: `/api/`, `/v1/`, `Controller`, `Service`, `Repository`, `Entity`, `DTO`, `GET `, `POST `, `PUT `, `DELETE `, `PATCH `, `component`, `hook`, `reducer`, `selector`, `interceptor`, `tbl_`, `_table`
-- If any of these are found in prose, table cells, or bullet points — rewrite that item in plain business language before saving.
+**Two-layer check (scan every generated file before saving):**
+- In **business sections** (main prose, journey tables, use case steps, business rules, user stories): search for technical terms and rewrite any found:
+  - `/api/`, `/v1/`, HTTP method names (`GET `, `POST `, `PUT `, `DELETE `, `PATCH `) in prose → rewrite as business action
+  - Class names ending in `Controller`, `Service`, `Repository`, `Entity`, `DTO`, `Component` in prose → rewrite as business feature name
+  - Table or DB names (`tbl_`, `_table`) in prose → rewrite as business object name
+- In **technical blocks** (`> 🔧 Technical Notes` and `10-technical-map.md`): technical terms are expected and correct — do NOT rewrite them.
+- For every API endpoint in the technical layer: confirm the matching business action is described in plain language in the business layer.
+
+**Technical completeness check (10-technical-map.md):**
+- Every API endpoint found in code appears in section 10.1
+- Every service class with business logic appears in section 10.2
+- Every entity/table appears in section 10.3
+- Every DTO appears in section 10.4
+- Every role constant and security rule appears in section 10.5
+- Every screen has a matching entry in section 10.6 (Frontend Component Map)
+- Every business-relevant config key appears in section 10.7
 
 **Content checks:**
 - Every section filled from code evidence -- not left blank without reason.
 - Use `TBD` only when no code evidence exists for that section -- never leave a section blank.
-- Language must be **plain business language** -- no class names, method signatures, or framework jargon in prose sections.
-- User stories follow `As a / I want / So that` format and include screen reference.
-- Business rules note whether enforced in frontend, backend, or both, and include rule type (Policy / Compliance / Technical Default / UX Constraint).
-- Use cases are structured as user journeys — each UC traces the screens visited, what the user does at each screen, and what the system does in response. System-automated UCs use the UC-XX pattern. No technical trace.
-- Field mapping table in `06-data-reporting.md` describes what the user sees vs. what the system has or returns — no technical field or column names from code.
-- Glossary translates screen names, feature names, and any domain terms into plain business meaning.
+- Business sections: plain business language. Technical blocks: exact technical names from code.
+- User stories follow `As a / I want / So that` format and include screen reference and technical notes block.
+- Business rules include rule type, enforcement location, and `Technical Implementation` column value.
+- Use cases include `> 🔧 Technical Notes` block listing all APIs called per use case.
+- `06-data-reporting.md` section 6.4 covers every entity with field-level technical mapping.
+- Glossary translates screen names, feature names, and domain terms into plain business meaning.
 - Every file has `[<- Back to Index]` at top and prev/next navigation at bottom.
-- The final document must be understandable by a non-technical product owner with no explanation.
 
 ### 6. Output Confirmation
-- List all 10 files created with their full paths and status (CREATED / UPDATED / SKIPPED).
-- Summarize key findings in business language:
-  - User journeys identified (list names)
-  - Automated system processes / backend-only journeys found (list names, or "None" if absent)
-  - Screens discovered (count and list)
-  - User roles found (list plain names)
-  - Business rules captured: frontend-visible (count) + backend-only / system-enforced (count)
-  - Buttons / actions documented (total count across all pages)
-  - Input fields documented (total count across all pages)
-  - Error messages captured (total count)
-  - Mismatches flagged (count and brief plain-language description)
-- List sections left as `TBD` and explain what information is missing (in plain language — not "no entity found" but "no data structure could be identified for this section").
+- List all 11 files created with their full paths and status (CREATED / UPDATED / SKIPPED).
+- Summarize key findings:
+  - **Business summary**: user journeys (list names), automated processes (list names), screens (count + list), user roles (plain names)
+  - **Business rules**: frontend-visible (count) + backend-only / system-enforced (count)
+  - **Page detail**: buttons/actions documented (total), input fields (total), error messages (total)
+  - **Technical summary**: API endpoints mapped (total), service classes documented (total), entities/tables mapped (total), DTOs documented (total)
+  - **Mismatches flagged** (count and brief plain-language description)
+- List sections left as `TBD` and explain what is missing.
 - Suggest follow-ups:
   - `/speckit.specify feature="..."` to convert this BA doc set into a technical spec.
   - `/speckit.document-generate module="..."` to generate a BA doc set for another module.
