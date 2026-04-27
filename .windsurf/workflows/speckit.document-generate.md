@@ -21,7 +21,8 @@ Generate a **Technical Business Analysis** document set for the **active project
 - **Frontend first**: if a frontend exists, treat it as the primary source of business truth — screens and user actions define the structure
 - **User journeys first, screens inside**: group everything around end-to-end user journeys; list the screens and steps inside each journey
 - **Always unified**: always treat every part found (customer app, admin panel, backend, shared libraries) as one integrated system across all modules. A journey may start in one part and complete in another — document the full journey, not each part in isolation. Never generate separate documents per part.
-- **Exhaustive coverage**: document every discovered screen in the frontend and every business-facing API in the backend. No part of the business logic or user interface should be omitted across all modules.
+- **Exhaustive coverage**: document every discovered screen in the frontend and every business-facing API in the backend. No part of the business logic or user interface should be omitted across all modules. For every screen, you must explicitly identify and document every API it calls and the business purpose of those calls.
+- **Deep contextual understanding**: as you scan each screen, immediately trace its actions to the backend APIs they trigger. Document the business rules and technical logic of those APIs directly in the context of the screen.
 - **Two-layer documentation**: every business action must be paired with its technical implementation. Use clearly labelled sections: business language first, technical notes after.
 - Focus on **business behavior** as the primary narrative — the "what" and "why"
 - Add **technical notes** as a secondary layer — the "how": which API is called, which service handles it, what data model is used
@@ -163,7 +164,7 @@ Only proceed to Step 2.7 after the user confirms.
 
 For **every screen** found in Step A, build a structured extraction record. Do this for every screen — no screen may be skipped.
 
-For each screen, build the following extraction record. This data feeds directly into `09-page-catalog.md` — every item captured here MUST appear in the final Page Catalog file:
+For each screen, build the following extraction record. This data feeds directly into `09-page-catalog.md` — every item captured here MUST appear in the final Page Catalog file. **Crucial**: Every action on the screen must be linked to its backend API business logic.
 
 ```
 Screen: <Plain screen name>
@@ -172,24 +173,24 @@ Linked to journey(s): <Journey name(s) this screen is part of>
 
 --- BUSINESS LAYER ---
 Buttons / Actions available:
-  - <Button or action label in plain language> → <what it does for the user>
+  - <Button or action label in plain language> → <what it does for the user> [Calls API: <Business purpose of API call>]
   - ...
 Input fields on this screen:
   - <Field label in plain language> | Required? | Validation rule (plain language)
   - ...
 Data displayed to the user:
-  - <What the user sees on this screen — list each piece of information>
+  - <What the user sees on this screen — list each piece of information> [Source API: <Business purpose of data fetch>]
 Business rules that apply on this screen:
-  - <Rule in plain language — from frontend validation OR backend logic>
+  - <Rule in plain language — from frontend validation OR backend logic of called APIs>
   - ...
 Error messages the user can see:
-  - <Error text or plain description of when it appears>
+  - <Error text or plain description of when it appears> [Triggered by API: <Business reason for error>]
 Backend rules that apply but are NOT shown on screen:
-  - <Rule in plain language — silent backend enforcement>
+  - <Rule in plain language — silent backend enforcement during screen actions>
 
 --- TECHNICAL LAYER ---
 API calls made from this screen:
-  - <Button/action label> → <HTTP method> <endpoint URL> (handled by: <ServiceClass.methodName()>)
+  - <Button/action label> → <HTTP method> <endpoint URL> (handled by: <ServiceClass.methodName()>) | Business logic summary: <what the backend does>
   - ...
 Request payload fields:
   - <Field label> → <DTO field name> (<type>, <validation annotation if any>)
@@ -866,7 +867,7 @@ A product owner should be able to look up any term they encounter in this docume
 Use the per-page extraction records built in Step 2.7 as the source of truth. For every generated file, verify:
 - [ ] **Every single file** in the module has been read and analyzed (no files skipped)
 - [ ] **Every class and method** (business logic, controllers, entities) has been processed
-- [ ] Every screen from Step 2.7 has a full entry in `09-page-catalog.md` with ALL six sections (Actions & Buttons, Input Fields, Data Displayed, Business Rules, Error Messages, Technical Implementation)
+- [ ] Every screen from Step 2.7 has a full entry in `09-page-catalog.md` with ALL six sections (Actions & Buttons, Input Fields, Data Displayed, Business Rules, Error Messages, Technical Implementation). Each section MUST include the business logic of the specific APIs called by that screen.
 - Every screen from Step 2.7 appears in `02-scope-context.md` (journey steps) and `04-use-cases.md`
 - Every button/action from Step 2.7 appears in `09-page-catalog.md` Actions table AND as a user story in `03-requirements.md` or as a step in `04-use-cases.md`
 - Every input field and its validation rule from Step 2.7 appears in `09-page-catalog.md` Input Fields table AND as a business rule (BR-xx) in `03-requirements.md`

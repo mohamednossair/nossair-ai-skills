@@ -20,7 +20,8 @@ Generate a useful Business Analysis document for the **active project** by extra
 - **Frontend first**: if a frontend exists, treat it as the primary source of business truth — screens and user actions define the structure
 - **User journeys first, screens inside**: group everything around end-to-end user journeys; list the screens and steps inside each journey
 - **Always unified**: always treat every part found (customer app, admin panel, backend, shared libraries) as one integrated system across all modules. A journey may start in one part and complete in another — document the full journey, not each part in isolation. Never generate separate documents per part.
-- **Exhaustive coverage**: document every discovered screen in the frontend and every business-facing API in the backend. No part of the business logic or user interface should be omitted.
+- **Exhaustive coverage**: document every discovered screen in the frontend and every business-facing API in the backend. No part of the business logic or user interface should be omitted. For every screen, you must explicitly identify and document every API it calls and the business purpose of those calls.
+- **Deep contextual understanding**: as you scan each screen, immediately trace its actions to the backend APIs they trigger. Document the business rules enforced by those APIs directly in the context of the screen.
 - Focus on **business behavior**, not implementation details
 - Translate technical code into **plain business language**
 - **NEVER include** in any output file: API endpoint URLs (e.g. `/api/users`), class names, method names, DTO/entity names, framework terms (e.g. "controller", "service", "repository", "component", "hook"), HTTP verbs, or database table names. These are **strictly forbidden** in all prose, tables, and lists
@@ -163,27 +164,27 @@ Only proceed to Step 2.7 after the user confirms.
 
 For **every screen** found in Step A, build a structured extraction record. Do this for every screen — no screen may be skipped.
 
-For each screen, build the following extraction record. This data feeds directly into `09-page-catalog.md` — every item captured here MUST appear in the final Page Catalog file:
+For each screen, build the following extraction record. This data feeds directly into `09-page-catalog.md` — every item captured here MUST appear in the final Page Catalog file. **Crucial**: Every action on the screen must be linked to its backend API business logic.
 
 ```
 Screen: <Plain screen name>
 Role(s) who access it: <role 1>, <role 2>
 Buttons / Actions available:
-  - <Button or action label in plain language> → <what it does>
+  - <Button or action label in plain language> → <what it does> [Calls API: <Business purpose of API call>]
   - ...
 Input fields on this screen:
   - <Field label in plain language> | Required? | Validation rule (plain language)
   - ...
 Data displayed to the user:
-  - <What the user sees on this screen — list each piece of information>
+  - <What the user sees on this screen — list each piece of information> [Source API: <Business purpose of data fetch>]
 Business rules that apply on this screen:
-  - <Rule in plain language — from frontend validation OR backend logic>
+  - <Rule in plain language — from frontend validation OR backend logic of called APIs>
   - ...
 Error messages the user can see:
-  - <Error text or plain description of when it appears>
+  - <Error text or plain description of when it appears> [Triggered by API: <Business reason for error>]
 Linked to journey(s): <Journey name(s) this screen is part of>
 Backend rules that apply but are NOT shown on screen:
-  - <Rule in plain language — silent backend enforcement>
+  - <Rule in plain language — silent backend enforcement during screen actions>
 ```
 
 **Verification gate — before moving to Step 3:**
@@ -282,7 +283,7 @@ Key template highlights:
 Use the per-page extraction records built in Step 2.7 as the source of truth. For every generated file, verify:
 - [ ] **Every single file** in the module has been read and analyzed (no files skipped)
 - [ ] **Every class and method** (business logic, controllers, entities) has been processed
-- [ ] Every screen from Step 2.7 has a full entry in `09-page-catalog.md` with ALL five sections (Actions & Buttons, Input Fields, Data Displayed, Business Rules, Error Messages)
+- [ ] Every screen from Step 2.7 has a full entry in `09-page-catalog.md` with ALL five sections (Actions & Buttons, Input Fields, Data Displayed, Business Rules, Error Messages). Each section MUST include the business logic of the specific APIs called by that screen.
 - Every screen from Step 2.7 appears in `02-scope-context.md` (journey steps) and `04-use-cases.md`
 - Every button/action from Step 2.7 appears in `09-page-catalog.md` Actions table AND as a user story in `03-requirements.md` or as a step in `04-use-cases.md`
 - Every input field and its validation rule from Step 2.7 appears in `09-page-catalog.md` Input Fields table AND as a business rule (BR-xx) in `03-requirements.md`
