@@ -20,7 +20,8 @@ Generate a **Technical Business Analysis** document set for the **active project
 **Guiding principles:**
 - **Frontend first**: if a frontend exists, treat it as the primary source of business truth — screens and user actions define the structure
 - **User journeys first, screens inside**: group everything around end-to-end user journeys; list the screens and steps inside each journey
-- **Always unified**: always treat every part found (customer app, admin panel, backend, shared libraries) as one integrated system. A journey may start in one part and complete in another — document the full journey, not each part in isolation. Never generate separate documents per part.
+- **Always unified**: always treat every part found (customer app, admin panel, backend, shared libraries) as one integrated system across all modules. A journey may start in one part and complete in another — document the full journey, not each part in isolation. Never generate separate documents per part.
+- **Exhaustive coverage**: document every discovered screen in the frontend and every business-facing API in the backend. No part of the business logic or user interface should be omitted across all modules.
 - **Two-layer documentation**: every business action must be paired with its technical implementation. Use clearly labelled sections: business language first, technical notes after.
 - Focus on **business behavior** as the primary narrative — the "what" and "why"
 - Add **technical notes** as a secondary layer — the "how": which API is called, which service handles it, what data model is used
@@ -91,14 +92,14 @@ After reading ALL frontend files, produce:
 
 List every file you will read before you start. Then read each one. Do not stop early.
 
-Read the backend **completely and independently** — not just to fill frontend gaps. Extract every business capability, rule, and data object the system has, whether or not the frontend exposes it.
+Read the backend **completely and independently** — not just to fill frontend gaps. Extract every business capability, rule, and data object the system has, covering every single API endpoint and internal service across all modules.
 
 | Layer | What to Read — read EVERY file, not just the obvious ones | Business Signals to Extract (translate) | Technical Signals to Record (exact — for technical notes) |
 |-------|-----------------------------------------------------------|-----------------------------------------|-----------------------------------------------------------|
 | Specs/Docs | Every `.spec/`, `docs/`, `README` file | Requirements, constraints, stated business goals | N/A |
 | Business Logic | **Every method in every service/use-case/handler file** | Each method = one business rule or action. Ask: "What decision does this method make?" | Exact method name, class name, service name — record for technical notes |
 | Data | **Every entity, model, schema, migration, and enum/constant file** | Every data object translated to business label; every status enum in plain values (e.g. `STATUS_PENDING` → "Waiting for approval") | Entity/table name, field names, enum constants — record for technical notes |
-| API / Routes | **Every controller, route handler, or gateway route file** | What operation the user is performing (translate: "Submit an order", "Retrieve customer details") | Exact endpoint URL, HTTP method, request/response DTO names — record for technical notes |
+| API / Routes | **Every controller, route handler, or gateway route file** | What business action the API performs (e.g. "Create User"). Map each endpoint to its business purpose. | Exact endpoint URL, HTTP method, request/response DTO names — record for technical notes |
 | Security | **Every** security config, role definition, permission list, JWT claim | Every role and permission in plain language: "Sales Manager can view but not edit prices" | Role constant names, permission strings, JWT claim keys — record for technical notes |
 | Config | **Every** config/env file | Every limit, threshold, default translated: "Maximum file size: 10 MB", "Session timeout: 30 minutes" | Config key names, exact values — record for technical notes |
 | Tests | **Every** test file — read each test name and assertion | Each test = one piece of intended business behavior | Test class and method names — useful for tracing implementation |
@@ -106,12 +107,13 @@ Read the backend **completely and independently** — not just to fill frontend 
 | Error Handling | Every custom error, exception, and error message string | What can go wrong for the business; what the system refuses to do | Exception class names, error codes — record for technical notes |
 
 After reading ALL backend files, produce independently:
-1. **Complete business rules list** — every rule found, numbered, in plain language. Include: who it applies to, when it triggers, what it allows or prevents.
-2. **Technical implementation map** — for every business rule, record: which service class enforces it, which method, and which API endpoint triggers it.
-3. **Backend-only journeys** — every automated process, scheduled job, batch operation, or capability that has no user screen.
-4. **Complete data picture** — every business object, every meaningful field, every relationship, every status/lifecycle. Also record the technical entity/table name.
-5. **Complete role & permission picture** — every role, every capability granted, every restriction enforced. Also record the technical role constant.
-6. **System limits & policies** — every threshold, limit, timeout, and default that affects the user or business. Also record the config key.
+1. **Complete API-to-Business mapping** — a list of every discovered API endpoint and the business function it serves, translated to plain language.
+2. **Complete business rules list** — every rule found, numbered, in plain language. Include: who it applies to, when it triggers, what it allows or prevents.
+3. **Technical implementation map** — for every business rule and API, record: which service class enforces it, which method, and which API endpoint triggers it.
+4. **Backend-only journeys** — every automated process, scheduled job, batch operation, or capability that has no user screen.
+5. **Complete data picture** — every business object, every meaningful field, every relationship, every status/lifecycle. Also record the technical entity/table name.
+6. **Complete role & permission picture** — every role, every capability granted, every restriction enforced. Also record the technical role constant.
+7. **System limits & policies** — every threshold, limit, timeout, and default that affects the user or business. Also record the config key.
 
 #### Step C — Merge All Layers into One Complete Business Picture
 
@@ -862,7 +864,9 @@ A product owner should be able to look up any term they encounter in this docume
 
 **Coverage verification (do this FIRST, before any other check):**
 Use the per-page extraction records built in Step 2.7 as the source of truth. For every generated file, verify:
-- Every screen from Step 2.7 has a full entry in `09-page-catalog.md` with ALL six sections (Actions & Buttons, Input Fields, Data Displayed, Business Rules, Error Messages, Technical Implementation)
+- [ ] **Every single file** in the module has been read and analyzed (no files skipped)
+- [ ] **Every class and method** (business logic, controllers, entities) has been processed
+- [ ] Every screen from Step 2.7 has a full entry in `09-page-catalog.md` with ALL six sections (Actions & Buttons, Input Fields, Data Displayed, Business Rules, Error Messages, Technical Implementation)
 - Every screen from Step 2.7 appears in `02-scope-context.md` (journey steps) and `04-use-cases.md`
 - Every button/action from Step 2.7 appears in `09-page-catalog.md` Actions table AND as a user story in `03-requirements.md` or as a step in `04-use-cases.md`
 - Every input field and its validation rule from Step 2.7 appears in `09-page-catalog.md` Input Fields table AND as a business rule (BR-xx) in `03-requirements.md`

@@ -19,7 +19,8 @@ Generate a useful Business Analysis document for the **active project** by extra
 **Guiding principles:**
 - **Frontend first**: if a frontend exists, treat it as the primary source of business truth — screens and user actions define the structure
 - **User journeys first, screens inside**: group everything around end-to-end user journeys; list the screens and steps inside each journey
-- **Always unified**: always treat every part found (customer app, admin panel, backend, shared libraries) as one integrated system. A journey may start in one part and complete in another — document the full journey, not each part in isolation. Never generate separate documents per part.
+- **Always unified**: always treat every part found (customer app, admin panel, backend, shared libraries) as one integrated system across all modules. A journey may start in one part and complete in another — document the full journey, not each part in isolation. Never generate separate documents per part.
+- **Exhaustive coverage**: document every discovered screen in the frontend and every business-facing API in the backend. No part of the business logic or user interface should be omitted.
 - Focus on **business behavior**, not implementation details
 - Translate technical code into **plain business language**
 - **NEVER include** in any output file: API endpoint URLs (e.g. `/api/users`), class names, method names, DTO/entity names, framework terms (e.g. "controller", "service", "repository", "component", "hook"), HTTP verbs, or database table names. These are **strictly forbidden** in all prose, tables, and lists
@@ -90,11 +91,12 @@ After reading ALL frontend files, produce:
 
 List every file you will read before you start. Then read each one. Do not stop early.
 
-Read the backend **completely and independently** — not just to fill frontend gaps. Extract every business capability, rule, and data object the system has, whether or not the frontend exposes it.
+Read the backend **completely and independently** — not just to fill frontend gaps. Extract every business capability, rule, and data object the system has, covering every single API endpoint and internal service.
 
 | Layer | What to Read — read EVERY file, not just the obvious ones | Business Signals to Extract (translate, do not copy) |
 |-------|-----------------------------------------------------------|------------------------------------------------------|
 | Specs/Docs | Every `.spec/`, `docs/`, `README` file | Requirements, constraints, stated business goals |
+| API / Controllers | **Every controller and route handler file** | What business action the API performs (e.g. "Create User", "Process Payment"). Map each endpoint to its business purpose. |
 | Business Logic | **Every method in every service/use-case/handler file** | Each method = one potential business rule or action. Ask: "What decision does this method make? What does it allow or prevent?" |
 | Data | **Every entity, model, schema, migration, and enum/constant file** | Every data object (translate name to business label), every field that matters, every status/state enum translated to plain values (e.g. `STATUS_PENDING` → "Waiting for approval") |
 | Security | **Every** security config, role definition, permission list, JWT claim | Every role, every permission granted or denied — translate to plain: "Sales Manager can view but not edit prices" |
@@ -104,11 +106,12 @@ Read the backend **completely and independently** — not just to fill frontend 
 | Error Handling | Every custom error, exception, and error message string | What can go wrong for the business; what the system refuses to do |
 
 After reading ALL backend files, produce independently:
-1. **Complete business rules list** — every rule found, numbered, in plain language. Include: who it applies to, when it triggers, what it allows or prevents. Target: capture every rule, even minor ones.
-2. **Backend-only journeys** — every automated process, scheduled job, batch operation, or capability that has no user screen (e.g. "Nightly stock recalculation", "Auto-expire pending requests after 7 days").
-3. **Complete data picture** — every business object, every meaningful field, every relationship, every status/lifecycle.
-4. **Complete role & permission picture** — every role, every capability granted, every restriction enforced.
-5. **System limits & policies** — every threshold, limit, timeout, and default that affects the user or business.
+1. **Complete API-to-Business mapping** — a list of every discovered API endpoint and the business function it serves, translated to plain language.
+2. **Complete business rules list** — every rule found, numbered, in plain language. Include: who it applies to, when it triggers, what it allows or prevents. Target: capture every rule, even minor ones.
+3. **Backend-only journeys** — every automated process, scheduled job, batch operation, or capability that has no user screen (e.g. "Nightly stock recalculation", "Auto-expire pending requests after 7 days").
+4. **Complete data picture** — every business object, every meaningful field, every relationship, every status/lifecycle.
+5. **Complete role & permission picture** — every role, every capability granted, every restriction enforced.
+6. **System limits & policies** — every threshold, limit, timeout, and default that affects the user or business.
 
 **Do NOT copy into output**: endpoint URLs, HTTP methods, class names, method names, DTO names, framework terms. Translate everything.
 
@@ -277,7 +280,9 @@ Key template highlights:
 
 **Coverage verification (do this FIRST, before any other check):**
 Use the per-page extraction records built in Step 2.7 as the source of truth. For every generated file, verify:
-- Every screen from Step 2.7 has a full entry in `09-page-catalog.md` with ALL five sections (Actions & Buttons, Input Fields, Data Displayed, Business Rules, Error Messages)
+- [ ] **Every single file** in the module has been read and analyzed (no files skipped)
+- [ ] **Every class and method** (business logic, controllers, entities) has been processed
+- [ ] Every screen from Step 2.7 has a full entry in `09-page-catalog.md` with ALL five sections (Actions & Buttons, Input Fields, Data Displayed, Business Rules, Error Messages)
 - Every screen from Step 2.7 appears in `02-scope-context.md` (journey steps) and `04-use-cases.md`
 - Every button/action from Step 2.7 appears in `09-page-catalog.md` Actions table AND as a user story in `03-requirements.md` or as a step in `04-use-cases.md`
 - Every input field and its validation rule from Step 2.7 appears in `09-page-catalog.md` Input Fields table AND as a business rule (BR-xx) in `03-requirements.md`
