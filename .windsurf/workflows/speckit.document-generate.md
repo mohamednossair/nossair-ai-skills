@@ -81,43 +81,28 @@ Read backend files only to extract:
 
 **Do NOT extract from backend**: endpoint URLs, HTTP methods, class names, method names, DTO names, framework terms. These must not appear anywhere in the output.
 
-#### Step C — Cross-Layer Correlation (Both present)
+#### Step C — Cross-Layer Correlation
 
-After reading both sides, identify:
+**If only frontend exists**: document what can be inferred from screens and forms; mark backend-dependent sections `TBD`. Skip the bullets below.
+**If only backend exists**: derive journeys from business logic and data flows; mark screen-level sections `TBD`. Skip the bullets below.
+**If both exist**, identify:
 - Which screens support which user journeys
-- What information the user sees on screen vs. what the system actually stores (flag gaps)
+- What information the user sees on screen vs. what the system actually has or returns (flag gaps)
 - Business rules enforced only in the backend that the user never sees explained
 - Screens that exist in the frontend but have no corresponding backend behavior (flag as risk)
 - Backend capabilities that no screen exposes to the user (flag as potential missing feature)
 
-**If only frontend exists**: document what can be inferred from screens and forms; mark backend-dependent sections `TBD`.
-**If only backend exists**: derive journeys from business logic and data flows; mark screen-level sections `TBD`.
-
 ### 2.5 Pause and Confirm — User Journey Review (REQUIRED when frontend exists)
 
-**Before generating any file**, present the following to the user and wait for confirmation:
+**Before generating any file**, output a live populated summary using the actual data discovered — do NOT print placeholder text. Structure it as follows:
 
-```
-## Discovered User Journeys and Screens
-
-I found the following in [project name]:
-
-### User Journeys
-| # | Journey Name | Who Does This | Screens Involved |
-|---|-------------|---------------|-----------------|
-| 1 | <plain-language journey name> | <Role> | <Screen 1>, <Screen 2> |
-
-### Screens Inventory
-| Screen Name | Who Can Access It | Main Actions Available |
-|-------------|------------------|----------------------|
-| <Screen Name> | <Role(s)> | <action 1>, <action 2> |
-
-### Open Questions Before I Generate
-- <Any ambiguity found — e.g. "Found a screen with no clear role access — should it be available to all users?">
-
-**Please confirm, correct, or add to this list before I generate the full document set.**
-Type 'ok' to proceed, or tell me what to change.
-```
+1. Heading: `## Discovered User Journeys and Screens — [actual project name]`
+2. **User Journeys** table — one row per journey found:
+   - Journey Name (plain language goal) | Who Does This (plain role name) | Screens Involved (plain screen names, comma-separated)
+3. **Screens Inventory** table — one row per screen found:
+   - Screen Name | Who Can Access It (role) | Main Actions Available (plain verbs, e.g. "Search, View details, Export")
+4. **Open Questions** — list any ambiguities found (e.g. a screen with no clear role, a form with no visible outcome). Omit this section entirely if there are none.
+5. Close with: `Please confirm, correct, or add to this list. Type 'ok' to proceed, or tell me what to change.`
 
 Only proceed to Step 3 after the user confirms.
 **Exception**: if no frontend exists (backend-only project), skip this pause and proceed directly.
@@ -131,7 +116,8 @@ Only proceed to Step 3 after the user confirms.
 #### 4.0 Pre-Generation Check (Existing Files)
 
 Before writing any file, **check if it already exists** in `docs/ba/<module-name>/`.
-For each of the 8 files apply the following decision:
+There are **9 files** to generate: `README.md` (index) plus the 8 numbered files `01-overview.md` through `08-reference.md`.
+For each of the 9 files apply the following decision:
 
 | Condition | Action |
 |-----------|--------|
@@ -139,7 +125,7 @@ For each of the 8 files apply the following decision:
 | File exists but has empty or `TBD`-only sections that the current code can now fill | **Update** those sections; keep human-edited content intact |
 | File exists and is already accurate and complete | **Skip** -- do not overwrite |
 
-At the end of Step 4, report per file: `CREATED`, `UPDATED (sections: ...)`, or `SKIPPED (already up to date)`.
+At the end of Step 4, report per file (all 9): `CREATED`, `UPDATED (sections: ...)`, or `SKIPPED (already up to date)`.
 
 ---
 
@@ -150,7 +136,7 @@ At the end of Step 4, report per file: `CREATED`, `UPDATED (sections: ...)`, or 
 - Every table row and bullet must say something real -- no placeholder text left in the final output.
 - Use `TBD` only when the code gives no evidence at all, and add a note explaining what is missing.
 - Navigation links: first line `[<- Back to Index](./README.md)`, last line prev/next (first file: no Previous; last file: no Next).
-- **Hard ban — never write any of the following anywhere in the output files:**
+- **Hard ban — the following terms are banned in the generated output files only** (they are fine inside these workflow instructions as source-reading guidance):
   - API endpoint URLs (e.g. `/api/users`, `/v1/orders`)
   - HTTP methods (GET, POST, PUT, DELETE, PATCH)
   - Class names, method names, function names (e.g. `UserService`, `createOrder()`)
@@ -167,7 +153,7 @@ At the end of Step 4, report per file: `CREATED`, `UPDATED (sections: ...)`, or 
 
 | File | What a product owner will find here |
 |------|--------------------------------------|
-| `README.md` | What the system does, who uses it, and a guide to all 8 files |
+| `README.md` | What the system does, who uses it, and a guide to all 9 documents |
 | `01-overview.md` | What the system does, why it exists, who uses it -- in 30-second readable form |
 | `02-scope-context.md` | What is built, how the system works today, and the end-to-end business flow |
 | `03-requirements.md` | User stories (As a / I want / So that) and rules the system enforces in plain language |
@@ -194,23 +180,23 @@ At the end of Step 4, report per file: `CREATED`, `UPDATED (sections: ...)`, or 
 
 | Item | Count |
 |------|-------|
-| Features mapped | <N> |
+| User journeys mapped | <N> |
 | TBD sections | <N> |
 | Mismatches flagged | <N> |
 | Open questions | <N> |
 
 ## Contents
 
-| # | Group | File | What a product owner will find here |
-|---|-------|------|--------------------------------------|
-| 1 | Overview | [01-overview.md](./01-overview.md) | What the system does, why it exists, who uses it |
-| 2 | Scope & Context | [02-scope-context.md](./02-scope-context.md) | What is built, how the system works today, and the end-to-end business flow |
-| 3 | Requirements | [03-requirements.md](./03-requirements.md) | What users need to do (user stories) and the rules the system enforces |
-| 4 | Use Cases | [04-use-cases.md](./04-use-cases.md) | Step-by-step walkthroughs of each main user scenario |
-| 5 | Acceptance Criteria | [05-acceptance-criteria.md](./05-acceptance-criteria.md) | How to verify the system works correctly |
-| 6 | Data & Reporting | [06-data-reporting.md](./06-data-reporting.md) | What data the system manages and how it is measured |
-| 7 | Supporting | [07-supporting.md](./07-supporting.md) | Assumptions, constraints, risks, and open questions |
-| 8 | Reference | [08-reference.md](./08-reference.md) | Glossary of terms and change history |
+| # | Group | File | What a product owner will find here | Status |
+|---|-------|------|--------------------------------------|--------|
+| 1 | Overview | [01-overview.md](./01-overview.md) | What the system does, why it exists, who uses it | Complete / Partial / TBD |
+| 2 | Scope & Context | [02-scope-context.md](./02-scope-context.md) | What is built, how the system works today, and the end-to-end business flow | Complete / Partial / TBD |
+| 3 | Requirements | [03-requirements.md](./03-requirements.md) | What users need to do (user stories) and the rules the system enforces | Complete / Partial / TBD |
+| 4 | Use Cases | [04-use-cases.md](./04-use-cases.md) | Step-by-step walkthroughs of each main user scenario | Complete / Partial / TBD |
+| 5 | Acceptance Criteria | [05-acceptance-criteria.md](./05-acceptance-criteria.md) | How to verify the system works correctly | Complete / Partial / TBD |
+| 6 | Data & Reporting | [06-data-reporting.md](./06-data-reporting.md) | What data the system manages and how it is measured | Complete / Partial / TBD |
+| 7 | Supporting | [07-supporting.md](./07-supporting.md) | Assumptions, constraints, risks, and open questions | Complete / Partial / TBD |
+| 8 | Reference | [08-reference.md](./08-reference.md) | Glossary of terms and change history | Complete / Partial / TBD |
 ```
 
 ---
@@ -302,9 +288,9 @@ Example journey name: "Register a New Supplier", "Approve a Leave Request", "Sub
 ## 3.1 What Users Need to Do (User Stories)
 <One row per main user action. Write the "So that" column as a real business benefit, not a technical outcome.
 Priority: High = core flow, Medium = important but not blocking, Low = nice-to-have.>
-| ID | As a... | I want to... | So that... | Where (Screen) | Priority |
-|----|---------|--------------|------------|----------------|----------|
-| FR-01 | | | | | High |
+| ID | As a... | I want to... | So that... | Journey | Where (Screen) | Priority |
+|----|---------|--------------|------------|---------|----------------|----------|
+| FR-01 | | | | | | High |
 
 ## 3.2 Rules the System Enforces (Business Rules)
 <List every validation, constraint, or policy the system applies. Write in plain language.
@@ -369,10 +355,12 @@ Write in plain language. A product owner should be able to manually verify each 
 After each criterion add a label: (Manual) if a person can verify it by clicking through the UI, (Automated) if it requires a script or test tool, (Either) if both apply.>
 
 ### FR-01 -- <User story title>
+**Journey**: <Plain-language journey name this story belongs to, e.g. "Register a New Customer">
 - [ ] AC-01: Given <starting condition>, when <user action>, then <expected result>. (Manual / Automated / Either)
 - [ ] AC-02: Given <starting condition>, when <invalid input>, then the user sees <error message>. (Manual / Automated / Either)
 
 ### FR-02 -- <User story title>
+**Journey**: <Plain-language journey name>
 - [ ] AC-03: ... (Manual / Automated / Either)
 
 ---
@@ -395,11 +383,24 @@ Only include fields that matter to the business -- not internal IDs or audit tim
 |-------------|---------------------------------------|------------------------|------------------|--------------|
 | | | | Yes / No / Partial | <Role that creates or manages this data> |
 
-## 6.2 What the User Sees vs. What the System Stores
-<Flag any gaps between what the user sees on screen and what the system actually stores or returns.
-This helps the product owner spot missing fields or inconsistencies.>
-| What the User Sees | What the System Stores | Match? | Notes |
-|--------------------|------------------------|--------|-------|
+### 6.1.1 How These Things Connect (Business Relationships)
+<Describe how the data objects above relate to each other in plain business language.
+Only include relationships that matter to the product owner — skip internal or technical links.
+Write each relationship as a plain sentence. Examples:
+- "An Order belongs to one Customer. A Customer can have many Orders."
+- "A Product can appear in many Orders. An Order can contain many Products."
+- "An Approval Request is linked to one Employee. Each request has one outcome: Approved or Rejected."
+If the data is simple (fewer than 3 objects or no meaningful relationships), skip this section — do not add it at all.>
+
+| Relationship (plain language) | Business Meaning | Example |
+|-------------------------------|-----------------|---------|
+| <e.g. "A Customer can place many Orders"> | <e.g. "Each order must be linked to a known customer"> | <e.g. "Customer: Acme Corp — Orders: #1001, #1002, #1005"> |
+
+## 6.2 What the User Sees vs. What the System Has / Returns
+<Flag any gaps between what the user sees on screen and what the system actually has or returns.
+This helps the product owner spot missing fields, hidden data, or display inconsistencies.>
+| What the User Sees | What the System Has / Returns | Match? | Notes |
+|--------------------|-------------------------------|--------|-------|
 | | | Yes / Partial / No | |
 
 ## 6.3 How Is Success Measured? (KPIs & Reporting)
@@ -439,10 +440,11 @@ Write as plain statements, not technical observations.>
 
 ## 7.4 Risks & Open Questions
 <Anything uncertain, incomplete, or flagged in the code as needing attention.
-Write as questions the product owner should answer, not technical TODOs.>
-| # | Question or Risk | Why It Matters | Who Should Decide |
-|---|-----------------|----------------|-------------------|
-| 1 | | | |
+Write as questions the product owner should answer, not technical TODOs.
+Priority: High = blocks a core journey; Medium = affects a feature but has a workaround; Low = minor gap.>
+| # | Question or Risk | Why It Matters | Priority | Who Should Decide |
+|---|-----------------|----------------|----------|-------------------|
+| 1 | | | High / Medium / Low | |
 
 ---
 [<- Previous: Data & Reporting](./06-data-reporting.md) | [-> Next: Reference](./08-reference.md)
@@ -460,9 +462,9 @@ Write as questions the product owner should answer, not technical TODOs.>
 ## 8.1 Glossary
 <Translate every technical term, system name, or domain concept into plain business language.
 A product owner should be able to look up any term they encounter in this document.>
-| Term Used in Document | Plain Business Meaning | Where It Appears |
-|-----------------------|------------------------|------------------|
-| | | Overview / Requirements / Use Cases / Data |
+| Term Used in Document | Plain Business Meaning | Which Document(s) |
+|-----------------------|------------------------|-------------------|
+| | | |
 
 ## 8.2 Change History
 | Version | Date | Changed By | What Changed |
@@ -492,7 +494,7 @@ A product owner should be able to look up any term they encounter in this docume
 - The final document must be understandable by a non-technical product owner with no explanation.
 
 ### 6. Output Confirmation
-- List all 8 files created with their full paths and status (CREATED / UPDATED / SKIPPED).
+- List all 9 files created with their full paths and status (CREATED / UPDATED / SKIPPED).
 - Summarize key findings in business language:
   - User journeys identified (list names)
   - Screens discovered (count and list)
