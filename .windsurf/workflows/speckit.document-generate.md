@@ -1,8 +1,10 @@
 ---
-description: Reverse-engineer a Business Analysis document set from the current codebase (frontend + backend) -- no manual input required
+description: Reverse-engineer a Business Analysis document set from the current codebase -- always treats all parts found (frontend, backend, admin, etc.) as one unified integrated system
 ---
 
-**Usage**: `/speckit.document-generate module="<module-name>" [project="<project-name>"] [frontend="<path>"] [backend="<path>"]`
+**Usage**: `/speckit.document-generate module="<module-name>" [project="<project-name>"] [parts="<path1>, <path2>, <path3>"]`
+
+> **Always unified by default.** Every codebase and sub-project found is treated as one integrated system. One document set covers everything. If `parts` is not provided, all sub-projects found under the active workspace are automatically included.
 
 ## Purpose
 
@@ -17,6 +19,7 @@ Generate a useful Business Analysis document for the **active project** by extra
 **Guiding principles:**
 - **Frontend first**: if a frontend exists, treat it as the primary source of business truth — screens and user actions define the structure
 - **User journeys first, screens inside**: group everything around end-to-end user journeys; list the screens and steps inside each journey
+- **Always unified**: always treat every part found (customer app, admin panel, backend, shared libraries) as one integrated system. A journey may start in one part and complete in another — document the full journey, not each part in isolation. Never generate separate documents per part.
 - Focus on **business behavior**, not implementation details
 - Translate technical code into **plain business language**
 - **NEVER include** in any output file: API endpoint URLs (e.g. `/api/users`), class names, method names, DTO/entity names, framework terms (e.g. "controller", "service", "repository", "component", "hook"), HTTP verbs, or database table names. These are **strictly forbidden** in all prose, tables, and lists
@@ -31,15 +34,25 @@ Generate a useful Business Analysis document for the **active project** by extra
 
 ### 1. Discover Project Structure
 
-- **Determine the active project root**: use the git root of the file the user has open (or the workspace folder that was explicitly active when the command was invoked). If ambiguous, ask the user which workspace to use BEFORE proceeding.
-- **Scope ONLY to that single project root.** Do NOT read, list, or reference files from any other open workspace, sibling workspace, or parent directory. Ignore any other projects visible in the IDE workspace layout.
-- **Check for a frontend first** — this is mandatory:
-  - Frontend indicators: `src/app/`, `src/components/`, `pages/`, `angular.json`, `package.json` with a UI framework dependency (Angular, React, Vue, etc.)
-  - If `frontend` parameter is provided, use that path
-- Then check for a backend:
-  - Backend indicators: `src/main/java`, `src/main/kotlin`, `controllers/`, `routes/`, `app.py`, `Program.cs`
-  - If `backend` parameter is provided, use that path
-- Record what was found: Frontend only / Backend only / Both
+#### Discover All Parts (always — no flag needed)
+- **Determine the workspace root**: use the git root or the workspace folder explicitly active when the command was invoked. If ambiguous, ask the user BEFORE proceeding.
+- **If `parts` parameter is provided**: use those exact paths.
+- **If `parts` is NOT provided**: scan the workspace root and identify every sub-project automatically. Look for:
+  - Multiple `package.json` files (each = a separate frontend or Node app)
+  - Multiple `src/main/java`, `src/main/kotlin`, `app.py`, `Program.cs` roots (each = a backend)
+  - Folders named `admin`, `portal`, `dashboard`, `api`, `backend`, `frontend`, `client`, `server`, `app`, `web` — treat each as a potential part
+- **Label each part** by its type:
+  - Customer-facing frontend (e.g. web app, mobile app)
+  - Admin / back-office panel
+  - Backend API / business logic
+  - Shared library or common module
+- **If only one part exists**: treat it as a single-part system and continue.
+- **Cross-part integration signals** — actively look for:
+  - Data objects that appear in multiple parts (same concept, different views)
+  - Roles that exist in one part but not another (e.g. Admin role only in admin panel)
+  - Journeys that require actions in more than one part to complete
+  - Business rules enforced in the backend but visible in multiple frontends
+- List every part found with its label before proceeding to Step 2.
 
 ### 2. Read and Extract Business Meaning from Code
 
@@ -49,6 +62,7 @@ Generate a useful Business Analysis document for the **active project** by extra
 - Do not stop after finding the obvious screens or main flows. Keep reading until you have covered every file in the project.
 - If a file seems purely technical (e.g. a config loader, a logger setup), still check it for business limits, defaults, or constraints before skipping.
 - Depth required: for every service/logic file, read **every individual method or function** and ask what business decision or action it performs. A service with 10 methods = 10 potential business rules to extract.
+- Repeat Steps A and B for **every part** found. Label each finding with its source part (e.g. "Customer App", "Admin Panel", "Backend API"). Step C merges all parts into one unified picture.
 
 **Translate everything into plain business language** — what the user sees, does, and gets as a result. Never extract technical details into the output.
 
@@ -98,7 +112,7 @@ After reading ALL backend files, produce independently:
 
 **Do NOT copy into output**: endpoint URLs, HTTP methods, class names, method names, DTO names, framework terms. Translate everything.
 
-#### Step C — Merge Both Layers into One Complete Business Picture
+#### Step C — Merge All Layers into One Complete Business Picture
 
 **If only frontend exists**: document what can be inferred from screens and forms; mark backend-dependent sections `TBD`. Skip the merge bullets below.
 **If only backend exists**: derive journeys from business logic and data flows; mark screen-level sections `TBD`. Skip the merge bullets below.
@@ -110,25 +124,34 @@ After reading ALL backend files, produce independently:
 - For every data object found in Step B that is not visible on any frontend screen: add it to `06-data-reporting.md` section 6.1 with `Visible to User? No`
 - For every role or permission found in the backend that has no matching frontend guard: add it to the stakeholders table in `01-overview.md` and note the permission in `03-requirements.md`
 
+**Multi-part merge (when more than one part was found):**
+- **Cross-part journeys**: if a user journey spans more than one part (e.g. customer places order in Customer App → admin approves in Admin Panel → backend processes it), document it as ONE journey with steps labelled by part: `[Customer App] Step 1 ...`, `[Admin Panel] Step 2 ...`. Do not split it into separate journeys.
+- **Shared data objects**: if the same data concept appears in multiple parts (e.g. "Order" exists in customer app, admin panel, and backend), merge into ONE data object row in `06-data-reporting.md`. In the "Visible to User?" column note which roles see it: "Customer (read-only), Admin (full access)".
+- **Role reconciliation**: compile all roles found across all parts into a single stakeholders table in `01-overview.md`. Note which part(s) each role accesses.
+- **Part-specific scope**: in `02-scope-context.md` section 2.1, group capabilities by which part delivers them — e.g. "**Customer App**: ...", "**Admin Panel**: ...", "**System (automated)**: ...".
+- **Integration points**: in `07-supporting.md` section 7.1 (How the Parts Connect), document how the parts interact in plain language — e.g. "When a customer submits an order, it immediately becomes visible to the admin team for review."
+
 **Flag — identify gaps for the product owner:**
-- Screens that exist in the frontend but have no backend business logic behind them (flag in `07-supporting.md` 7.3 as a mismatch)
-- Backend capabilities that no screen exposes to the user yet (flag in `07-supporting.md` 7.4 as an open question: "Should this capability be exposed to users?")
-- Business rules enforced in the backend that contradict or conflict with frontend validation (flag in `07-supporting.md` 7.3)
+- Screens that exist in the frontend but have no backend business logic behind them (flag in `07-supporting.md` 7.4 as a mismatch)
+- Backend capabilities that no screen exposes to the user yet (flag in `07-supporting.md` 7.5 as an open question: "Should this capability be exposed to users?")
+- Business rules enforced in the backend that contradict or conflict with frontend validation (flag in `07-supporting.md` 7.4)
+- Capabilities that exist in one part but are missing in another where they would be expected — e.g. "Admin can approve orders but there is no screen to view order history" (flag in `07-supporting.md` 7.5)
 
 ### 2.5 Pause and Confirm — Full Business Picture Review (REQUIRED when frontend exists)
 
 **Before generating any file**, output a live populated summary using the actual data discovered — do NOT print placeholder text. Structure it as follows:
 
 1. Heading: `## Discovered Business Picture — [actual project name]`
-2. **User Journeys** table — one row per journey a user initiates:
-   - Journey Name (plain language goal) | Who Does This (plain role name) | Screens Involved (plain screen names, comma-separated)
-3. **System Journeys** table — one row per automated process or backend-only capability found (no user screen required). Omit if none found:
+2. **Parts Read**: list each part and its type — e.g. "Customer App (frontend) | Admin Panel (frontend) | Backend API (backend)". If only one part, write "Single project — [name]".
+3. **User Journeys** table — one row per journey. If multiple parts were found, note which parts the journey spans:
+   - Journey Name (plain language goal) | Who Does This | Parts Involved | Screens (comma-separated)
+4. **System Journeys** table — one row per automated process. Omit if none found:
    - Process Name (plain language) | What Triggers It | What It Does for the Business
-4. **Screens Inventory** table — one row per screen found:
-   - Screen Name | Who Can Access It (role) | Main Actions Available (plain verbs, e.g. "Search, View details, Export")
-5. **Backend Business Rules** — count only: "Found N business rules enforced by the system. These will be added to the Requirements document."
-6. **Open Questions** — list any ambiguities found (e.g. a screen with no backend logic, a backend capability with no screen). Omit if none.
-7. Close with: `Please confirm, correct, or add to this list. Type 'ok' to proceed, or tell me what to change.`
+5. **Screens Inventory** table — one row per screen, grouped by part if multiple parts were found:
+   - Part | Screen Name | Who Can Access It | Main Actions Available
+6. **Backend Business Rules** — count only: "Found N business rules enforced by the system. These will be added to the Requirements document."
+7. **Open Questions** — ambiguities or cross-part gaps found. Omit if none.
+8. Close with: `Please confirm, correct, or add to this list. Type 'ok' to proceed, or tell me what to change.`
 
 Only proceed to Step 2.7 after the user confirms.
 **Exception**: if no frontend exists (backend-only project), skip this pause and proceed directly to Step 2.7.
@@ -137,7 +160,7 @@ Only proceed to Step 2.7 after the user confirms.
 
 For **every screen** found in Step A, build a structured extraction record. Do this for every screen — no screen may be skipped.
 
-For each screen, output the following (internally, as your working notes — not shown to user):
+For each screen, build the following extraction record. This data feeds directly into `09-page-catalog.md` — every item captured here MUST appear in the final Page Catalog file:
 
 ```
 Screen: <Plain screen name>
@@ -162,12 +185,20 @@ Backend rules that apply but are NOT shown on screen:
 
 **Verification gate — before moving to Step 3:**
 For every screen in the list, confirm:
-- [ ] At least one button or action is documented (if a screen has none, flag it as a risk in `07-supporting.md` 7.3)
+- [ ] At least one button or action is documented (if a screen has none, flag it as a risk in `07-supporting.md` 7.4)
 - [ ] Every input field has a validation rule documented (if unknown, mark `TBD` and flag)
 - [ ] Every piece of data shown to the user is listed
 - [ ] All backend rules for this screen are captured (from Step B)
 
 Only proceed to Step 3 when every screen has a completed extraction record.
+
+**Backend-only fallback (no screens found):**
+If no frontend screens were found, skip the per-page extraction above but verify instead:
+- [ ] Every backend business rule from Step B has a corresponding BR-xx in `03-requirements.md`
+- [ ] Every backend-only journey has a System Journey in `02-scope-context.md` and a UC in `04-use-cases.md`
+- [ ] Every data object has an entry in `06-data-reporting.md` section 6.1
+- [ ] Every role/permission has an entry in the stakeholders table in `01-overview.md`
+- [ ] `09-page-catalog.md` is marked as `N/A — no user screens in this module` and skipped
 
 ### 3. Determine Output Directory
 - Default directory: `<current-project-root>/docs/ba/<module-name>/`
@@ -178,8 +209,8 @@ Only proceed to Step 3 when every screen has a completed extraction record.
 #### 4.0 Pre-Generation Check (Existing Files)
 
 Before writing any file, **check if it already exists** in `docs/ba/<module-name>/`.
-There are **9 files** to generate: `README.md` (index) plus the 8 numbered files `01-overview.md` through `08-reference.md`.
-For each of the 9 files apply the following decision:
+There are **10 files** to generate: `README.md` (index) plus the 9 numbered files `01-overview.md` through `09-page-catalog.md`.
+For each of the 10 files apply the following decision:
 
 | Condition | Action |
 |-----------|--------|
@@ -187,7 +218,7 @@ For each of the 9 files apply the following decision:
 | File exists but has empty or `TBD`-only sections that the current code can now fill | **Update** those sections; keep human-edited content intact |
 | File exists and is already accurate and complete | **Skip** -- do not overwrite |
 
-At the end of Step 4, report per file (all 9): `CREATED`, `UPDATED (sections: ...)`, or `SKIPPED (already up to date)`.
+At the end of Step 4, report per file (all 10): `CREATED`, `UPDATED (sections: ...)`, or `SKIPPED (already up to date)`.
 
 ---
 
@@ -215,7 +246,7 @@ At the end of Step 4, report per file (all 9): `CREATED`, `UPDATED (sections: ..
 
 | File | What a product owner will find here |
 |------|--------------------------------------|
-| `README.md` | What the system does, who uses it, and a guide to all 9 documents |
+| `README.md` | What the system does, who uses it, and a guide to all 10 documents |
 | `01-overview.md` | What the system does, why it exists, who uses it -- in 30-second readable form |
 | `02-scope-context.md` | What is built, how the system works today, and the end-to-end business flow |
 | `03-requirements.md` | User stories (As a / I want / So that) and rules the system enforces in plain language |
@@ -224,6 +255,7 @@ At the end of Step 4, report per file (all 9): `CREATED`, `UPDATED (sections: ..
 | `06-data-reporting.md` | What data the system manages, what users see vs. what is stored, how success is measured |
 | `07-supporting.md` | Assumptions, constraints, mismatches flagged as plain questions, risks as decisions needed |
 | `08-reference.md` | Glossary translating every term to plain business language, change history |
+| `09-page-catalog.md` | Complete page-by-page business catalog — every screen's buttons, fields, rules, backend rules, and errors in one place |
 
 ### 4.2 File Templates
 
@@ -243,6 +275,11 @@ At the end of Step 4, report per file (all 9): `CREATED`, `UPDATED (sections: ..
 | Item | Count |
 |------|-------|
 | User journeys mapped | <N> |
+| System journeys (automated) | <N> |
+| Screens cataloged | <N> |
+| Business rules captured | <N> (frontend: <n>, backend-only: <n>) |
+| Buttons / actions documented | <N> |
+| Input fields documented | <N> |
 | TBD sections | <N> |
 | Mismatches flagged | <N> |
 | Open questions | <N> |
@@ -259,6 +296,7 @@ At the end of Step 4, report per file (all 9): `CREATED`, `UPDATED (sections: ..
 | 6 | Data & Reporting | [06-data-reporting.md](./06-data-reporting.md) | What data the system manages and how it is measured | Complete / Partial / TBD |
 | 7 | Supporting | [07-supporting.md](./07-supporting.md) | Assumptions, constraints, risks, and open questions | Complete / Partial / TBD |
 | 8 | Reference | [08-reference.md](./08-reference.md) | Glossary of terms and change history | Complete / Partial / TBD |
+| 9 | Page Catalog | [09-page-catalog.md](./09-page-catalog.md) | Every screen's buttons, fields, rules, backend rules, and errors — the full business detail per page | Complete / Partial / TBD |
 ```
 
 ---
@@ -286,9 +324,9 @@ List each goal as a plain statement, not a technical requirement.>
 
 ## 1.3 Who Uses This System? (Stakeholders)
 <List every type of user or system that interacts with this module. Translate role names to plain business titles.>
-| Role | What They Do in the System | What They Need From It |
-|------|---------------------------|------------------------|
-| | | |
+| Role | What They Do in the System | What They Need From It | Part(s) They Access |
+|------|---------------------------|------------------------|---------------------|
+| | | | <e.g. Customer App, Admin Panel> |
 
 ---
 [-> Next: Scope & Context](./02-scope-context.md)
@@ -361,17 +399,19 @@ Only include if evidence exists in the backend code. If none found, remove this 
 ## 3.1 What Users Need to Do (User Stories)
 <One row per main user action. Write the "So that" column as a real business benefit, not a technical outcome.
 Priority: High = core flow, Medium = important but not blocking, Low = nice-to-have.>
-| ID | As a... | I want to... | So that... | Journey | Where (Screen) | Priority |
-|----|---------|--------------|------------|---------|----------------|----------|
-| FR-01 | | | | | | High |
+| ID | As a... | I want to... | So that... | Journey | Where (Screen) | Part | Priority |
+|----|---------|--------------|------------|---------|----------------|------|----------|
+| FR-01 | | | | | | <Part name, e.g. Customer App> | High |
 
 ## 3.2 Rules the System Enforces (Business Rules)
 <List every validation, constraint, or policy the system applies. Write in plain language.
 Type: Policy = a business decision that can be changed; Compliance = a legal/regulatory requirement; Technical Default = a system limit; UX Constraint = an interface restriction.
 Example: "A user cannot submit the form without a valid email address.">
-| ID | Rule (plain language) | When It Applies | Type | Enforced In | Who Sees the Effect |
-|----|-----------------------|-----------------|------|-------------|---------------------|
-| BR-01 | | | Policy / Compliance / Technical Default / UX Constraint | Frontend / Backend / Both / System Only | User / Admin / System (silent) |
+| ID | Rule (plain language) | When It Applies | Where (Screen) | Type | Enforced In | Who Sees the Effect |
+|----|-----------------------|-----------------|----------------|------|-------------|---------------------|
+| BR-01 | | | <Screen name(s), or "All" / "System-wide"> | Policy / Compliance / Technical Default / UX Constraint | Frontend / Backend / Both / System Only | User / Admin / System (silent) |
+
+> **See also**: [Page Catalog](./09-page-catalog.md) for the complete per-page breakdown of every button, field, rule, and error message.
 
 ---
 [<- Previous: Scope & Context](./02-scope-context.md) | [-> Next: Use Cases](./04-use-cases.md)
@@ -425,6 +465,8 @@ No technical terms, endpoint names, class names, or framework words anywhere in 
   4. The result is <business outcome>.
 - **What if it fails**: <What happens to the business if this process does not complete? Who is affected?>
 - **Business value**: <Why does this process exist? What would break without it?>
+
+> **See also**: [Page Catalog](./09-page-catalog.md) for the complete per-page breakdown of every button, field, rule, and error message.
 
 ---
 [<- Previous: Requirements](./03-requirements.md) | [-> Next: Acceptance Criteria](./05-acceptance-criteria.md)
@@ -512,22 +554,30 @@ If no reporting is found in the code, write TBD and explain what is missing.>
 
 # 7. Supporting Information -- <Module Name>
 
-## 7.1 Assumptions
+## 7.1 How the Parts Connect (Integration Points)
+<If the system has multiple parts (e.g. Customer App + Admin Panel + Backend), describe here how they interact — in plain business language.
+Omit this section entirely if only one part exists.>
+| # | What Happens | From (Part) | To (Part) | Business Effect |
+|---|-------------|-------------|-----------|----------------|
+| 1 | <e.g. "Customer submits an order"> | Customer App | Backend | "The order becomes visible to the admin team for review" |
+| 2 | <e.g. "Admin approves the order"> | Admin Panel | Backend | "The customer receives a confirmation and the order moves to Processing" |
+
+## 7.2 Assumptions
 <Things the system assumes to be true that are not explicitly stated. Inferred from defaults, config values, or hardcoded logic.
 Write as plain statements, not technical observations.>
 - ...
 
-## 7.2 Constraints
+## 7.3 Constraints
 <Limits the system currently has. E.g. "A user cannot upload files larger than 10MB", "Pagination is limited to 50 items per page".>
 - ...
 
-## 7.3 Things That Do Not Add Up (Mismatches)
+## 7.4 Things That Do Not Add Up (Mismatches)
 <Gaps found between what the UI shows and what the backend provides. Flag these for the product owner to review.>
 | # | What the issue is (plain language) | Business Impact | Action Needed | Assigned To |
 |---|-------------------------------------|-----------------|---------------|-------------|
 | 1 | | High / Medium / Low | | TBD (Product Owner to assign) |
 
-## 7.4 Risks & Open Questions
+## 7.5 Risks & Open Questions
 <Anything uncertain, incomplete, or flagged in the code as needing attention.
 Write as questions the product owner should answer, not technical TODOs.
 Priority: High = blocks a core journey; Medium = affects a feature but has a workaround; Low = minor gap.>
@@ -561,19 +611,92 @@ A product owner should be able to look up any term they encounter in this docume
 | 1.0 | <Today> | AI-generated | Initial draft from source code |
 
 ---
-[<- Previous: Supporting](./07-supporting.md)
+[<- Previous: Supporting](./07-supporting.md) | [-> Next: Page Catalog](./09-page-catalog.md)
+```
+
+---
+
+#### `09-page-catalog.md` -- Page Catalog (Complete Per-Page Business Reference)
+
+```markdown
+[<- Back to Index](./README.md)
+
+# 9. Page Catalog -- <Module Name>
+
+> This is the complete page-by-page business reference. Every screen in the system is listed here with **every** button, input field, validation rule, data displayed, backend business rule, and error message. Nothing is left out. If a screen exists in the system, it must appear here.
+
+## Quick Summary
+
+| # | Screen Name | Part | Role(s) | Buttons | Fields | Business Rules | Journey(s) |
+|---|-------------|------|---------|---------|--------|----------------|------------|
+| 1 | [<Screen Name>](#page-screen-name--part) | <Part, e.g. Customer App> | <Role(s)> | <count> | <count> | <count> | <Journey name(s)> |
+<Repeat for every screen. Link each Screen Name to its detailed section anchor below using lowercase-kebab-case: `[Customer List](#page-customer-list--customer-app)`.>
+
+---
+
+## Page: <Screen Name> — <Part>
+
+**Who can access this page**: <Role 1, Role 2>
+**Part of journey(s)**: <Journey name(s) — link to 02-scope-context.md section>
+**What this page is for**: <One sentence — what the user comes here to do.>
+
+### Actions & Buttons
+<Every button, link, action, and trigger available to the user on this screen. Miss nothing.>
+| # | Button / Action | What It Does (plain language) | Who Can Use It | Related Rule(s) |
+|---|-----------------|-------------------------------|----------------|------------------|
+| 1 | <e.g. "Save"> | <e.g. "Saves the form and creates a new customer record"> | <Role> | BR-xx, BR-yy |
+| 2 | <e.g. "Delete"> | <e.g. "Removes the selected record after confirmation"> | <Role> | BR-zz |
+| 3 | <e.g. "Export"> | <e.g. "Downloads the current list as a spreadsheet"> | <Role> | — |
+
+### Input Fields
+<Every field the user can fill in or edit on this screen.>
+| # | Field Label | What It Is | Required? | Validation Rules (plain language) | Error Message if Invalid |
+|---|-------------|-----------|-----------|-----------------------------------|-------------------------|
+| 1 | <e.g. "Email Address"> | <e.g. "The customer's contact email"> | Yes / No | <e.g. "Must be a valid email format"> | <e.g. "Please enter a valid email address"> |
+| 2 | <e.g. "Company Name"> | <e.g. "The customer's company"> | Yes | <e.g. "Cannot be empty, maximum 100 characters"> | <e.g. "Company name is required"> |
+
+### Data Displayed to the User
+<Every piece of information shown on this screen — tables, cards, labels, badges, counts.>
+| # | What the User Sees | Where on the Screen | Source (which data object from 06-data-reporting) |
+|---|-------------------|--------------------|-------------------------------------------------|
+| 1 | <e.g. "Customer name and email"> | <e.g. "Table columns"> | Customer |
+| 2 | <e.g. "Order count badge"> | <e.g. "Next to customer name"> | Order |
+
+### Business Rules on This Page
+<Every rule that applies when the user interacts with this page — from frontend validation AND backend enforcement.>
+| Rule ID | Rule (plain language) | Visible to User? | Enforced In | What Happens When Violated |
+|---------|-----------------------|-------------------|-------------|---------------------------|
+| BR-xx | <e.g. "Email must be unique across all customers"> | Yes — error message shown | Both | "A customer with this email already exists" |
+| BR-yy | <e.g. "Only Admins can delete a customer record"> | Yes — button hidden for non-admins | Backend | Button not shown; if forced, system rejects the action |
+| BR-zz | <e.g. "Customer status is automatically set to Active on creation"> | No — happens silently | System Only | N/A — silent rule |
+
+### Error Messages & Edge Cases
+<Every error, warning, and edge case the user can encounter on this page.>
+| # | When This Happens | What the User Sees | Severity |
+|---|-------------------|--------------------|---------|
+| 1 | <e.g. "User submits form with missing required fields"> | <e.g. "Red border on empty fields + message: 'This field is required'"> | Blocking |
+| 2 | <e.g. "Network connection lost while saving"> | <e.g. "'Unable to save. Please try again.'"> | Blocking |
+| 3 | <e.g. "No records match the search"> | <e.g. "'No results found. Try adjusting your filters.'"> | Informational |
+
+---
+<Repeat the full "Page: ..." section above for EVERY screen in the system. No screen may be skipped.>
+
+---
+[<- Previous: Reference](./08-reference.md)
 ```
 
 ### 5. Quality Checks Before Saving
 
 **Coverage verification (do this FIRST, before any other check):**
 Use the per-page extraction records built in Step 2.7 as the source of truth. For every generated file, verify:
+- Every screen from Step 2.7 has a full entry in `09-page-catalog.md` with ALL five sections (Actions & Buttons, Input Fields, Data Displayed, Business Rules, Error Messages)
 - Every screen from Step 2.7 appears in `02-scope-context.md` (journey steps) and `04-use-cases.md`
-- Every button/action from Step 2.7 appears as a user story in `03-requirements.md` or as a step in `04-use-cases.md`
-- Every input field and its validation rule from Step 2.7 appears as a business rule (BR-xx) in `03-requirements.md`
-- Every backend-only rule from Step 2.7 appears in `03-requirements.md` with "System Only" in the Enforced In column
-- Every error message from Step 2.7 appears in the "What if something goes wrong" section of the relevant use case
-- Every data item displayed on screen appears in `06-data-reporting.md` section 6.1 or 6.2
+- Every button/action from Step 2.7 appears in `09-page-catalog.md` Actions table AND as a user story in `03-requirements.md` or as a step in `04-use-cases.md`
+- Every input field and its validation rule from Step 2.7 appears in `09-page-catalog.md` Input Fields table AND as a business rule (BR-xx) in `03-requirements.md`
+- Every backend-only rule from Step 2.7 appears in `09-page-catalog.md` Business Rules table with "System Only" AND in `03-requirements.md`
+- Every error message from Step 2.7 appears in `09-page-catalog.md` Error Messages table AND in the "What if something goes wrong" section of the relevant use case
+- Every data item displayed on screen appears in `09-page-catalog.md` Data Displayed table AND in `06-data-reporting.md` section 6.1 or 6.2
+- The Quick Summary table in `09-page-catalog.md` has correct counts matching the detailed sections below it
 - If any of the above is missing — add it before saving.
 
 **Hard-ban check (scan every generated file before saving):**
@@ -593,13 +716,16 @@ Use the per-page extraction records built in Step 2.7 as the source of truth. Fo
 - The final document must be understandable by a non-technical product owner with no explanation.
 
 ### 6. Output Confirmation
-- List all 9 files created with their full paths and status (CREATED / UPDATED / SKIPPED).
+- List all 10 files created with their full paths and status (CREATED / UPDATED / SKIPPED).
 - Summarize key findings in business language:
   - User journeys identified (list names)
   - Automated system processes / backend-only journeys found (list names, or "None" if absent)
   - Screens discovered (count and list)
   - User roles found (list plain names)
   - Business rules captured: frontend-visible (count) + backend-only / system-enforced (count)
+  - Buttons / actions documented (total count across all pages)
+  - Input fields documented (total count across all pages)
+  - Error messages captured (total count)
   - Mismatches flagged (count and brief plain-language description)
 - List sections left as `TBD` and explain what information is missing (in plain language — not "no entity found" but "no data structure could be identified for this section").
 - Suggest follow-ups:
