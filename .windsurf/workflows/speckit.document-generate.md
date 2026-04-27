@@ -115,7 +115,7 @@ After reading ALL backend files, produce independently:
 - Backend capabilities that no screen exposes to the user yet (flag in `07-supporting.md` 7.4 as an open question: "Should this capability be exposed to users?")
 - Business rules enforced in the backend that contradict or conflict with frontend validation (flag in `07-supporting.md` 7.3)
 
-### 2.5 Pause and Confirm — User Journey Review (REQUIRED when frontend exists)
+### 2.5 Pause and Confirm — Full Business Picture Review (REQUIRED when frontend exists)
 
 **Before generating any file**, output a live populated summary using the actual data discovered — do NOT print placeholder text. Structure it as follows:
 
@@ -130,8 +130,44 @@ After reading ALL backend files, produce independently:
 6. **Open Questions** — list any ambiguities found (e.g. a screen with no backend logic, a backend capability with no screen). Omit if none.
 7. Close with: `Please confirm, correct, or add to this list. Type 'ok' to proceed, or tell me what to change.`
 
-Only proceed to Step 3 after the user confirms.
-**Exception**: if no frontend exists (backend-only project), skip this pause and proceed directly.
+Only proceed to Step 2.7 after the user confirms.
+**Exception**: if no frontend exists (backend-only project), skip this pause and proceed directly to Step 2.7.
+
+### 2.7 Build Per-Page Extraction Plan and Verify Completeness (MANDATORY before generating any file)
+
+For **every screen** found in Step A, build a structured extraction record. Do this for every screen — no screen may be skipped.
+
+For each screen, output the following (internally, as your working notes — not shown to user):
+
+```
+Screen: <Plain screen name>
+Role(s) who access it: <role 1>, <role 2>
+Buttons / Actions available:
+  - <Button or action label in plain language> → <what it does>
+  - ...
+Input fields on this screen:
+  - <Field label in plain language> | Required? | Validation rule (plain language)
+  - ...
+Data displayed to the user:
+  - <What the user sees on this screen — list each piece of information>
+Business rules that apply on this screen:
+  - <Rule in plain language — from frontend validation OR backend logic>
+  - ...
+Error messages the user can see:
+  - <Error text or plain description of when it appears>
+Linked to journey(s): <Journey name(s) this screen is part of>
+Backend rules that apply but are NOT shown on screen:
+  - <Rule in plain language — silent backend enforcement>
+```
+
+**Verification gate — before moving to Step 3:**
+For every screen in the list, confirm:
+- [ ] At least one button or action is documented (if a screen has none, flag it as a risk in `07-supporting.md` 7.3)
+- [ ] Every input field has a validation rule documented (if unknown, mark `TBD` and flag)
+- [ ] Every piece of data shown to the user is listed
+- [ ] All backend rules for this screen are captured (from Step B)
+
+Only proceed to Step 3 when every screen has a completed extraction record.
 
 ### 3. Determine Output Directory
 - Default directory: `<current-project-root>/docs/ba/<module-name>/`
@@ -333,9 +369,9 @@ Priority: High = core flow, Medium = important but not blocking, Low = nice-to-h
 <List every validation, constraint, or policy the system applies. Write in plain language.
 Type: Policy = a business decision that can be changed; Compliance = a legal/regulatory requirement; Technical Default = a system limit; UX Constraint = an interface restriction.
 Example: "A user cannot submit the form without a valid email address.">
-| ID | Rule (plain language) | When It Applies | Type | Enforced In | Who Sees the Error |
-|----|-----------------------|-----------------|------|-------------|--------------------|
-| BR-01 | | | Policy / Compliance / Technical Default / UX Constraint | Frontend / Backend / Both | User / Admin / System |
+| ID | Rule (plain language) | When It Applies | Type | Enforced In | Who Sees the Effect |
+|----|-----------------------|-----------------|------|-------------|---------------------|
+| BR-01 | | | Policy / Compliance / Technical Default / UX Constraint | Frontend / Backend / Both / System Only | User / Admin / System (silent) |
 
 ---
 [<- Previous: Scope & Context](./02-scope-context.md) | [-> Next: Use Cases](./04-use-cases.md)
@@ -432,8 +468,8 @@ After each criterion add a label: (Manual) if a person can verify it by clicking
 ## 6.1 What Data Does the System Manage?
 <Describe each main piece of data in plain business language. Avoid technical field names in the description column.
 Only include fields that matter to the business -- not internal IDs or audit timestamps unless they are relevant.>
-| Data Object | What It Represents (business meaning) | Key Information Stored | Visible to User? | Owner (Role) |
-|-------------|---------------------------------------|------------------------|------------------|--------------|
+| Data Object | What It Represents (business meaning) | Key Information It Holds | Visible to User? | Owner (Role) |
+|-------------|---------------------------------------|--------------------------|------------------|--------------|
 | | | | Yes / No / Partial | <Role that creates or manages this data> |
 
 ### 6.1.1 How These Things Connect (Business Relationships)
@@ -531,15 +567,14 @@ A product owner should be able to look up any term they encounter in this docume
 ### 5. Quality Checks Before Saving
 
 **Coverage verification (do this FIRST, before any other check):**
-Before saving any file, answer these questions internally and correct any gaps:
-- Did I read every route/page file? (not just the routing module — every page folder too)
-- Did I read every form file and extract every field and validation rule?
-- Did I read every service/use-case/handler method individually? (not just the class name)
-- Did I read every entity/model and every enum/status constant?
-- Did I read every test file and extract business intent from each test?
-- Did I read every config/env file for limits and defaults?
-- Did I read every error/exception message?
-- If any answer is NO — go back and read those files before saving.
+Use the per-page extraction records built in Step 2.7 as the source of truth. For every generated file, verify:
+- Every screen from Step 2.7 appears in `02-scope-context.md` (journey steps) and `04-use-cases.md`
+- Every button/action from Step 2.7 appears as a user story in `03-requirements.md` or as a step in `04-use-cases.md`
+- Every input field and its validation rule from Step 2.7 appears as a business rule (BR-xx) in `03-requirements.md`
+- Every backend-only rule from Step 2.7 appears in `03-requirements.md` with "System Only" in the Enforced In column
+- Every error message from Step 2.7 appears in the "What if something goes wrong" section of the relevant use case
+- Every data item displayed on screen appears in `06-data-reporting.md` section 6.1 or 6.2
+- If any of the above is missing — add it before saving.
 
 **Hard-ban check (scan every generated file before saving):**
 - Search for: `/api/`, `/v1/`, `Controller`, `Service`, `Repository`, `Entity`, `DTO`, `GET `, `POST `, `PUT `, `DELETE `, `PATCH `, `component`, `hook`, `reducer`, `selector`, `interceptor`, `tbl_`, `_table`
@@ -551,8 +586,8 @@ Before saving any file, answer these questions internally and correct any gaps:
 - Language must be **plain business language** -- no class names, method signatures, or framework jargon in prose sections.
 - User stories follow `As a / I want / So that` format and include screen reference.
 - Business rules note whether enforced in frontend, backend, or both, and include rule type (Policy / Compliance / Technical Default / UX Constraint).
-- Use cases are structured as user journeys — each UC traces the screens visited, what the user does at each screen, and what the system does in response. No technical trace (no endpoint → service → DB chain).
-- Field mapping table in `06-data-reporting.md` describes what the user sees vs. what the system stores — no column/field names from code.
+- Use cases are structured as user journeys — each UC traces the screens visited, what the user does at each screen, and what the system does in response. System-automated UCs use the UC-XX pattern. No technical trace.
+- Field mapping table in `06-data-reporting.md` describes what the user sees vs. what the system has or returns — no technical field or column names from code.
 - Glossary translates screen names, feature names, and any domain terms into plain business meaning.
 - Every file has `[<- Back to Index]` at top and prev/next navigation at bottom.
 - The final document must be understandable by a non-technical product owner with no explanation.
@@ -561,10 +596,11 @@ Before saving any file, answer these questions internally and correct any gaps:
 - List all 9 files created with their full paths and status (CREATED / UPDATED / SKIPPED).
 - Summarize key findings in business language:
   - User journeys identified (list names)
+  - Automated system processes / backend-only journeys found (list names, or "None" if absent)
   - Screens discovered (count and list)
   - User roles found (list plain names)
-  - Business rules captured (count)
-  - Mismatches flagged (count and brief description)
+  - Business rules captured: frontend-visible (count) + backend-only / system-enforced (count)
+  - Mismatches flagged (count and brief plain-language description)
 - List sections left as `TBD` and explain what information is missing (in plain language — not "no entity found" but "no data structure could be identified for this section").
 - Suggest follow-ups:
   - `/speckit.specify feature="..."` to convert this BA doc set into a technical spec.
