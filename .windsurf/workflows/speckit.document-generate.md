@@ -21,7 +21,8 @@ Generate a **Technical Business Analysis** document set for the **active project
 - **Frontend first**: if a frontend exists, treat it as the primary source of business truth — screens and user actions define the structure
 - **User journeys first, screens inside**: group everything around end-to-end user journeys; list the screens and steps inside each journey
 - **Always unified**: always treat every part found (customer app, admin panel, backend, shared libraries) as one integrated system across all modules. A journey may start in one part and complete in another — document the full journey, not each part in isolation. Never generate separate documents per part.
-- **Exhaustive coverage**: document every discovered screen in the frontend and every business-facing API in the backend. No part of the business logic or user interface should be omitted across all modules. For every screen, you must explicitly identify and document every API it calls and the business purpose of those calls.
+- **Exhaustive coverage (MANDATORY)**: document every discovered screen in the frontend and every business-facing API in the backend. No part of the business logic or user interface should be omitted across all modules. For every screen, you must explicitly identify and document every API it calls and the business purpose of those calls. **If a file or screen is missed, the document is considered failed.**
+- **Forceful Scanning**: You must proactively search for "hidden" screens, modal dialogs, and dynamic routes. Do not rely only on top-level navigation. Check every `import` and `route` definition.
 - **Deep contextual understanding**: as you scan each screen, immediately trace its actions to the backend APIs they trigger. Document the business rules and technical logic of those APIs directly in the context of the screen.
 - **Two-layer documentation**: every business action must be paired with its technical implementation. Use clearly labelled sections: business language first, technical notes after.
 - Focus on **business behavior** as the primary narrative — the "what" and "why"
@@ -59,8 +60,16 @@ Generate a **Technical Business Analysis** document set for the **active project
 
 ### 2. Read and Extract Business Meaning from Code
 
+#### 2.0 Mandatory File Inventory (FORCE STEP)
+
+Before reading any content, you MUST generate a complete inventory of all files you intend to process.
+1.  **Frontend Inventory**: List every file ending in `.js`, `.ts`, `.tsx`, `.vue`, `.html`, `.css` (to find styles that hide/show logic).
+2.  **Backend Inventory**: List every file ending in `.java`, `.py`, `.ts`, `.go`, `.cs`, etc.
+3.  **Verification**: Cross-reference the "Frontend Inventory" with your discovered routes. If a file exists in the component folder but isn't in a route, find where it is used (Modals, Tabs, Conditional rendering).
+
 **Reading discipline — this is mandatory:**
 - Do NOT skim. Read every file in each layer listed below, one by one.
+- **Proof of Work**: For every file you read, you must record its path in your internal scratchpad.
 - For every file you read, ask: "What business action, rule, or data does this file reveal?" Write the answer before moving to the next file.
 - Do not stop after finding the obvious screens or main flows. Keep reading until you have covered every file in the project.
 - If a file seems purely technical (e.g. a config loader, a logger setup), still check it for business limits, defaults, or constraints before skipping.
@@ -865,6 +874,8 @@ A product owner should be able to look up any term they encounter in this docume
 
 **Coverage verification (do this FIRST, before any other check):**
 Use the per-page extraction records built in Step 2.7 as the source of truth. For every generated file, verify:
+- [ ] **Completeness Check**: I have compared the final screen list against the "Mandatory File Inventory" (Step 2.0).
+- [ ] **No Orphan Components**: Every UI component file found in the source code has been assigned to a screen or marked as shared/utility.
 - [ ] **Every single file** in the module has been read and analyzed (no files skipped)
 - [ ] **Every class and method** (business logic, controllers, entities) has been processed
 - [ ] Every screen from Step 2.7 has a full entry in `09-page-catalog.md` with ALL six sections (Actions & Buttons, Input Fields, Data Displayed, Business Rules, Error Messages, Technical Implementation). Each section MUST include the business logic of the specific APIs called by that screen.
