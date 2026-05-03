@@ -54,7 +54,6 @@ bash scripts/sync-claude.sh
 ### Usage
 Type any command in Claude Code:
 - Unified: `/review`, `/plan`, `/test-generate`, `/git-commit`
-- Tech-specific: `/java-review`, `/spring-api`, `/ts-review`, `/python-review`, `/angular-component`, `/sql-review`, `/maven-help`
 
 ---
 
