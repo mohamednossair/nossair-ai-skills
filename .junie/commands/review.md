@@ -35,7 +35,7 @@ Group findings by severity: [Critical] | [Warning] | [Suggestion].
 For each finding, include:
 - **Location**: [File:line]
 - **Issue**: [What is wrong]
-- **Impact**: [Why it matters: security risk, memory leak, technical debt, etc.]
+- **Why**: [Impact: security risk, memory leak, technical debt, etc.]
 - **Recommendation & Fix**: [Concrete correction or code snippet]
 
 **Code Pattern Alignment**:

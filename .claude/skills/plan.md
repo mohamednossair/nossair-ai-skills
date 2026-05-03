@@ -14,4 +14,5 @@ Numbered plan with:
 - **Step N**: [Action]
   - Files: [list]
   - Standards: [applicable rules]
+  - Skills: [relevant skills]
   - Risk: [if any]

@@ -13,5 +13,6 @@ description: Create a conventional commit
 7. Write message: `type(scope): description` (Conventional Commits).
 8. Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `perf`, `style`.
 9. Rules: imperative mood, max 72 chars, no trailing period.
-10. Stage the intended files if needed, then run `git commit`.
-11. Output only the created commit hash and final commit message.
+10. Breaking changes: add `BREAKING CHANGE:` footer or `!` after type: `feat!:`.
+11. Stage the intended files if needed, then run `git commit`.
+12. Output only the created commit hash and final commit message.
