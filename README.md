@@ -157,19 +157,6 @@ Available as Junie commands and Windsurf workflows, and as a Codex skill:
 - `/speckit.document-generate module="..." [project="..."] [parts="..."]` — generate a 10-file Business Analysis document set under `docs/ba/<module>/` (README + 01-overview through 09-page-catalog). Always unified — treats all sub-projects as one system.
 - `/speckit.test-generate file="..." [spec="..."] [ac="AC-1,AC-2"]` — generate spec-linked unit tests (JUnit/Jest/pytest) with AC traceability annotations.
 
-### Additional Claude Code Tech-Review Commands
-
-| Command | Description |
-|---------|-------------|
-| `/java-review` | Review Java code: SOLID, null safety, exceptions, performance |
-| `/spring-api` | Review Spring Boot REST API: design, validation, error handling |
-| `/ts-review` | Review TypeScript/Angular: type safety, RxJS, signals |
-| `/python-review` | Review Python: PEP 8, type hints, idiomatic patterns |
-| `/angular-component` | Review Angular component: CD, lifecycle, subscriptions |
-| `/sql-review` | Review/write SQL for Oracle or MySQL |
-| `/maven-help` | Help with Maven POM, dependencies, build config |
-
----
 
 ## Adding a New Technology
 
@@ -178,8 +165,8 @@ Available as Junie commands and Windsurf workflows, and as a Codex skill:
    - **Windows:** `.\scripts\new-skill.ps1 <tech>`
 2. **Refine skills**: Edit the generated files:
    - `.junie/skills/<tech>/SKILL.md` (Detailed reference)
-   - `.claude/skills/<tech>-review.md` (Review command)
    - `.windsurf/memories/<tech>-standards.md` (Context memory)
+   - Update `.windsurf/workflows/review.md` with tech-specific rules
 3. **Update Junie guidelines**: Add relevant rules to `.junie/guidelines.md`.
 4. **Re-sync Claude**: Run `bash scripts/sync-claude.sh` or `.\scripts\sync-claude.ps1`.
 5. **Re-sync Codex**: Run `bash scripts/sync-codex.sh` or `.\scripts\sync-codex.ps1`.
