@@ -1,5 +1,5 @@
 ---
-name: /speckit.validate
+description: Check consistency across spec, plan, and tasks
 ---
 
 **Usage**: `/speckit.validate spec="..." plan="..." tasks="..."`

@@ -1,5 +1,5 @@
 ---
-name: /speckit.plan
+description: Turn the spec into an outcome-oriented implementation plan
 ---
 
 **Usage**: `/speckit.plan spec="path/to/spec.md"`

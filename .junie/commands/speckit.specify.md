@@ -1,5 +1,5 @@
 ---
-name: /speckit.specify
+description: Create or update a concise feature spec from a natural language description
 ---
 
 **Usage**: `/speckit.specify feature="..."`

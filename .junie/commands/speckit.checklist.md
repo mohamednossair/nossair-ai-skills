@@ -1,5 +1,5 @@
 ---
-name: /speckit.checklist
+description: Produce a short, verifiable review checklist
 ---
 
 **Usage**: `/speckit.checklist requirements="..."`

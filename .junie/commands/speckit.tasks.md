@@ -1,5 +1,5 @@
 ---
-name: /speckit.tasks
+description: Generate dependency-ordered tasks grouped by milestones
 ---
 
 **Usage**: `/speckit.tasks plan="path/to/plan.md"`

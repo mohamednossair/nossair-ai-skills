@@ -1,5 +1,5 @@
 ---
-name: /speckit.clarify
+description: Ask targeted questions to resolve ambiguities
 ---
 
 **Usage**: `/speckit.clarify context="path/to/spec-or-plan.md"`

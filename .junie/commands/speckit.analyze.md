@@ -1,5 +1,5 @@
 ---
-name: /speckit.analyze
+description: Automated cross-artifact analysis and gap detection
 ---
 
 **Usage**: `/speckit.analyze spec="..." plan="..." tasks="..."`

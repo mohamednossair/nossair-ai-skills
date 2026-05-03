@@ -1,5 +1,5 @@
 ---
-name: /speckit.document-generate
+description: Reverse-engineer a 10-file Technical Business Analysis document set from the codebase with two-layer documentation (business + technical notes)
 ---
 
 **Usage**: `/speckit.document-generate module="<module-name>" [project="<project-name>"] [parts="<path1>, <path2>, <path3>"]`
@@ -259,16 +259,17 @@ At the end of Step 4, report per file (all 10): `CREATED`, `UPDATED (sections: .
 
 | File | What a product owner will find here |
 |------|--------------------------------------|
-| `README.md` | What the system does, who uses it, and a guide to all 10 documents |
+| `README.md` | What the system does, who uses it, and a guide to all documents |
 | `01-overview.md` | What the system does, why it exists, who uses it -- in 30-second readable form |
 | `02-scope-context.md` | What is built, how the system works today, and the end-to-end business flow |
-| `03-requirements.md` | User stories (As a / I want / So that) and rules the system enforces in plain language |
-| `04-use-cases.md` | Step-by-step walkthroughs written as user stories, not technical flows |
+| `03-requirements.md` | User stories and rules the system enforces in plain language |
+| `04-use-cases.md` | Step-by-step walkthroughs written as user journeys |
 | `05-acceptance-criteria.md` | Given/When/Then criteria a product owner can verify manually |
-| `06-data-reporting.md` | What data the system manages, what users see vs. what is stored, how success is measured |
-| `07-supporting.md` | Assumptions, constraints, mismatches flagged as plain questions, risks as decisions needed |
-| `08-reference.md` | Glossary translating every term to plain business language, change history |
-| `09-page-catalog.md` | Complete page-by-page business catalog — every screen's buttons, fields, rules, backend rules, and errors in one place |
+| `06-data-reporting.md` | What data the system manages, what users see vs. what is stored |
+| `07-supporting.md` | Assumptions, constraints, mismatches flagged as plain questions |
+| `08-reference.md` | Glossary translating every term to plain business language |
+| `09-page-catalog.md` | Complete page-by-page business catalog — every screen's details in one place |
+| `10-technical-map.md` | Technical architecture, API mappings, and integration points |
 
 ### 4.2 File Templates
 

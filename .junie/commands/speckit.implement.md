@@ -1,5 +1,5 @@
 ---
-name: /speckit.implement
+description: Produce a dependency-ordered execution runbook
 ---
 
 **Usage**: `/speckit.implement tasks="path/to/tasks.md"`

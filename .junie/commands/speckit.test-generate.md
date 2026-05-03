@@ -1,5 +1,5 @@
 ---
-name: /speckit.test-generate
+description: Generate spec-linked unit tests with AC traceability
 ---
 
 **Usage**: `/speckit.test-generate file="path/to/file" [spec="docs/specs/<feature>.md"] [ac="AC-1,AC-2"]`
