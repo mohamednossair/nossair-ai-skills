@@ -46,6 +46,13 @@ When the user invokes any of these commands, follow the instructions exactly.
 10. Stage the intended files if needed, then run `git commit`.
 11. Output only the created commit hash and final commit message.
 
+## /speckit.taskstoissues
+**Usage**: `/speckit.taskstoissues tasks="path/to/tasks.md"`
+1. Locate the active feature via `.specify/feature.json` or the provided tasks path.
+2. Verify the Git remote is a GitHub URL before creating issues.
+3. Create one GitHub issue per task with title, labels, acceptance criteria, and dependencies.
+4. Report issue numbers and any skipped (already completed) tasks.
+
 ## /speckit.document-generate
 **Usage**: `/speckit.document-generate module="<module-name>" [project="<project-name>"] [parts="<path1>, <path2>, <path3>"]`
 

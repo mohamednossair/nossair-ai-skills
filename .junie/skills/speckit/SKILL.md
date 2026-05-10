@@ -8,14 +8,15 @@ description: Cross-agent feature specification, planning, and validation toolkit
 Use this skill to create concise specs, convert them into actionable plans and tasks, and validate consistency across artifacts.
 
 ## Capabilities
-- /speckit.specify: Create or update a concise feature spec from natural language.
-- /speckit.plan: Turn the spec into an outcome-oriented implementation plan.
-- /speckit.tasks: Generate dependency-ordered tasks grouped by milestones.
+- /speckit.specify: Create or update a concise feature spec. Generates a short name, persists to `.specify/feature.json`, and produces a spec-quality checklist.
+- /speckit.clarify: Ask up to 5 targeted questions to resolve ambiguities and encode answers back into the spec.
+- /speckit.plan: Turn the spec into an outcome-oriented implementation plan. Loads `.specify/feature.json` and cross-checks the constitution.
+- /speckit.tasks: Generate dependency-ordered tasks grouped by user story (P1, P2...). Supports parallel markers `[P]` and reads `.specify/feature.json`.
 - /speckit.validate: Check consistency across spec, plan, and tasks.
-- /speckit.clarify: Ask targeted questions to resolve ambiguities.
-- /speckit.checklist: Produce a short, verifiable review checklist from requirements.
- - /speckit.analyze: Automated cross-artifact analysis and gap detection.
- - /speckit.implement: Produce a dependency-ordered execution runbook with test/review gates.
+- /speckit.checklist: Generate domain-specific requirement-quality checklists (unit tests for English) under `checklists/`.
+- /speckit.analyze: Read-only cross-artifact analysis with severity assignment (CRITICAL / HIGH / MEDIUM / LOW) and constitution alignment checks.
+- /speckit.implement: Execute the implementation plan with constitution governance, checklist gating, and project-setup verification.
+- /speckit.taskstoissues: Convert tasks into actionable GitHub issues (requires a GitHub remote).
 - /speckit.document-generate: Reverse-engineer a Business Analysis (BA) document set from the current codebase -- no manual writing required.
 
 ## Usage Patterns

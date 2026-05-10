@@ -147,13 +147,15 @@ Git workflow note:
 ### Speckit Toolkit (Spec → Plan → Tasks → Validate/Analyze → Implement)
 
 Available as Junie commands and Windsurf workflows, and as a Codex skill:
-- `/speckit.specify feature="..."` — captures goals, NFRs, ACs, glossary/data model, risks. Prompts to create/switch to a `feature/spec/<id>-<slug>` branch before writing.
-- `/speckit.clarify context="..."` — generates up to 5 targeted questions.
-- `/speckit.plan spec="..."` — milestones with DoD, dependencies, owners.
-- `/speckit.tasks plan="..."` — dependency-ordered tasks with DoD, estimates, risk flags.
+- `/speckit.specify feature="..."` — generates a short name, creates `specs/NNN-short-name/`, persists to `.specify/feature.json`, and produces a spec-quality checklist.
+- `/speckit.clarify context="..."` — scans the spec against a structured taxonomy and asks up to 5 targeted questions with recommended answers, encoding responses back into the spec.
+- `/speckit.plan spec="..."` — loads `.specify/feature.json`, cross-checks the constitution, generates `research.md`, `data-model.md`, and `contracts/`, then produces milestones with DoD.
+- `/speckit.tasks plan="..."` — loads `.specify/feature.json`, organizes tasks by user story (P1, P2...), supports parallel markers `[P]`, and uses the strict checklist format (`T### [P] [US#]`).
 - `/speckit.validate spec="..." plan="..." tasks="..."` — cross-artifact checks and traceability.
-- `/speckit.analyze spec="..." plan="..." tasks="..."` — automated gap detection and prioritized fixes.
-- `/speckit.implement tasks="..."` — dependency-ordered execution runbook with branch/commit/test/review gates.
+- `/speckit.analyze spec="..." plan="..." tasks="..."` — read-only cross-artifact analysis with severity assignment (CRITICAL / HIGH / MEDIUM / LOW) and constitution alignment checks.
+- `/speckit.checklist domain="ux|api|security|..."` — generates domain-specific requirement-quality checklists (unit tests for English) under `checklists/<domain>.md`.
+- `/speckit.implement tasks="..."` — executes the plan with constitution governance, checklist gating, project-setup verification (ignore files), and `[X]` task completion tracking.
+- `/speckit.taskstoissues tasks="..."` — converts tasks into actionable GitHub issues (requires a GitHub remote).
 - `/speckit.document-generate module="..." [project="..."] [parts="..."]` — generate a 10-file Business Analysis document set under `docs/ba/<module>/` (README + 01-overview through 09-page-catalog). Always unified — treats all sub-projects as one system.
 - `/speckit.test-generate file="..." [spec="..."] [ac="AC-1,AC-2"]` — generate spec-linked unit tests (JUnit/Jest/pytest) with AC traceability annotations.
 
