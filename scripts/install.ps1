@@ -42,7 +42,12 @@ if (-not $TargetProject) {
     Copy-Item -Path "$RepoDir\.aiassistant" -Destination $TargetProject -Recurse -Force
 
     Write-Host ""
-    Write-Host "Done! Junie, Windsurf, and AI Assistant project files installed to $TargetProject."
+    # Copy scripts
+    Write-Host "  Copying scripts..."
+    Copy-Item -Path "$RepoDir\scripts" -Destination $TargetProject -Recurse -Force
+
+    Write-Host ""
+    Write-Host "Done! Junie, Windsurf, AI Assistant project files, and prerequisite scripts installed to $TargetProject."
 }
 
 Write-Host "All supported agents setup complete!"

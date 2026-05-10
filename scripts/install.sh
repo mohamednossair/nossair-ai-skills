@@ -43,7 +43,12 @@ else
   cp -r "$REPO_DIR/.aiassistant" "$TARGET_PROJECT/"
 
   echo ""
-  echo "Done! Junie, Windsurf, and AI Assistant project files installed to $TARGET_PROJECT."
+  # Copy scripts
+  echo "  Copying scripts..."
+  cp -r "$REPO_DIR/scripts" "$TARGET_PROJECT/"
+
+  echo ""
+  echo "Done! Junie, Windsurf, AI Assistant project files, and prerequisite scripts installed to $TARGET_PROJECT."
 fi
 
 echo "All supported agents setup complete!"
