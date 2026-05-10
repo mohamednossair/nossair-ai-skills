@@ -1,5 +1,5 @@
 ---
-description: Reverse-engineer a 10-file Technical Business Analysis document set from the codebase with two-layer documentation (business + technical notes)
+description: Reverse-engineer an 11-file Technical Business Analysis document set from the codebase with two-layer documentation (business + technical notes)
 ---
 
 **Usage**: `/speckit.document-generate module="<module-name>" [project="<project-name>"] [parts="<path1>, <path2>, <path3>"]`
@@ -30,6 +30,8 @@ Generate a useful Business Analysis document for the **active project** by extra
 - Keep output structured, practical, and based on code evidence
 - Make the output readable for: business analysts, product owners, and AI planning/task-execution agents
 - The final document must be understandable by a non-technical product owner with no explanation
+- **Skip generated / boilerplate code**: Do NOT read or document auto-generated code (e.g., protobuf generated classes, OpenAPI/Swagger generated DTOs, JPA metamodel, GraphQL generated code). Identify generated code by: `generated` in package/path, `@Generated` annotation, `DO NOT EDIT` headers, or files in `generated-sources/`, `gen/`, `.proto/` output folders.
+- **Feature flag / toggle awareness**: When reading business logic, check for feature flags, toggles, or conditional configuration. If a business rule is conditional on a flag, document: the rule, the flag name, the default state, and which users/roles see the gated behavior. Do NOT omit flagged rules.
 
 ---
 
@@ -55,6 +57,12 @@ Generate a useful Business Analysis document for the **active project** by extra
   - Roles that exist in one part but not another (e.g. Admin role only in admin panel)
   - Journeys that require actions in more than one part to complete
   - Business rules enforced in the backend but visible in multiple frontends
+- **Fallback discovery** — If no conventional markers above are found, use these heuristics:
+  - Any folder containing a `main` entry point (`main.py`, `main.go`, `index.js`, `App.java`, `Program.cs`, etc.) is a potential standalone part.
+  - Any folder with a `Dockerfile` or `docker-compose.yml` that defines a service is a potential backend part.
+  - Any folder with `.html`, `.css`, `.jsx`, `.tsx`, `.vue`, `.svelte` files alongside a `package.json` or `vite.config.*` is a potential frontend part.
+  - Any folder with a `pyproject.toml`, `setup.py`, `Cargo.toml`, `go.mod`, `pom.xml`, `build.gradle`, or `*.csproj` is a potential backend/library part.
+  - When in doubt, treat each top-level folder under the workspace root as a candidate part and classify it by dominant file type.
 - List every part found with its label before proceeding to Step 2.
 
 ### 2. Read and Extract Business Meaning from Code
@@ -71,7 +79,9 @@ Before reading any content, you MUST generate a complete inventory of all files 
 - **Proof of Work**: For every file you read, you must record its path in your internal scratchpad.
 - For every file you read, ask: "What business action, rule, or data does this file reveal?" Write the answer before moving to the next file.
 - Do not stop after finding the obvious screens or main flows. Keep reading until you have covered every file in the project.
+- **Skip generated / boilerplate code**: Do NOT read or document code that is auto-generated (e.g., protobuf generated classes, OpenAPI/Swagger generated DTOs, JPA metamodel, GraphQL generated code). Identify generated code by: `generated` in package/path, `@Generated` annotation, `DO NOT EDIT` headers, or files in `generated-sources/`, `gen/`, `.proto/` output folders. Record that the file was skipped and why.
 - If a file seems purely technical (e.g. a config loader, a logger setup), still check it for business limits, defaults, or constraints before skipping.
+- **Feature flag / toggle awareness**: When reading business logic, check for feature flags, toggles, or conditional configuration. If a business rule is conditional on a flag, document: the rule, the flag name, the default state, and which users/roles see the gated behavior. Do NOT omit flagged rules.
 - Depth required: for every service/logic file, read **every individual method or function** and ask what business decision or action it performs. A service with 10 methods = 10 potential business rules to extract.
 - Repeat Steps A and B for **every part** found. Label each finding with its source part (e.g. "Customer App", "Admin Panel", "Backend API"). Step C merges all parts into one unified picture.
 
@@ -108,12 +118,16 @@ Read the backend **completely and independently** — not just to fill frontend 
 | Specs/Docs | Every `.spec/`, `docs/`, `README` file | Requirements, constraints, stated business goals |
 | API / Controllers | **Every controller and route handler file** | What business action the API performs (e.g. "Create User", "Process Payment"). Map each endpoint to its business purpose. |
 | Business Logic | **Every method in every service/use-case/handler file** | Each method = one potential business rule or action. Ask: "What decision does this method make? What does it allow or prevent?" |
-| Data | **Every entity, model, schema, migration, and enum/constant file** | Every data object (translate name to business label), every field that matters, every status/state enum translated to plain values (e.g. `STATUS_PENDING` → "Waiting for approval") |
+| Data | **Every entity, model, schema, migration, and enum/constant file** | Every data object (translate name to business label), every field that matters, every status/state enum translated to plain values (e.g. `STATUS_PENDING` → "Waiting for approval"). **Also read every DB constraint, unique index, check constraint, and trigger** — each enforces a business rule. |
 | Security | **Every** security config, role definition, permission list, JWT claim | Every role, every permission granted or denied — translate to plain: "Sales Manager can view but not edit prices" |
 | Config | **Every** config/env file | Every limit, threshold, default (translate: "Maximum file size: 10 MB", session timeout: "Users are logged out after 30 minutes of inactivity") |
 | Tests | **Every** test file — read each test name and assertion | Each test = one piece of intended business behavior. Extract what it proves the system does. |
 | Comments | Every TODO, FIXME, HACK, NOTE comment in the codebase | Risks, open questions, known gaps — translate to business impact |
 | Error Handling | Every custom error, exception, and error message string | What can go wrong for the business; what the system refuses to do |
+| Validators / Constraints | **Every** custom validator class, constraint annotation, pre-save hook, or AOP/aspect that enforces rules | Each validator = one business rule that the system enforces on data before it is accepted |
+| Event Listeners | **Every** event listener, message-queue consumer, or webhook handler | Business reactions to events: "When X happens, the system does Y" |
+| Scheduled / Batch Jobs | **Every** `@Scheduled`, cron job, batch processor, or background worker | Automated processes and their business triggers/outcomes |
+| SQL / Queries / Stored Procedures | **Every** native SQL query, stored procedure, function, view definition, or database trigger found in migrations, `.sql` files, or inline in code | Business rules hidden in SQL: which records are included/excluded, hardcoded status filters, aggregation logic, computed fields |
 
 After reading ALL backend files, produce independently:
 1. **Complete API-to-Business mapping** — a list of every discovered API endpoint and the business function it serves, translated to plain language.
@@ -122,6 +136,7 @@ After reading ALL backend files, produce independently:
 4. **Complete data picture** — every business object, every meaningful field, every relationship, every status/lifecycle.
 5. **Complete role & permission picture** — every role, every capability granted, every restriction enforced.
 6. **System limits & policies** — every threshold, limit, timeout, and default that affects the user or business.
+7. **State-machine and workflow transition rules** — if the codebase uses a state machine, workflow engine, or status-transition logic, document every status/state, each transition condition, who/what triggers it, and side effects (notifications, cascading updates, audit entries).
 
 **Do NOT copy into output**: endpoint URLs, HTTP methods, class names, method names, DTO names, framework terms. Translate everything.
 
@@ -222,8 +237,8 @@ If no frontend screens were found, skip the per-page extraction above but verify
 #### 4.0 Pre-Generation Check (Existing Files)
 
 Before writing any file, **check if it already exists** in `docs/ba/<module-name>/`.
-There are **10 files** to generate: `README.md` (index) plus the 9 numbered files `01-overview.md` through `09-page-catalog.md`.
-For each of the 10 files apply the following decision:
+There are **11 files** to generate: `README.md` (index) plus the 10 numbered files `01-overview.md` through `10-technical-map.md`.
+For each of the 11 files apply the following decision:
 
 | Condition | Action |
 |-----------|--------|
@@ -231,7 +246,7 @@ For each of the 10 files apply the following decision:
 | File exists but has empty or `TBD`-only sections that the current code can now fill | **Update** those sections; keep human-edited content intact |
 | File exists and is already accurate and complete | **Skip** -- do not overwrite |
 
-At the end of Step 4, report per file (all 10): `CREATED`, `UPDATED (sections: ...)`, or `SKIPPED (already up to date)`.
+At the end of Step 4, report per file (all 11): `CREATED`, `UPDATED (sections: ...)`, or `SKIPPED (already up to date)`.
 
 ---
 
@@ -322,17 +337,19 @@ Use the per-page extraction records built in Step 2.7 as the source of truth. Fo
 - The final document must be understandable by a non-technical product owner with no explanation.
 
 ### 6. Output Confirmation
-- List all 10 files created with their full paths and status (CREATED / UPDATED / SKIPPED).
+- List all 11 files created with their full paths and status (CREATED / UPDATED / SKIPPED).
 - Summarize key findings in business language:
   - User journeys identified (list names)
   - Automated system processes / backend-only journeys found (list names, or "None" if absent)
   - Screens discovered (count and list)
   - User roles found (list plain names)
-  - Business rules captured: frontend-visible (count) + backend-only / system-enforced (count)
+  - Business rules captured: frontend-visible (count) + backend-only / system-enforced (count) + validator-based (count) + event-driven (count) + scheduled-job (count) + state-machine (count) + DB-constraint (count)
   - Buttons / actions documented (total count across all pages)
   - Input fields documented (total count across all pages)
   - Error messages captured (total count)
   - Mismatches flagged (count and brief plain-language description)
+  - Files skipped (count and brief reason: generated code, third-party library, etc.)
+  - Feature flags / toggles found (count and list of flag names affecting business behavior)
 - List sections left as `TBD` and explain what information is missing (in plain language — not "no entity found" but "no data structure could be identified for this section").
 - Suggest follow-ups:
   - `/speckit.specify feature="..."` to convert this BA doc set into a technical spec.

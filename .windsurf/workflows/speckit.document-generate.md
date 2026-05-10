@@ -34,6 +34,40 @@ Generate a **Technical Business Analysis** document set for the **active project
 
 ---
 
+## Pre-Execution Checks
+
+**Check for extension hooks (before document generation)**:
+- Check if `.specify/extensions.yml` exists in the project root.
+- If it exists, read it and look for entries under the `hooks.before_documentgenerate` key
+- If the YAML cannot be parsed or is invalid, skip hook checking silently and continue normally
+- Filter out hooks where `enabled` is explicitly `false`. Treat hooks without an `enabled` field as enabled by default.
+- For each remaining hook, do **not** attempt to interpret or evaluate hook `condition` expressions:
+  - If the hook has no `condition` field, or it is null/empty, treat the hook as executable
+  - If the hook defines a non-empty `condition`, skip the hook and leave condition evaluation to the HookExecutor implementation
+- For each executable hook, output the following based on its `optional` flag:
+  - **Optional hook** (`optional: true`):
+    ```
+    ## Extension Hooks
+
+    **Optional Pre-Hook**: {extension}
+    Command: `/{command}`
+    Description: {description}
+
+    Prompt: {prompt}
+    To execute: `/{command}`
+    ```
+  - **Mandatory hook** (`optional: false`):
+    ```
+    ## Extension Hooks
+
+    **Automatic Pre-Hook**: {extension}
+    Executing: `/{command}`
+    EXECUTE_COMMAND: {command}
+
+    Wait for the result of the hook command before proceeding to the Steps.
+    ```
+- If no hooks are registered or `.specify/extensions.yml` does not exist, skip silently
+
 ## Steps
 
 ### 1. Discover Project Structure
@@ -56,6 +90,12 @@ Generate a **Technical Business Analysis** document set for the **active project
   - Roles that exist in one part but not another (e.g. Admin role only in admin panel)
   - Journeys that require actions in more than one part to complete
   - Business rules enforced in the backend but visible in multiple frontends
+- **Fallback discovery** — If no conventional markers above are found, use these heuristics:
+  - Any folder containing a `main` entry point (`main.py`, `main.go`, `index.js`, `App.java`, `Program.cs`, etc.) is a potential standalone part.
+  - Any folder with a `Dockerfile` or `docker-compose.yml` that defines a service is a potential backend part.
+  - Any folder with `.html`, `.css`, `.jsx`, `.tsx`, `.vue`, `.svelte` files alongside a `package.json` or `vite.config.*` is a potential frontend part.
+  - Any folder with a `pyproject.toml`, `setup.py`, `Cargo.toml`, `go.mod`, `pom.xml`, `build.gradle`, or `*.csproj` is a potential backend/library part.
+  - When in doubt, treat each top-level folder under the workspace root as a candidate part and classify it by dominant file type.
 - List every part found with its label before proceeding to Step 2.
 
 ### 2. Read and Extract Business Meaning from Code
@@ -72,7 +112,9 @@ Before reading any content, you MUST generate a complete inventory of all files 
 - **Proof of Work**: For every file you read, you must record its path in your internal scratchpad.
 - For every file you read, ask: "What business action, rule, or data does this file reveal?" Write the answer before moving to the next file.
 - Do not stop after finding the obvious screens or main flows. Keep reading until you have covered every file in the project.
+- **Skip generated / boilerplate code**: Do NOT read or document code that is auto-generated (e.g., protobuf generated classes, OpenAPI/Swagger generated DTOs, JPA metamodel, GraphQL generated code). Identify generated code by: `generated` in package/path, `@Generated` annotation, `DO NOT EDIT` headers, or files in `generated-sources/`, `gen/`, `.proto/` output folders. Record that the file was skipped and why.
 - If a file seems purely technical (e.g. a config loader, a logger setup), still check it for business limits, defaults, or constraints before skipping.
+- **Feature flag / toggle awareness**: When reading business logic, check for feature flags, toggles, or conditional configuration (e.g., `isFeatureEnabled()`, `@FeatureFlag`, `LaunchDarkly`, `Unleash`, env-var-gated blocks). If a business rule is conditional on a flag, document: the rule, the flag name, the default state, and which users/roles see the gated behavior. Do NOT omit flagged rules — they are still business rules.
 - Depth required: for every service/logic file, read **every individual method or function** and ask what business decision or action it performs. A service with 10 methods = 10 potential business rules to extract.
 - Repeat Steps A and B for **every part** found. Label each finding with its source part (e.g. "Customer App", "Admin Panel", "Backend API"). Step C merges all parts into one unified picture.
 
@@ -108,13 +150,17 @@ Read the backend **completely and independently** — not just to fill frontend 
 |-------|-----------------------------------------------------------|-----------------------------------------|-----------------------------------------------------------|
 | Specs/Docs | Every `.spec/`, `docs/`, `README` file | Requirements, constraints, stated business goals | N/A |
 | Business Logic | **Every method in every service/use-case/handler file** | Each method = one business rule or action. Ask: "What decision does this method make?" | Exact method name, class name, service name — record for technical notes |
-| Data | **Every entity, model, schema, migration, and enum/constant file** | Every data object translated to business label; every status enum in plain values (e.g. `STATUS_PENDING` → "Waiting for approval") | Entity/table name, field names, enum constants — record for technical notes |
+| Data | **Every entity, model, schema, migration, and enum/constant file** | Every data object translated to business label; every status enum in plain values (e.g. `STATUS_PENDING` → "Waiting for approval"). **Also read every DB constraint, unique index, check constraint, and trigger** — each enforces a business rule that must be captured. | Entity/table name, field names, enum constants, constraint names, trigger names — record for technical notes |
 | API / Routes | **Every controller, route handler, or gateway route file** | What business action the API performs (e.g. "Create User"). Map each endpoint to its business purpose. | Exact endpoint URL, HTTP method, request/response DTO names — record for technical notes |
 | Security | **Every** security config, role definition, permission list, JWT claim | Every role and permission in plain language: "Sales Manager can view but not edit prices" | Role constant names, permission strings, JWT claim keys — record for technical notes |
 | Config | **Every** config/env file | Every limit, threshold, default translated: "Maximum file size: 10 MB", "Session timeout: 30 minutes" | Config key names, exact values — record for technical notes |
 | Tests | **Every** test file — read each test name and assertion | Each test = one piece of intended business behavior | Test class and method names — useful for tracing implementation |
 | Comments | Every TODO, FIXME, HACK, NOTE comment in the codebase | Risks, open questions, known gaps translated to business impact | Exact comment text — preserve for technical notes |
 | Error Handling | Every custom error, exception, and error message string | What can go wrong for the business; what the system refuses to do | Exception class names, error codes — record for technical notes |
+| Validators / Constraints | **Every** custom validator class, constraint annotation, pre-save hook, or AOP/aspect that enforces rules | Each validator = one business rule that the system enforces on data before it is accepted | Validator class name, annotation name, target entity/DTO, annotated fields — record for technical notes |
+| Event Listeners | **Every** event listener, message-queue consumer, or webhook handler | Business reactions to events: "When X happens, the system does Y" | Listener class name, event type, queue/topic name — record for technical notes |
+| Scheduled / Batch Jobs | **Every** `@Scheduled`, cron job, batch processor, or background worker | Automated processes and their business triggers/outcomes | Job class name, cron expression, trigger condition — record for technical notes |
+| SQL / Queries / Stored Procedures | **Every** native SQL query, stored procedure, function, view definition, or database trigger found in migrations, `.sql` files, or inline in code (`@Query`, `JdbcTemplate`, `MyBatis` XML, `raw` queries) | Business rules hidden in SQL: which records are included/excluded, sort order significance, aggregation logic, hardcoded status filters, computed fields | SQL file / query text, procedure name, table/view names, hardcoded values — record for technical notes |
 
 After reading ALL backend files, produce independently:
 1. **Complete API-to-Business mapping** — a list of every discovered API endpoint and the business function it serves, translated to plain language.
@@ -124,6 +170,11 @@ After reading ALL backend files, produce independently:
 5. **Complete data picture** — every business object, every meaningful field, every relationship, every status/lifecycle. Also record the technical entity/table name.
 6. **Complete role & permission picture** — every role, every capability granted, every restriction enforced. Also record the technical role constant.
 7. **System limits & policies** — every threshold, limit, timeout, and default that affects the user or business. Also record the config key.
+8. **State-machine and workflow transition rules** — if the codebase uses a state machine, workflow engine, or status-transition logic:
+   - List every status/state and its plain-language meaning.
+   - For each transition, document the business rule: "A [record] can only move from [State A] to [State B] when [condition is met]."
+   - Record who/what triggers each transition (user action, system event, scheduled job).
+   - Capture side effects of transitions (notifications, cascading updates, audit entries).
 
 #### Step C — Merge All Layers into One Complete Business Picture
 
@@ -904,6 +955,11 @@ Use the per-page extraction records built in Step 2.7 as the source of truth. Fo
 - Every role constant and security rule appears in section 10.5
 - Every screen has a matching entry in section 10.6 (Frontend Component Map)
 - Every business-relevant config key appears in section 10.7
+- **Every custom validator/constraint** found in code maps to at least one business rule (BR-xx) in `03-requirements.md`
+- **Every event listener / message consumer** found in code maps to either a System Journey in `02-scope-context.md` or a business rule in `03-requirements.md`
+- **Every scheduled / batch job** found in code maps to a System Journey in `02-scope-context.md` and a use case in `04-use-cases.md`
+- **Every DB constraint, unique index, check constraint, and trigger** found in code maps to a business rule (BR-xx) in `03-requirements.md` or is documented in `06-data-reporting.md` section 6.4 with its business meaning
+- **Every state-machine / workflow transition** found in code is documented in `03-requirements.md` as a business rule with the condition and side effects
 
 **Content checks:**
 - Every section filled from code evidence -- not left blank without reason.
@@ -920,11 +976,43 @@ Use the per-page extraction records built in Step 2.7 as the source of truth. Fo
 - List all 11 files created with their full paths and status (CREATED / UPDATED / SKIPPED).
 - Summarize key findings:
   - **Business summary**: user journeys (list names), automated processes (list names), screens (count + list), user roles (plain names)
-  - **Business rules**: frontend-visible (count) + backend-only / system-enforced (count)
+  - **Business rules**: frontend-visible (count) + backend-only / system-enforced (count) + validator-based (count) + event-driven (count) + scheduled-job (count) + state-machine (count) + DB-constraint (count)
   - **Page detail**: buttons/actions documented (total), input fields (total), error messages (total)
-  - **Technical summary**: API endpoints mapped (total), service classes documented (total), entities/tables mapped (total), DTOs documented (total)
+  - **Technical summary**: API endpoints mapped (total), service classes documented (total), entities/tables mapped (total), DTOs documented (total), validators/constraints mapped (total), event listeners mapped (total), scheduled jobs mapped (total)
   - **Mismatches flagged** (count and brief plain-language description)
+  - **Files skipped** (count and brief reason: generated code, third-party library, etc.)
+  - **Feature flags / toggles found** (count and list of flag names affecting business behavior)
 - List sections left as `TBD` and explain what is missing.
 - Suggest follow-ups:
   - `/speckit.specify feature="..."` to convert this BA doc set into a technical spec.
   - `/speckit.document-generate module="..."` to generate a BA doc set for another module.
+
+**Check for extension hooks (after document generation)**:
+- Check if `.specify/extensions.yml` exists in the project root.
+- If it exists, read it and look for entries under the `hooks.after_documentgenerate` key
+- If the YAML cannot be parsed or is invalid, skip hook checking silently and continue normally
+- Filter out hooks where `enabled` is explicitly `false`. Treat hooks without an `enabled` field as enabled by default.
+- For each remaining hook, do **not** attempt to interpret or evaluate hook `condition` expressions:
+  - If the hook has no `condition` field, or it is null/empty, treat the hook as executable
+  - If the hook defines a non-empty `condition`, skip the hook and leave condition evaluation to the HookExecutor implementation
+- For each executable hook, output the following based on its `optional` flag:
+  - **Optional hook** (`optional: true`):
+    ```
+    ## Extension Hooks
+
+    **Optional Hook**: {extension}
+    Command: `/{command}`
+    Description: {description}
+
+    Prompt: {prompt}
+    To execute: `/{command}`
+    ```
+  - **Mandatory hook** (`optional: false`):
+    ```
+    ## Extension Hooks
+
+    **Automatic Hook**: {extension}
+    Executing: `/{command}`
+    EXECUTE_COMMAND: {command}
+    ```
+- If no hooks are registered or `.specify/extensions.yml` does not exist, skip silently
