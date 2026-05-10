@@ -159,6 +159,21 @@ Available as Junie commands and Windsurf workflows, and as a Codex skill:
 - `/speckit.document-generate module="..." [project="..."] [parts="..."]` — generate a 10-file Business Analysis document set under `docs/ba/<module>/` (README + 01-overview through 09-page-catalog). Always unified — treats all sub-projects as one system.
 - `/speckit.test-generate file="..." [spec="..."] [ac="AC-1,AC-2"]` — generate spec-linked unit tests (JUnit/Jest/pytest) with AC traceability annotations.
 
+### Prerequisite Scripts
+
+Speckit commands can auto-locate the active feature directory and verify artifact presence using helper scripts:
+
+- **Windows**: `scripts/powershell/check-prerequisites.ps1 [-Json] [-PathsOnly] [-RequireTasks] [-IncludeTasks]`
+- **Linux/macOS**: `scripts/bash/check-prerequisites.sh [--json] [--paths-only] [--require-tasks] [--include-tasks]`
+
+These scripts read `.specify/feature.json` (or fall back to the most recent `specs/` directory) and report:
+- `FEATURE_DIR` — the active feature directory
+- `FEATURE_SPEC_PATH` / `FEATURE_SPEC_EXISTS` — spec.md location and status
+- `IMPL_PLAN_PATH` / `IMPL_PLAN_EXISTS` — plan.md location and status
+- `TASKS_PATH` / `TASKS_EXISTS` — tasks.md location and status
+- `AVAILABLE_DOCS` — list of all existing artifacts
+
+Each Speckit command now runs the prerequisite checker as Step 1 and auto-populates paths when the user does not provide them explicitly.
 
 ## Adding a New Technology
 
