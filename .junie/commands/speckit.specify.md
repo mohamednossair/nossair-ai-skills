@@ -21,9 +21,10 @@ Follow-ups:
 - Use tech reviews after drafting: `/java-review`, `/ts-review`, `/sql-review`, `/maven-help` as applicable.
 
 Git Branching (before writing files):
-- Prompt for a branch name and create/switch to it. Recommend:
-  - `feature/spec/<id>-<short-slug>` for new specs
-  - `chore/spec/<id>-<short-slug>` for refinements
-- If an ID exists (Jira/issue), include it. Otherwise, generate a short slug from the feature description.
-- Examples: `feature/spec/SE-123-auth-refresh`, `feature/spec/auth-refresh`.
+- Prompt the user: *"Do you have a Jira / Bitbucket issue ID? (e.g., SE-123) Enter it, or press Enter to skip."*
+- Pass the issue ID (if any) and the short feature name to the helper script:
+  - Windows: `scripts/powershell/create-branch.ps1 -Prefix "feature/spec" -ShortName "<short-name>" [-IssueId "<id>"]`
+  - Linux/macOS: `scripts/bash/create-branch.sh --prefix "feature/spec" --short-name "<short-name>" [--issue-id "<id>"]`
+- If already on a non-protected branch, the script returns `created: false` and continues safely.
+- For refinements to an existing spec, use prefix `chore/spec` instead.
 - Ensure alignment with repo rules from `/.junie/skills/git/`.

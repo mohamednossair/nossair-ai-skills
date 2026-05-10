@@ -5,9 +5,11 @@ description: Create or update a concise feature spec from a natural language des
 **Usage**: `/speckit.specify feature="..."`
 
 1. Generate a short feature name (2–4 words, action-noun format, e.g. `user-auth`).
-2. **Branch guard** — Before writing files, run the helper script:
-   - Windows: `scripts/powershell/create-branch.ps1 -Prefix "feature/spec" -ShortName "<short-name>" [-IssueId "SE-123"]`
-   - Linux/macOS: `scripts/bash/create-branch.sh --prefix "feature/spec" --short-name "<short-name>" [--issue-id "SE-123"]`
+2. **Branch guard** — Before writing files:
+   - Prompt the user: *"Do you have a Jira / Bitbucket issue ID? (e.g., SE-123) Enter it, or press Enter to skip."*
+   - Pass the issue ID (if any) and the short feature name to the helper script:
+     - Windows: `scripts/powershell/create-branch.ps1 -Prefix "feature/spec" -ShortName "<short-name>" [-IssueId "<id>"]`
+     - Linux/macOS: `scripts/bash/create-branch.sh --prefix "feature/spec" --short-name "<short-name>" [--issue-id "<id>"]`
    - If already on a non-protected branch, the script returns `created: false` and continues safely.
    - For refinements to an existing spec, use prefix `chore/spec` instead.
 3. Create the spec directory under `specs/` (e.g. `specs/NNN-short-name`) and persist the path to `.specify/feature.json` so downstream commands can locate it.
