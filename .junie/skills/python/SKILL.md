@@ -1,11 +1,17 @@
 ---
 name: python
-description: Review or develop Python code with strict type hints and PEP 8 standards
+description: Review or develop Python code (.py) with strict type hints, PEP 8, and Black formatting
 ---
 
 # Python Skill
 
 Use this skill when developing or reviewing Python code. The project requires mandatory type hints and follows the Black standard for formatting.
+
+## When to Use
+- Creating or modifying any `.py` file.
+- Reviewing Python code for typing, error handling, or idiomatic style.
+- Writing scripts, tooling, or automation in Python.
+- Designing new modules, protocols, or data classes.
 
 ## Key Principles
 - **Type Hints**: Mandatory on all function signatures (PEP 484).
@@ -39,20 +45,29 @@ Use this skill when developing or reviewing Python code. The project requires ma
 
 ### Modern Python Pattern
 ```python
-from typing import Optional, List, Protocol
+import logging
+from typing import Optional, Protocol
+
+logger = logging.getLogger(__name__)
+
+
+class RepositoryError(Exception):
+    """Raised when the data repository fails."""
+
 
 class DataRepository(Protocol):
-    def fetch_all(self) -> List[str]: ...
+    def fetch_all(self) -> list[str]: ...
 
-def process_data(repository: DataRepository, limit: Optional[int] = None) -> List[str]:
+
+def process_data(repository: DataRepository, limit: Optional[int] = None) -> list[str]:
     """Process data with type hints and guard clauses."""
     if limit is not None and limit <= 0:
         raise ValueError("Limit must be positive")
 
     try:
         data = repository.fetch_all()
-        return data[:limit] if limit else data
-    except RepositoryError as e:
-        logger.error(f"Failed to fetch data: {e}")
+        return data[:limit] if limit is not None else data
+    except RepositoryError:
+        logger.exception("Failed to fetch data")
         raise
 ```

@@ -67,25 +67,25 @@
 
 ### Skill Deployment
 
-**UR-012: Claude Code Deployment**
-- **As a** developer using Claude Code
-- **I want** to run a sync script to deploy skills globally
-- **So that** I can use unified commands without manually copying files
+**UR-012: Devin Project Setup**
+- **As a** developer using Devin
+- **I want** to copy the `.devin/` folder to my project
+- **So that** Devin can load project skills (unified commands and standards map) automatically
 
-**UR-013: Codex Deployment**
-- **As a** developer using Codex
-- **I want** to run a sync script to deploy skills globally
-- **So that** Codex can auto-load skills based on request context
+**UR-013: One-Command Installation**
+- **As a** developer setting up a new project
+- **I want** to run a single install script that copies Junie, AI Assistant, and Devin configuration at once
+- **So that** all supported assistants are configured without manual steps
 
 **UR-014: Junie Project Setup**
 - **As a** developer setting up a new project for Junie
 - **I want** to copy the `.junie/` folder to my project
 - **So that** Junie can access skills, commands, and guidelines
 
-**UR-015: Windsurf Project Setup**
-- **As a** developer setting up a new project for Windsurf
-- **I want** to copy the `.windsurf/` folder to my project
-- **So that** Windsurf can load memories and workflows automatically
+**UR-015: Source-of-Truth Maintenance**
+- **As a** maintainer
+- **I want** technology standards stored once in `.junie/skills/` and referenced by AIR rules and Devin skills
+- **So that** there is a single place to update standards without mirror drift
 
 **UR-016: JetBrains AI Assistant Setup**
 - **As a** developer using JetBrains IDE
@@ -135,9 +135,9 @@
 
 ### Command Consistency
 
-**BR-001**: All unified commands (/review, /plan, /test-generate, /git-commit) must have identical behavior across Claude Code, Junie, and Windsurf.
+**BR-001**: All unified commands (/review, /plan, /test-generate, /git-commit) must have identical behavior across Junie, AIR, and Devin.
 
-**BR-002**: Command definitions must be stored in agent-specific locations (.claude/skills/, .junie/commands/, .windsurf/workflows/) but reference the same underlying logic.
+**BR-002**: Technology standards must be stored once in `.junie/skills/<tech>/SKILL.md` (source of truth); agent-specific locations (`.junie/commands/`, `.aiassistant/rules/`, `.devin/skills/`) must reference that source rather than duplicate it.
 
 **BR-003**: When a unified command is updated, all agent-specific implementations must be updated to maintain parity.
 
@@ -205,21 +205,19 @@
 
 ### Deployment
 
-**BR-030**: Claude Code skills must be deployed globally to ~/.claude/skills/.
+**BR-030**: Junie assets must be deployed per-project by copying the .junie/ folder.
 
-**BR-031**: Codex skills must be deployed globally to $CODEX_HOME/skills/ or ~/.codex/skills/.
+**BR-031**: Devin skills must be deployed per-project by copying the .devin/ folder.
 
-**BR-032**: Junie assets must be deployed per-project by copying the .junie/ folder.
+**BR-032**: Devin skills must include name and description frontmatter so they can be auto-discovered and invoked.
 
-**BR-033**: Windsurf assets must be deployed per-project by copying the .windsurf/ folder.
-
-**BR-034**: JetBrains AI Assistant rules must be deployed per-project by copying the .aiassistant/ folder.
+**BR-033**: JetBrains AI Assistant rules must be deployed per-project by copying the .aiassistant/ folder.
 
 ### Documentation
 
 **BR-035**: All skill definitions must be written in markdown format.
 
-**BR-036**: Skill definitions must reference related memory files for consistency.
+**BR-036**: Skill definitions must include a "When to Use" section so agents can select the right skill automatically.
 
 **BR-037**: Workflow files must include a description in frontmatter for agent discovery.
 

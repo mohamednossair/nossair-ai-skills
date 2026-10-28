@@ -1,6 +1,6 @@
 #!/bin/bash
 # new-skill.sh
-# Automates the creation of a new skill across Claude Code, Junie, and Windsurf.
+# Automates the creation of a new skill across Junie, AI Assistant, and Devin.
 # Usage: ./scripts/new-skill.sh <tech-name>
 
 TECH_NAME=$1
@@ -11,14 +11,10 @@ fi
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 JUNIE_SKILL_DIR="$REPO_DIR/.junie/skills/$TECH_NAME"
-CLAUDE_SKILL_FILE="$REPO_DIR/.claude/skills/$TECH_NAME-review.md"
-WINDSURF_MEMORY_FILE="$REPO_DIR/.windsurf/memories/$TECH_NAME-standards.md"
-WINDSURF_WORKFLOW_FILE="$REPO_DIR/.windsurf/workflows/$TECH_NAME-review.md"
-
-# Helper for title case
+DEVIN_SKILL_DIR="$REPO_DIR/.devin/skills/$TECH_NAME"
 CAP_TECH_NAME=$(echo "$TECH_NAME" | sed 's/./\U&/')
 
-# 1. Create Junie Skill folder and file
+# 1. Create Junie Skill folder and file (source of truth)
 if [ ! -d "$JUNIE_SKILL_DIR" ]; then
     mkdir -p "$JUNIE_SKILL_DIR"
     sed -e "s/\[technology-name\]/$TECH_NAME/g" \
@@ -29,54 +25,36 @@ else
     echo "  ! Junie Skill directory already exists: $JUNIE_SKILL_DIR"
 fi
 
-# 2. Create Claude Skill file
-if [ ! -f "$CLAUDE_SKILL_FILE" ]; then
-    sed "s/\[Technology\]/$CAP_TECH_NAME/g" \
-        "$REPO_DIR/templates/claude_skill_template.md" > "$CLAUDE_SKILL_FILE"
-    echo "  ✓ Created Claude Command: .claude/skills/$TECH_NAME-review.md"
-else
-    echo "  ! Claude Command file already exists: $CLAUDE_SKILL_FILE"
-fi
-
-# 3. Create Windsurf Memory file
-if [ ! -f "$WINDSURF_MEMORY_FILE" ]; then
-    echo "# $CAP_TECH_NAME Standards" > "$WINDSURF_MEMORY_FILE"
-    echo "## Coding Standards" >> "$WINDSURF_MEMORY_FILE"
-    echo "- Standard 1" >> "$WINDSURF_MEMORY_FILE"
-    echo "- Standard 2" >> "$WINDSURF_MEMORY_FILE"
-    echo "  ✓ Created Windsurf Memory: .windsurf/memories/$TECH_NAME-standards.md"
-else
-    echo "  ! Windsurf Memory file already exists: $WINDSURF_MEMORY_FILE"
-fi
-
-# 4. Create Windsurf Workflow file
-if [ ! -f "$WINDSURF_WORKFLOW_FILE" ]; then
-    mkdir -p "$(dirname "$WINDSURF_WORKFLOW_FILE")"
-    cat > "$WINDSURF_WORKFLOW_FILE" << EOF
+# 2. Create Devin Skill folder and file
+if [ ! -d "$DEVIN_SKILL_DIR" ]; then
+    mkdir -p "$DEVIN_SKILL_DIR"
+    cat > "$DEVIN_SKILL_DIR/SKILL.md" << EOF
 ---
-description: Review $CAP_TECH_NAME code using tech standards and guidelines
+name: $TECH_NAME
+description: Review or develop $CAP_TECH_NAME code following project standards in .junie/skills/$TECH_NAME/SKILL.md
+allowed-tools:
+  - read
+  - grep
+  - glob
+triggers:
+  - user
+  - model
 ---
 
-**Usage**: \`/$TECH_NAME-review file="path/to/file"\`
+Apply the project's $CAP_TECH_NAME standards when working on $CAP_TECH_NAME code.
 
-1. Identify $CAP_TECH_NAME-specific patterns and anti-patterns.
-2. Apply standards from \`.windsurf/memories/$TECH_NAME-standards.md\` and \`coding-standards.md\`.
-3. Analyze: correctness, security, performance, readability, SOLID/DRY.
-4. Output findings grouped by: [Critical] | [Warning] | [Suggestion]
-   - **Location**: [File:line]
-   - **Issue**: [What is wrong]
-   - **Why**: [Impact]
-   - **Fix**: [Corrected code]
+1. Read the detailed skill at \`.junie/skills/$TECH_NAME/SKILL.md\` and follow it.
+2. Also apply \`.junie/guidelines.md\` and the \`global\` skill.
+3. When reviewing, group findings by: [Critical] | [Warning] | [Suggestion] with Location, Issue, Why, Fix.
 EOF
-    echo "  ✓ Created Windsurf Workflow: .windsurf/workflows/$TECH_NAME-review.md"
+    echo "  ✓ Created Devin Skill: .devin/skills/$TECH_NAME/SKILL.md"
 else
-    echo "  ! Windsurf Workflow file already exists: $WINDSURF_WORKFLOW_FILE"
+    echo "  ! Devin Skill directory already exists: $DEVIN_SKILL_DIR"
 fi
 
 echo -e "\nSkill scaffolding complete for: $TECH_NAME"
 echo "Next steps:"
-echo "1. Edit the generated files to add specific rules."
-echo "2. Add the technology to .junie/guidelines.md (Optional for core tech)."
-echo "3. Update the relevant README sections if needed (for example: Tech Stack Covered or Claude tech-review commands)."
-echo "4. Re-sync Claude Code with ./scripts/sync-claude.sh"
-echo "5. Re-sync Codex with ./scripts/sync-codex.sh"
+echo "1. Edit .junie/skills/$TECH_NAME/SKILL.md to add specific rules (source of truth)."
+echo "2. Add the technology to .junie/guidelines.md (optional for core tech)."
+echo "3. Update README.md (Tech Stack Covered) and .aiassistant/rules/project-rules.md Standards Map if needed."
+echo "4. Run ./scripts/check-command-parity.sh to validate."

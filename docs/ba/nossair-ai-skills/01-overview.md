@@ -6,7 +6,7 @@
 
 ## What This System Does
 
-This system provides a centralized repository of coding skills and workflows that work consistently across multiple AI coding assistants. It enables development teams to define coding standards, review processes, testing patterns, and development workflows once, then deploy them to multiple AI tools (Claude Code, Codex, Junie, Windsurf, and JetBrains AI Assistant). The system ensures developers receive consistent guidance and assistance regardless of which AI assistant they use.
+This system provides a centralized repository of coding skills and workflows that work consistently across multiple AI coding assistants. It enables development teams to define coding standards, review processes, testing patterns, and development workflows once, then deploy them to multiple AI tools (Junie, JetBrains AI Assistant (AIR), and Devin). The system ensures developers receive consistent guidance and assistance regardless of which AI assistant they use.
 
 ## Why It Exists
 

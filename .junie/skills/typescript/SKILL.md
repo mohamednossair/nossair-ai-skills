@@ -1,11 +1,17 @@
 ---
 name: typescript
-description: Review or develop TypeScript code with strict mode and modern async patterns
+description: Review or develop TypeScript code (.ts/.tsx) with strict mode, no any, and modern async patterns
 ---
 
 # TypeScript Skill
 
 Use this skill when developing or reviewing TypeScript code. The project requires strict mode and emphasizes explicit types, named exports, and proper async handling.
+
+## When to Use
+- Creating or modifying any `.ts` or `.tsx` file (combine with the `angular` skill for Angular code).
+- Reviewing TypeScript for type safety, async correctness, or export style.
+- Configuring `tsconfig.json` or tightening compiler options.
+- Designing shared types, interfaces, or utility modules.
 
 ## Key Principles
 - **Strict Mode**: `strict: true` in `tsconfig.json`. No exceptions.

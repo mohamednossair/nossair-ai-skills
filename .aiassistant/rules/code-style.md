@@ -5,9 +5,8 @@ apply: always
 # Code Style (Project)
 
 Use these as default rules in the IDE. For full details, see:
-- `.windsurf/memories/coding-standards.md`
-- `.windsurf/memories/tech-stack.md`
-- `.windsurf/memories/testing-standards.md`
+- `.junie/guidelines.md` — consolidated technology standards
+- `.junie/skills/<tech>/SKILL.md` — detailed per-technology skills
 
 ## General
 - Prefer small, cohesive modules with clear names.

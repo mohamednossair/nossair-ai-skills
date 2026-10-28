@@ -9,18 +9,17 @@
 The system is a centralized repository containing AI coding assistant skills, workflows, and coding standards. It consists of:
 
 **Core Components**:
-- **Skill Definitions**: Markdown files that define coding standards, review checklists, and best practices for different technologies (Java, TypeScript, Python, Spring Boot, Angular, SQL, Maven, Git, JUnit, Jest)
+- **Skill Definitions**: Markdown files that define coding standards, review checklists, and best practices for different technologies (Java, TypeScript, Python, Spring Boot, Angular, SQL, Maven, Git, JUnit, Jest) — stored once in `.junie/skills/<tech>/SKILL.md` as the source of truth
 - **Unified Commands**: Workflow definitions that provide consistent behavior across AI assistants (/review, /plan, /test-generate, /git-commit)
 - **Speckit Toolkit**: Specialized workflows for specification-driven development (/speckit.specify, /speckit.plan, /speckit.tasks, /speckit.validate, /speckit.analyze, /speckit.implement, /speckit.document-generate)
-- **Deployment Scripts**: Automation scripts to install and sync skills to different AI assistants (install.sh, install.ps1, sync-claude.sh, sync-claude.ps1, sync-codex.sh, sync-codex.ps1)
+- **Deployment Scripts**: Automation scripts to install skills and verify command parity (install.sh, install.ps1, check-command-parity.sh, check-command-parity.ps1, new-skill.sh, new-skill.ps1)
 - **Project Rules**: Shared guidelines for JetBrains AI Assistant that can be copied to any project
+- **Devin Skills**: Project skills in `.devin/skills/` that mirror the unified commands and point to the Junie source of truth
 
 **Supported AI Assistants**:
-- Claude Code (global skill deployment)
-- Codex (global skill deployment)
 - Junie (per-project deployment)
-- Windsurf (per-project deployment)
-- JetBrains AI Assistant (per-project rules)
+- JetBrains AI Assistant / AIR (per-project rules)
+- Devin (per-project skills)
 
 **Supported Technologies**:
 - Java 21+ LTS
@@ -40,11 +39,10 @@ The system is a centralized repository containing AI coding assistant skills, wo
 **Current State**: The system is a static repository of markdown files and shell scripts. There is no runtime application or database. The "business logic" is executed by AI assistants reading the markdown files and following the defined instructions.
 
 **Deployment Flow**:
-1. **For Claude Code**: Developers run `sync-claude.sh` or `sync-claude.ps1` to copy skill files from `.claude/skills/` to the global Claude Code skills directory
-2. **For Codex**: Developers run `sync-codex.sh` or `sync-codex.ps1` to copy skill folders from `.junie/skills/` to the Codex skills directory
-3. **For Junie**: Developers copy the `.junie/` folder to their project directory
-4. **For Windsurf**: Developers copy the `.windsurf/` folder to their project directory
-5. **For JetBrains AI Assistant**: Developers copy the `.aiassistant/` folder to their project directory
+1. **For Junie**: Developers copy the `.junie/` folder to their project directory
+2. **For JetBrains AI Assistant**: Developers copy the `.aiassistant/` folder to their project directory
+3. **For Devin**: Developers copy the `.devin/` folder to their project directory
+4. Alternatively, developers run `install.sh` or `install.ps1` to copy all three folders plus the helper scripts at once
 
 **Command Execution Flow**:
 1. Developer invokes a command in their AI assistant (e.g., `/review file="src/App.java"`)
@@ -104,19 +102,17 @@ The system is a centralized repository containing AI coding assistant skills, wo
 ## Integration Points
 
 **External Systems**:
-- **Claude Code**: Reads skills from `~/.claude/skills/` directory
-- **Codex**: Reads skills from `$CODEX_HOME/skills/` or `~/.codex/skills/` directory
 - **Junie**: Reads skills and commands from project `.junie/` directory
-- **Windsurf**: Reads memories and workflows from project `.windsurf/` directory
 - **JetBrains AI Assistant**: Reads rules from project `.aiassistant/rules/` directory
+- **Devin**: Reads skills from project `.devin/skills/` directory and `AGENTS.md` at the repo root
 
 **No Backend Systems**: The system does not integrate with any databases, APIs, or external services. It is a purely static repository of documentation and scripts.
 
 ## Current Limitations
 
 **Scope Boundaries**:
-- The system only supports the 5 listed AI assistants
-- The system only supports the 10 listed technologies
+- The system only supports the 3 listed AI assistants
+- The system only supports the listed technologies
 - Skills are manually authored in markdown; no automated generation from code
 - No validation that deployed skills match the central repository
 - No automated testing of skill definitions

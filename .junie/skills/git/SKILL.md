@@ -1,11 +1,17 @@
 ---
 name: git
-description: Git workflow and Conventional Commit message review
+description: Git workflow, branching strategy, and Conventional Commit message review and creation
 ---
 
 # Git Skill
 
 Use this skill when performing Git operations or reviewing commit messages. The project follows Trunk-Based / GitFlow hybrid and strict Conventional Commits.
+
+## When to Use
+- Creating branches or commits (see the `/git-commit` command for the full workflow).
+- Reviewing commit messages, branch names, or PR structure.
+- Cleaning up history (squash, rebase) before merging.
+- Deciding which commit `type`/`scope` fits a change set.
 
 ## Key Principles
 - **Conventional Commits**: `type(scope): description`.
@@ -67,4 +73,4 @@ Closes #456
 ```
 fixed the bug in the auth service.
 ```
-*Wait: No type, not imperative, starts with lowercase, has a period, exceeds length.*
+*Wait: No type, not imperative (past tense), has a trailing period, no scope.*

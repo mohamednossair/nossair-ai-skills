@@ -1,11 +1,17 @@
 ---
 name: maven
-description: Help with Maven build configuration, dependency management, and lifecycle
+description: Help with Maven pom.xml, dependency management, build lifecycle, and multi-module projects
 ---
 
 # Maven Skill
 
 Use this skill when managing Maven build configurations, resolving dependency issues, or working with `pom.xml` files.
+
+## When to Use
+- Creating or editing `pom.xml` files (dependencies, plugins, profiles, modules).
+- Resolving dependency conflicts or version issues.
+- Debugging build, test, or packaging failures.
+- Setting up multi-module builds or CI build steps.
 
 ## Key Principles
 - **Dependency Management**: Use `<dependencyManagement>` for consistent versions across modules.

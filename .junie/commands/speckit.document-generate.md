@@ -288,7 +288,7 @@ At the end of Step 4, report per file (all 11): `CREATED`, `UPDATED (sections: .
 
 ### 4.2 File Templates
 
-> **Templates are identical to the Windsurf workflow version.** See `.windsurf/workflows/speckit.document-generate.md` section 4.2 for all 10 file templates. The templates define the exact structure, tables, and columns for each file.
+> **Template source of truth:** the highlights below plus the example document set in `docs/ba/nossair-ai-skills/` (README + `01-overview` … `08-reference`), which demonstrates the exact structure, tables, and columns for each file. The example set is partial — the full output is 11 files including `09-page-catalog.md` and `10-technical-map.md`.
 
 Key template highlights:
 - **README.md**: Health Summary with counts (journeys, screens, rules, buttons, fields, TBDs, mismatches), Contents table with status per file

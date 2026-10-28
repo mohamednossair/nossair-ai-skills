@@ -1,11 +1,17 @@
 ---
 name: spring-boot
-description: Review or develop Spring Boot 3+ applications with layered architecture and virtual threads
+description: Review or develop Spring Boot 3.2+ applications (.java with Spring) — layered architecture, DTOs, validation, virtual threads
 ---
 
 # Spring Boot Skill
 
 Use this skill when developing or reviewing Spring Boot applications. The project follows a strict layered architecture and targets Spring Boot 3.2+ for virtual thread support.
+
+## When to Use
+- Working with Spring annotations (`@RestController`, `@Service`, `@Repository`, `@Entity`, ...).
+- Designing or reviewing REST endpoints, DTOs, validation, or error handling.
+- Configuring Spring Security, JPA/Hibernate, Flyway migrations, or `application.yml`.
+- Writing `@WebMvcTest`, `@DataJpaTest`, or `@SpringBootTest` test slices.
 
 ## Key Principles
 - **Layered Architecture**: `controller` → `service` → `repository`.
@@ -55,7 +61,7 @@ public class OrderService {
     private final OrderRepository repository;
 
     @Transactional
-    public OrderResponse createOrder(@Valid OrderRequest request) {
+    public OrderResponse createOrder(OrderRequest request) {
         log.info("Creating order for customer: {}", request.customerId());
         Order order = Order.builder()
             .status(OrderStatus.PENDING)
@@ -69,3 +75,4 @@ public class OrderService {
     }
 }
 ```
+> Note: `@Valid` belongs on controller `@RequestBody` parameters (or `@Validated` on the class for service-level method validation) — never on plain service parameters.

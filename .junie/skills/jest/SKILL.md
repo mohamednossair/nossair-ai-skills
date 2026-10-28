@@ -1,11 +1,17 @@
 ---
 name: jest
-description: Generate or review TypeScript/Angular unit tests using Jest
+description: Generate or review TypeScript/Angular unit tests (.spec.ts) using Jest
 ---
 
 # Jest Skill
 
 Use this skill when generating or reviewing TypeScript and Angular tests. The project follows the AAA pattern and Jest testing standards.
+
+## When to Use
+- Writing or reviewing `*.spec.ts` or `*.test.ts` files.
+- Testing Angular components/services with `TestBed` and mocked providers.
+- Reviewing mock/spy usage, cleanup, or assertion style.
+- Deciding what to test: happy path, edge cases, error paths.
 
 ## Key Principles
 - **AAA Pattern**: Arrange → Act → Assert.
@@ -45,7 +51,7 @@ describe('UserService', () => {
     jest.clearAllMocks();
     mockRepository = {
       findById: jest.fn()
-    } as any;
+    } as unknown as jest.Mocked<UserRepository>;
     service = new UserService(mockRepository);
   });
 
@@ -63,3 +69,4 @@ describe('UserService', () => {
   });
 });
 ```
+> Note: use `as unknown as jest.Mocked<T>` (double assertion) instead of `as any` — the TypeScript skill forbids `any`.

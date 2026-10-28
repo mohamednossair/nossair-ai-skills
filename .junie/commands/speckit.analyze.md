@@ -8,7 +8,7 @@ description: Read-only cross-artifact consistency and quality analysis
 2. **STRICTLY READ-ONLY** — Do not modify any files. Output a structured Markdown report only.
 3. Build a traceability matrix: Spec ACs → Plan milestones → Tasks.
 4. Validate NFR coverage (security, performance, availability, privacy) across plan/tasks.
-5. **Constitution alignment** — Load `/memory/constitution.md` and flag MUST-principle violations as **CRITICAL**.
+5. **Constitution alignment** — Load `/memory/constitution.md` if it exists in the target project and flag MUST-principle violations as **CRITICAL**. Skip gracefully if absent.
 6. Detect gaps: missing owners/estimates/DoD, orphan ACs/tasks, circular deps, unclear risks.
 7. Flag hotspots: high-risk tasks without tests, critical-path slippage risk, ambiguous glossary.
 8. **Severity assignment** — Classify each finding:

@@ -19,5 +19,5 @@ description: Generate domain-specific requirement-quality checklists (unit tests
    - ✅ CORRECT: `"Are error response formats specified for all failure scenarios? [Completeness]`"
    - ❌ WRONG: `"Verify the API returns 400 on bad input"`
 6. Tag each item with its quality dimension and traceability reference (e.g., `[Clarity, Spec §FR-2]` or `[Gap]`).
-7. Link to relevant skills or standards where helpful (e.g., `/java-review`, `/ts-review`, `/sql-review`).
+7. Link to relevant skills or standards where helpful (e.g., the `java`, `typescript`, `oracle`/`mysql` skills).
 8. Keep to one line per check; avoid paragraphs. Soft cap at ~40 items; merge near-duplicates.

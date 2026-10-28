@@ -1,8 +1,8 @@
 # Agent Usage Guide
 
-This document explains how to use the skills in this repository for each AI agent: Codex, Claude Code, Junie, and Windsurf, plus the shared JetBrains AI Assistant project rules.
+This document explains how to use the skills in this repository for each AI agent: **Junie**, **JetBrains AI Assistant (AIR)**, and **Devin**.
 
-All agents share 4 unified commands with identical names and behavior. See the [README](./README.md) for the full command table.
+All agents share 5 unified commands with identical names and behavior. See the [README](./README.md) for the full command table.
 
 ---
 
@@ -11,6 +11,7 @@ All agents share 4 unified commands with identical names and behavior. See the [
 | Command | Description |
 |---------|-------------|
 | `/review` | Review code using relevant tech skill and guidelines |
+| `/review-pr` | Review a PR or branch diff (multi-file) with merge recommendation |
 | `/plan` | Create a detailed implementation plan |
 | `/test-generate` | Generate unit tests (JUnit/Jest/pytest) |
 | `/git-commit` | Create a work branch if needed, then a conventional commit for current changes |
@@ -22,7 +23,7 @@ Git workflow note:
 ---
 
 ## Setup: All Agents (Quick Start)
-Deploy Claude and Codex skills globally AND set up Junie, Windsurf, and AI Assistant project files for your project:
+Set up Junie, AIR, and Devin project files for your project:
 
 **Linux/macOS:**
 ```bash
@@ -35,63 +36,30 @@ bash scripts/install.sh /your-project-root/
 
 ---
 
-## Claude Code (Slash Commands)
+## Source of Truth
 
-Claude Code uses slash commands stored as Markdown files in `.claude/skills/`. Deploy globally to `~/.claude/skills/`.
+`.junie/skills/<tech>/SKILL.md` is the single source of truth for technology standards. Every agent references these files:
 
-### Setup and Deployment
-Run the sync script to deploy skills globally:
+| Skill | Covers |
+|-------|--------|
+| `global` | SOLID, DRY, Clean Code — base for all reviews and tasks |
+| `java` | Java 21+ LTS: records, sealed classes, pattern matching, virtual threads |
+| `spring-boot` | Spring Boot 3.2+: layers, DTOs, validation, transactions, Flyway |
+| `typescript` | Strict mode, no `any`, explicit returns, async patterns |
+| `angular` | Angular 20+: standalone, signals, OnPush, `inject()`, control flow |
+| `python` | Type hints, PEP 8/Black, specific exceptions |
+| `maven` | pom.xml, dependency management, lifecycle, multi-module |
+| `git` | Branching, Conventional Commits, history hygiene |
+| `oracle` | Oracle SQL: bind variables, indexing, pagination |
+| `mysql` | MySQL SQL: InnoDB, utf8mb4, indexing, pagination |
+| `junit` | JUnit 5 + Mockito + AssertJ test standards |
+| `jest` | Jest test standards for TypeScript/Angular |
+| `security` | OWASP Top 10, Spring Security, JWT, CORS/CSRF, secrets/PII |
+| `performance` | N+1, caching, SQL tuning, bundle size, virtual threads |
+| `accessibility` | Semantic HTML, keyboard nav, ARIA, focus management |
+| `speckit` | Spec → plan → tasks → validate → implement toolkit |
 
-**Linux/macOS:**
-```bash
-bash scripts/sync-claude.sh
-```
-**Windows (PowerShell):**
-```powershell
-.\scripts\sync-claude.ps1
-```
-
-### Usage
-Type any command in Claude Code:
-- Unified: `/review`, `/plan`, `/test-generate`, `/git-commit`
-
----
-
-## Codex (Global Skills)
-
-Codex can use the existing `.junie/skills/` folders directly as installed global skills.
-
-### Setup and Deployment
-Sync the skills into `$CODEX_HOME/skills` (or `~/.codex/skills` if `CODEX_HOME` is not set):
-
-**Linux/macOS:**
-```bash
-bash scripts/sync-codex.sh
-```
-**Windows (PowerShell):**
-```powershell
-.\scripts\sync-codex.ps1
-```
-
-Restart Codex after syncing to pick up new skills.
-
-### Usage
-Codex auto-loads installed skills when the request matches their descriptions. Available skills include:
-- `global`
-- `java`
-- `spring-boot`
-- `typescript`
-- `python`
-- `angular`
-- `git`
-- `maven`
-- `oracle`
-- `mysql`
-- `junit`
-- `jest`
- - `speckit`
-
-The source of truth for Codex skills is `.junie/skills/`.
+`.junie/guidelines.md` is the consolidated one-page summary of all standards.
 
 ---
 
@@ -121,9 +89,9 @@ Copy-Item -Path .junie -Destination C:\your-project-root\ -Recurse
 
 ---
 
-## JetBrains AI Assistant (Project Rules + Prompt Library)
+## JetBrains AI Assistant (AIR) (Project Rules + Prompt Library)
 
-JetBrains AI Assistant can use shared project rules stored in `.aiassistant/rules/`.
+JetBrains AI Assistant uses shared project rules stored in `.aiassistant/rules/`.
 
 ### Setup
 Copy the `.aiassistant/` folder to your project:
@@ -138,63 +106,56 @@ Copy-Item -Path .aiassistant -Destination C:\your-project-root\ -Recurse
 ```
 
 ### Usage
-1. Project rules: `.aiassistant/rules/*.md` provides project-shared guidance that JetBrains AI Assistant can use inside the IDE.
-2. Prompt Library: custom prompt shortcuts are still configured in the IDE Prompt Library and are not auto-loaded from `.junie/commands/`.
-3. Keep repo rules concise and project-specific so they are useful across chat and code actions.
+1. Project rules: `.aiassistant/rules/*.md` provides project-shared guidance that AIR uses inside the IDE (`apply: always`).
+2. The rules point to `.junie/skills/<tech>/SKILL.md` as the standards source — keep both in sync when adding technologies.
+3. Prompt Library: custom prompt shortcuts are still configured in the IDE Prompt Library and are not auto-loaded from `.junie/commands/`.
+4. Keep repo rules concise and project-specific so they are useful across chat and code actions.
 
 ---
 
-## Windsurf (Persistent Context + Workflows)
+## Devin (Project Skills)
 
-Windsurf uses Memories in `.windsurf/memories/` for persistent context and Workflows in `.windsurf/workflows/` for slash commands.
+Devin uses project skills in `.devin/skills/<name>/SKILL.md` and reads `AGENTS.md` automatically.
 
 ### Setup
-Copy the `.windsurf/` folder to your project:
+Copy the `.devin/` folder to your project:
 
 **Linux/macOS:**
 ```bash
-cp -r .windsurf /your-project-root/
+cp -r .devin /your-project-root/
 ```
 **Windows (PowerShell):**
 ```powershell
-Copy-Item -Path .windsurf -Destination C:\your-project-root\ -Recurse
+Copy-Item -Path .devin -Destination C:\your-project-root\ -Recurse
 ```
 
+### Available Skills
+| Skill | Purpose |
+|-------|---------|
+| `/review` | Full technical review report using the relevant `.junie/skills/` standard |
+| `/review-pr` | Multi-file PR/branch-diff review with change inventory and merge recommendation |
+| `/plan` | Numbered implementation plan with files, standards, skills, and Risk per step |
+| `/test-generate` | Complete runnable tests (JUnit 5/Jest/pytest) with AAA pattern |
+| `/git-commit` | Branch-then-commit workflow with Conventional Commits |
+| `/security` | OWASP/Spring Security review for auth, input, secrets, PII |
+| `/performance` | N+1, caching, SQL tuning, bundle size review |
+| `/accessibility` | A11y review for Angular templates and forms |
+| `/speckit` | Orchestrator — lists all `/speckit-*` subcommands; each subcommand also has its own skill |
+| `/speckit-specify` `/speckit-clarify` `/speckit-plan` `/speckit-tasks` `/speckit-validate` `/speckit-analyze` `/speckit-checklist` `/speckit-implement` `/speckit-taskstoissues` `/speckit-document-generate` `/speckit-test-generate` | Individual speckit commands — each follows the matching `.junie/commands/speckit.<name>.md` |
+| `/project-standards` | Standards map: which `.junie/skills/` file to load per file type |
+
 ### Usage
-Windsurf reads memory files automatically. Use the same unified commands:
-- `/review file="src/App.java"` - Windsurf follows instructions from `commands-reference.md`
-
-Memory files loaded automatically:
-- `commands-reference.md` - Unified command definitions
-- `tech-stack.md` - Project technology stack
-- `coding-standards.md` - Coding standards
-- `testing-standards.md` - Testing patterns
-- `spring-angular-patterns.md` - Framework patterns
-
-Workflow files (slash commands in `.windsurf/workflows/`):
-- `review.md` → `/review`
-- `plan.md` → `/plan`
-- `test-generate.md` → `/test-generate`
-- `git-commit.md` → `/git-commit`
- - `speckit.specify.md` → `/speckit.specify`
- - `speckit.plan.md` → `/speckit.plan`
- - `speckit.tasks.md` → `/speckit.tasks`
- - `speckit.validate.md` → `/speckit.validate`
- - `speckit.clarify.md` → `/speckit.clarify`
- - `speckit.checklist.md` → `/speckit.checklist`
- - `speckit.analyze.md` → `/speckit.analyze`
- - `speckit.implement.md` → `/speckit.implement`
- - `speckit.taskstoissues.md` → `/speckit.taskstoissues`
- - `speckit.document-generate.md` → `/speckit.document-generate`
- - `speckit.test-generate.md` → `/speckit.test-generate`
+1. Type any command in Devin: `/review`, `/review-pr`, `/plan`, `/test-generate`, `/git-commit`, `/security`, `/performance`, `/accessibility`, `/speckit`, `/project-standards`.
+2. Speckit subcommands are individually available: `/speckit-specify`, `/speckit-plan`, `/speckit-tasks`, `/speckit-implement`, etc. — typing `/speckit` shows the full list.
+3. Devin also auto-loads skills when the request matches their descriptions (e.g., "review this service" → `/review`).
+4. Devin skill frontmatter supports `name`, `description`, `argument-hint`, `allowed-tools`, `permissions`, and `triggers`.
 
 ---
 
 ## Adding New Skills
 1. Scaffold: `bash scripts/new-skill.sh <name>` or `.\scripts\new-skill.ps1 <name>`
-2. Populate: Edit generated files in `.junie/`, `.claude/`, and `.windsurf/`.
-3. Deploy: Run `sync-claude` for Claude and `sync-codex` for Codex.
-4. Reference: Always refer to the `global` skill for core engineering principles.
+2. Populate: Edit generated files in `.junie/skills/<name>/SKILL.md` (source of truth) and `.devin/skills/<name>/SKILL.md`.
+3. Reference: Always refer to the `global` skill for core engineering principles.
 
 ## Maintenance Check
 After changing unified command definitions, run:

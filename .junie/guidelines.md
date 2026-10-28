@@ -83,6 +83,36 @@ These are the standing coding standards and preferences to follow in all work on
 - Prefer branch prefixes `feature/`, `bugfix/`, `docs/`, or `chore/` based on the nature of the work.
 - Include a Bitbucket/Jira issue ID in the branch name only when one is clearly available; otherwise use a descriptive slug without an ID.
 
+## Security
+- Validate all input server-side at the boundary — never trust client input
+- Deny by default: every endpoint requires explicit authorization; object-level checks (no IDOR)
+- Use `SecurityFilterChain` (Spring Boot 3+); stateless JWT APIs; `BCryptPasswordEncoder` for passwords
+- `@EnableMethodSecurity` + `@PreAuthorize` for fine-grained authorization on service methods
+- CORS restricted to known origins — never `*` with credentials
+- Generic error responses — no stack traces, SQL, or internal paths leaked
+- Never log secrets, tokens, or PII; mask PII in logs
+- Secrets from env vars or vault only — never hardcoded or committed
+- Rate limiting on login/refresh/registration endpoints
+- Angular: templates escape by default; flag `[innerHTML]` with unsanitized content; server enforces authorization (route guards are UX only)
+
+## Performance
+- Measure first (EXPLAIN, profiler, Lighthouse) — no speculative optimization
+- No N+1 query patterns: use `@EntityGraph`, `JOIN FETCH`, or DTO projections
+- Paginate all list endpoints; never load unbounded result sets
+- Cache with explicit TTL and eviction; never cache user-specific data without a key
+- Virtual threads for I/O-bound tasks only; avoid `synchronized` around blocking I/O
+- Batch INSERT/UPDATE instead of row-by-row
+- Angular: OnPush, `track` in `@for`, `@defer` for heavy components, `computed()` over template recomputation
+- Parallelize independent requests; debounce and cancel stale ones (`switchMap`)
+
+## Accessibility
+- Semantic HTML first: `button`/`a`/`label`/`table` over ARIA-recreated elements
+- Every interactive element keyboard-reachable and operable; logical Tab order
+- Every input has a programmatic label; icon-only buttons have accessible names
+- Never remove focus outlines without an equivalent; dialogs trap and restore focus
+- Errors announced (`aria-describedby`, `aria-invalid`) and never color-only
+- Contrast 4.5:1 text (3:1 large); respect `prefers-reduced-motion`
+
 ## Testing
 - **JUnit 5 (Java)**: AAA pattern, `@ExtendWith(MockitoExtension.class)`, AssertJ assertions
 - **Jest (TypeScript/Angular)**: AAA pattern, `jest.spyOn()` for mocks, `jest.clearAllMocks()` in `beforeEach()`

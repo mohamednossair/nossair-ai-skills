@@ -1,9 +1,15 @@
 ---
 name: global
-description: General software engineering principles (SOLID, DRY, Clean Code) applicable to all languages
+description: General software engineering principles (SOLID, DRY, Clean Code) applicable to all languages and all code reviews
 ---
 # Global Engineering Skill
 Use this skill for all code reviews and development tasks to ensure high-quality software engineering standards.
+
+## When to Use
+- Always load this skill first — it is the base for every review, plan, and implementation task.
+- When reviewing or writing code in any language (combine with the technology-specific skill).
+- When deciding how to structure new modules, functions, or classes.
+- When a request is ambiguous and assumptions or tradeoffs must be made explicit.
 
 ## Key Principles
 - **SOLID**: Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion.

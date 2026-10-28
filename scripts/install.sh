@@ -1,30 +1,21 @@
 #!/bin/bash
 # install.sh
-# One-stop installation for all agents:
-# 1. Deploys Claude Code skills globally (~/.claude/skills/)
-# 2. Deploys Codex skills globally ($CODEX_HOME/skills or ~/.codex/skills)
-# 3. Copies Junie, Windsurf, and AI Assistant project configuration to the target project
+# One-stop installation for all supported agents (Junie, AIR, Devin):
+# Copies Junie, AI Assistant, and Devin project configuration to the target project.
 
 set -e
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TARGET_PROJECT="$1"
 
-# 1. Deploy Claude Code Skills (Global)
-bash "$REPO_DIR/scripts/sync-claude.sh"
-
-# 2. Deploy Codex Skills (Global)
-bash "$REPO_DIR/scripts/sync-codex.sh"
-
-# 3. Deploy Project-Specific Skills (if target project provided)
 if [ -z "$TARGET_PROJECT" ]; then
   echo ""
-  echo "Tip: To install Junie, Windsurf, and AI Assistant project files for a specific project, provide the path:"
+  echo "Tip: To install Junie, AI Assistant, and Devin project files for a specific project, provide the path:"
   echo "  bash scripts/install.sh /path/to/your-project"
   echo ""
 else
   echo "Installing project-specific skills to: $TARGET_PROJECT"
-  
+
   if [ ! -d "$TARGET_PROJECT" ]; then
     echo "Error: Target project directory does not exist: $TARGET_PROJECT"
     exit 1
@@ -33,14 +24,14 @@ else
   # Copy .junie
   echo "  Copying .junie..."
   cp -r "$REPO_DIR/.junie" "$TARGET_PROJECT/"
-  
-  # Copy .windsurf
-  echo "  Copying .windsurf..."
-  cp -r "$REPO_DIR/.windsurf" "$TARGET_PROJECT/"
 
   # Copy .aiassistant
   echo "  Copying .aiassistant..."
   cp -r "$REPO_DIR/.aiassistant" "$TARGET_PROJECT/"
+
+  # Copy .devin
+  echo "  Copying .devin..."
+  cp -r "$REPO_DIR/.devin" "$TARGET_PROJECT/"
 
   echo ""
   # Copy scripts
@@ -48,7 +39,7 @@ else
   cp -r "$REPO_DIR/scripts" "$TARGET_PROJECT/"
 
   echo ""
-  echo "Done! Junie, Windsurf, AI Assistant project files, and prerequisite scripts installed to $TARGET_PROJECT."
+  echo "Done! Junie, AI Assistant, Devin project files, and prerequisite scripts installed to $TARGET_PROJECT."
 fi
 
 echo "All supported agents setup complete!"

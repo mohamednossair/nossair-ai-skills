@@ -1,11 +1,17 @@
 ---
 name: mysql
-description: Review or develop MySQL database schemas and queries
+description: Review or develop MySQL SQL and schemas (.sql) — InnoDB, utf8mb4, indexing, pagination, performance
 ---
 
 # MySQL Skill
 
 Use this skill when designing MySQL schemas or writing/optimizing SQL queries for MySQL.
+
+## When to Use
+- Writing or reviewing SQL targeting MySQL (`?` placeholders, `LIMIT` pagination).
+- Designing MySQL tables, indexes, or constraints (InnoDB, utf8mb4).
+- Optimizing slow MySQL queries (`EXPLAIN`).
+- Writing Flyway migrations for MySQL.
 
 ## Key Principles
 - **Bind Variables**: Always use bind variables. Never concatenate user input.

@@ -6,7 +6,7 @@
 
 ## UC-01: Developer Reviews Code Using AI Assistant
 
-**Actor**: Developer using any supported AI assistant (Claude Code, Codex, Junie, Windsurf)
+**Actor**: Developer using any supported AI assistant (Junie, AIR, and Devin)
 
 **Preconditions**:
 - AI assistant has been set up with the appropriate skills from this repository
@@ -136,56 +136,53 @@
 
 ---
 
-## UC-05: Engineering Lead Deploys Skills to Claude Code
+## UC-05: Engineering Lead Installs All Agents for a Project
 
 **Actor**: Engineering lead or developer
 
 **Preconditions**:
 - Developer has access to the nossair-ai-skills repository
-- Claude Code is installed on the developer's machine
+- Developer has a target project directory
 
 **Main Flow**:
 1. Developer navigates to the nossair-ai-skills repository
-2. Developer runs the sync script for their operating system (Linux/macOS: bash scripts/sync-claude.sh, Windows: .\scripts\sync-claude.ps1)
-3. Script copies files from .claude/skills/ to ~/.claude/skills/
-4. Script reports which files were copied
-5. Developer restarts Claude Code if it was running
-6. Developer opens Claude Code and verifies commands are available
+2. Developer runs the install script for their operating system (Linux/macOS: bash scripts/install.sh /target/project, Windows: .\scripts\install.ps1 C:\target\project)
+3. Script copies .junie/, .aiassistant/, and .devin/ folders plus the helper scripts to the target project
+4. Script reports which folders were copied
+5. Developer opens their AI assistant in the target project and verifies commands are available
 
 **Alternative Flows**:
-- **A1**: Claude Code skills directory doesn't exist - Script creates the directory
-- **A2**: Permission denied - Script reports error and suggests running with appropriate permissions
+- **A1**: Target project directory doesn't exist - Script reports error and stops
+- **A2**: Folders already exist in project - Script overwrites with the latest versions
 
 **Postconditions**:
-- Claude Code has access to all unified commands and tech-specific review commands
-- Skills are available globally for all projects
+- Junie, JetBrains AI Assistant, and Devin are all configured for the project
+- All agents share the same technology standards and unified commands
 
 ---
 
-## UC-06: Engineering Lead Deploys Skills to Codex
+## UC-06: Developer Uses Devin Project Skills
 
-**Actor**: Engineering lead or developer
+**Actor**: Developer using Devin in their IDE
 
 **Preconditions**:
-- Developer has access to the nossair-ai-skills repository
-- Codex is installed on the developer's machine
-- CODEX_HOME environment variable is set (optional)
+- The .devin/ folder has been copied to the project
+- Devin session is open in the project
 
 **Main Flow**:
-1. Developer navigates to the nossair-ai-skills repository
-2. Developer runs the sync script for their operating system (Linux/macOS: bash scripts/sync-codex.sh, Windows: .\scripts\sync-codex.ps1)
-3. Script copies folders from .junie/skills/ to $CODEX_HOME/skills/ or ~/.codex/skills/
-4. Script reports which skills were copied
-5. Developer restarts Codex if it was running
-6. Developer opens Codex and verifies skills are loaded
+1. Developer types a unified command (e.g., /review file="src/Service.java") or asks a matching request in natural language
+2. Devin loads the matching project skill from .devin/skills/
+3. Devin reads the relevant technology standard from .junie/skills/<tech>/SKILL.md
+4. Devin follows the skill instructions (review report, plan, tests, or commit workflow)
+5. Devin outputs the result in the defined format
 
 **Alternative Flows**:
-- **A1**: Codex skills directory doesn't exist - Script creates the directory
-- **A2**: Permission denied - Script reports error and suggests running with appropriate permissions
+- **A1**: No skill matches the request - Devin proceeds with general guidance and AGENTS.md conventions
+- **A2**: User invokes /project-standards - Devin lists which skill file applies to the current file type
 
 **Postconditions**:
-- Codex has access to all skills (global, java, spring-boot, typescript, python, angular, git, maven, oracle, mysql, junit, jest, speckit)
-- Codex auto-loads skills based on request context
+- Devin output follows the same standards and formats as Junie and AIR
+- Technology standards come from the single source of truth in .junie/skills/
 
 ---
 
@@ -262,15 +259,14 @@
 
 **Main Flow**:
 1. Engineering lead runs the scaffold script (Linux/macOS: bash scripts/new-skill.sh <tech>, Windows: .\scripts\new-skill.ps1 <tech>)
-2. Script generates template files in .junie/skills/<tech>/, .claude/skills/<tech>-review.md, and .windsurf/memories/<tech>-standards.md
-3. Engineering lead populates the skill definition with technology-specific principles and checklists
-4. Engineering lead updates the Claude review command with technology-specific review points
-5. Engineering lead updates the Windsurf memory with coding standards
-6. Engineering lead adds relevant rules to .junie/guidelines.md
-7. Engineering lead runs sync-claude script to deploy to Claude Code
-8. Engineering lead runs sync-codex script to deploy to Codex
-9. Engineering lead updates README.md and AGENTS.md to document the new technology
-10. Engineering lead tests the new skill by invoking it in an AI assistant
+2. Script generates template files in .junie/skills/<tech>/ (source of truth) and .devin/skills/<tech>/
+3. Engineering lead populates the Junie skill definition with "When to Use", technology-specific principles, guidelines, checklist, and example
+4. Engineering lead fills in the Devin skill with a summary that points to the Junie source
+5. Engineering lead adds relevant rules to .junie/guidelines.md
+6. Engineering lead adds the technology to the Standards Map in .aiassistant/rules/project-rules.md
+7. Engineering lead updates README.md and AGENTS.md to document the new technology
+8. Engineering lead runs the parity check to validate
+9. Engineering lead tests the new skill by invoking it in an AI assistant
 
 **Alternative Flows**:
 - **A1**: Script fails - Engineering lead checks error messages and resolves issues
@@ -278,7 +274,7 @@
 **Postconditions**:
 - New technology is supported across all AI assistants
 - Documentation is updated
-- Skills are deployed to Claude Code and Codex
+- Standards are defined once in .junie/skills/ and referenced by Devin and AIR
 
 ---
 
@@ -292,7 +288,7 @@
 
 **Main Flow**:
 1. Maintainer runs the validation script (Linux/macOS: bash scripts/check-command-parity.sh, Windows: powershell -ExecutionPolicy Bypass -File scripts/check-command-parity.ps1)
-2. Script compares command definitions across .claude/skills/, .junie/commands/, and .windsurf/workflows/
+2. Script compares command definitions across .junie/commands/ and .devin/skills/
 3. Script reports any inconsistencies in command names, descriptions, or parameters
 4. Maintainer reviews the report
 5. If inconsistencies found, Maintainer updates the affected files to restore parity

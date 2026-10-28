@@ -8,7 +8,7 @@
 
 | Term | Plain Language Definition |
 |------|---------------------------|
-| **AI Assistant** | A software tool that uses artificial intelligence to help developers write, review, and test code. Examples include Claude Code, Codex, Junie, Windsurf, and JetBrains AI Assistant. |
+| **AI Assistant** | A software tool that uses artificial intelligence to help developers write, review, and test code. Examples include Junie, JetBrains AI Assistant (AIR), and Devin. |
 | **AI Coding Assistant** | Same as AI Assistant - an AI-powered tool that assists with coding tasks. |
 | **Skill** | A set of instructions, guidelines, and best practices that an AI assistant uses to provide technology-specific guidance. For example, a Java skill tells the AI how to review Java code. |
 | **Unified Command** | A command (like /review or /plan) that works the same way across multiple AI assistants. This ensures developers get consistent guidance regardless of which AI tool they use. |
@@ -20,12 +20,10 @@
 | **Implementation Plan** | A document that breaks down a feature specification into milestones, deliverables, dependencies, and risks. |
 | **Task List** | A document that breaks down an implementation plan into specific, dependency-ordered tasks with acceptance criteria. |
 | **Execution Runbook** | A document that provides step-by-step instructions for implementing tasks, including branch strategy, test scaffolds, and review checkpoints. |
-| **Claude Code** | An AI coding assistant by Anthropic that uses slash commands stored in markdown files. |
-| **Codex** | An AI coding assistant that loads skills from a skills directory based on request context. |
 | **Junie** | An AI coding assistant that uses agent skills and custom slash commands stored in project directories. |
-| **Windsurf** | An AI coding assistant that uses persistent context memories and workflow files stored in project directories. |
-| **JetBrains AI Assistant** | An AI coding assistant integrated into JetBrains IDEs that uses project rules for guidance. |
-| **Sync Script** | A script that copies skill files from the central repository to the AI assistant's installation directory. |
+| **JetBrains AI Assistant (AIR)** | An AI coding assistant integrated into JetBrains IDEs that uses project rules for guidance. |
+| **Devin** | An AI coding agent that uses project skills in `.devin/skills/` and reads AGENTS.md for repo conventions. |
+| **Install Script** | A script that copies agent configuration folders from the central repository to a target project. |
 | **Parity Validation** | A check that ensures unified commands have identical behavior across different AI assistants. |
 | **AAA Pattern** | A testing pattern that stands for Arrange (setup), Act (execute), Assert (verify). |
 | **SOLID** | A set of principles for object-oriented design: Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion. |
@@ -222,11 +220,9 @@
 - [README.md](../../README.md) - Repository overview and setup instructions
 - [AGENTS.md](../../AGENTS.md) - Agent-specific usage guide
 - [.junie/guidelines.md](../../.junie/guidelines.md) - Project coding guidelines
-- [.windsurf/memories/commands-reference.md](../../.windsurf/memories/commands-reference.md) - Unified command reference
-- [.windsurf/memories/tech-stack.md](../../.windsurf/memories/tech-stack.md) - Technology stack overview
-- [.windsurf/memories/coding-standards.md](../../.windsurf/memories/coding-standards.md) - Coding standards reference
-- [.windsurf/memories/testing-standards.md](../../.windsurf/memories/testing-standards.md) - Testing standards reference
-- [.windsurf/memories/spring-angular-patterns.md](../../.windsurf/memories/spring-angular-patterns.md) - Framework patterns
+- [.junie/skills/global/SKILL.md](../../.junie/skills/global/SKILL.md) - General engineering principles
+- [.aiassistant/rules/project-rules.md](../../.aiassistant/rules/project-rules.md) - AIR project rules
+- [.devin/skills/project-standards/SKILL.md](../../.devin/skills/project-standards/SKILL.md) - Devin standards map
 
 ### External References
 - [Conventional Commits](https://www.conventionalcommits.org/) - Commit message specification
@@ -268,16 +264,14 @@
 
 ```
 nossair-ai-skills/
-├── .claude/skills/           # Claude Code slash commands
-├── .junie/                   # Junie assets
+├── .junie/                   # Junie assets (source of truth for standards)
 │   ├── commands/             # Junie slash commands
-│   ├── skills/               # Junie skill definitions
+│   ├── skills/               # Junie skill definitions (<tech>/SKILL.md)
 │   └── guidelines.md         # Project coding guidelines
-├── .windsurf/                # Windsurf assets
-│   ├── memories/             # Persistent context files
-│   └── workflows/            # Windsurf slash commands
-├── .aiassistant/             # JetBrains AI Assistant rules
+├── .aiassistant/             # JetBrains AI Assistant (AIR) rules
 │   └── rules/                # Project-specific rules
+├── .devin/                   # Devin project skills
+│   └── skills/               # Unified commands + standards map
 ├── scripts/                  # Deployment and maintenance scripts
 ├── templates/                # Skill and command templates
 ├── docs/                     # Documentation
@@ -289,11 +283,9 @@ nossair-ai-skills/
 
 | Assistant | Deployment Type | Location |
 |-----------|----------------|----------|
-| Claude Code | Global | ~/.claude/skills/ |
-| Codex | Global | $CODEX_HOME/skills/ or ~/.codex/skills/ |
 | Junie | Per-project | <project>/.junie/ |
-| Windsurf | Per-project | <project>/.windsurf/ |
-| JetBrains AI Assistant | Per-project | <project>/.aiassistant/ |
+| JetBrains AI Assistant (AIR) | Per-project | <project>/.aiassistant/ |
+| Devin | Per-project | <project>/.devin/ |
 
 ### Supported Technologies
 
@@ -310,6 +302,9 @@ nossair-ai-skills/
 | Git | Version Control | .junie/skills/git/ |
 | JUnit | Testing | .junie/skills/junit/ |
 | Jest | Testing | .junie/skills/jest/ |
+| Security | Cross-cutting | .junie/skills/security/ |
+| Performance | Cross-cutting | .junie/skills/performance/ |
+| Accessibility | Cross-cutting | .junie/skills/accessibility/ |
 | Global | General | .junie/skills/global/ |
 | Speckit | Toolkit | .junie/skills/speckit/ |
 
@@ -317,20 +312,22 @@ nossair-ai-skills/
 
 | Command | Purpose | Files |
 |---------|---------|-------|
-| /review | Review code against standards | .claude/skills/review.md, .junie/commands/review.md, .windsurf/workflows/review.md |
-| /plan | Create implementation plan | .claude/skills/plan.md, .junie/commands/plan.md, .windsurf/workflows/plan.md |
-| /test-generate | Generate unit tests | .claude/skills/test-generate.md, .junie/commands/test-generate.md, .windsurf/workflows/test-generate.md |
-| /git-commit | Create conventional commit | .claude/skills/git-commit.md, .junie/commands/git-commit.md, .windsurf/workflows/git-commit.md |
-| /speckit.specify | Create feature specification | .junie/commands/speckit.specify.md, .windsurf/workflows/speckit.specify.md |
-| /speckit.plan | Create implementation plan | .junie/commands/speckit.plan.md, .windsurf/workflows/speckit.plan.md |
-| /speckit.tasks | Generate task list | .junie/commands/speckit.tasks.md, .windsurf/workflows/speckit.tasks.md |
-| /speckit.validate | Validate artifacts | .junie/commands/speckit.validate.md, .windsurf/workflows/speckit.validate.md |
-| /speckit.analyze | Analyze gaps | .junie/commands/speckit.analyze.md, .windsurf/workflows/speckit.analyze.md |
-| /speckit.implement | Generate runbook | .junie/commands/speckit.implement.md, .windsurf/workflows/speckit.implement.md |
-| /speckit.clarify | Generate questions | .junie/commands/speckit.clarify.md, .windsurf/workflows/speckit.clarify.md |
-| /speckit.checklist | Generate checklist | .junie/commands/speckit.checklist.md, .windsurf/workflows/speckit.checklist.md |
-| /speckit.document-generate | Generate BA documents | .junie/commands/speckit.document-generate.md, .windsurf/workflows/speckit.document-generate.md |
-| /speckit.constitution | Create constitution | .windsurf/workflows/speckit.constitution.md |
+| /review | Review code against standards | .junie/commands/review.md, .devin/skills/review/SKILL.md |
+| /review-pr | Review PR/branch diff | .junie/commands/review-pr.md, .devin/skills/review-pr/SKILL.md |
+| /plan | Create implementation plan | .junie/commands/plan.md, .devin/skills/plan/SKILL.md |
+| /test-generate | Generate unit tests | .junie/commands/test-generate.md, .devin/skills/test-generate/SKILL.md |
+| /git-commit | Create conventional commit | .junie/commands/git-commit.md, .devin/skills/git-commit/SKILL.md |
+| /speckit.specify | Create feature specification | .junie/commands/speckit.specify.md |
+| /speckit.plan | Create implementation plan | .junie/commands/speckit.plan.md |
+| /speckit.tasks | Generate task list | .junie/commands/speckit.tasks.md |
+| /speckit.validate | Validate artifacts | .junie/commands/speckit.validate.md |
+| /speckit.analyze | Analyze gaps | .junie/commands/speckit.analyze.md |
+| /speckit.implement | Generate runbook | .junie/commands/speckit.implement.md |
+| /speckit.clarify | Generate questions | .junie/commands/speckit.clarify.md |
+| /speckit.checklist | Generate checklist | .junie/commands/speckit.checklist.md |
+| /speckit.document-generate | Generate BA documents | .junie/commands/speckit.document-generate.md |
+| /speckit.test-generate | Generate spec-linked tests | .junie/commands/speckit.test-generate.md |
+| /speckit.taskstoissues | Convert tasks to GitHub issues | .junie/commands/speckit.taskstoissues.md |
 
 ### Deployment Scripts
 
@@ -338,11 +335,9 @@ nossair-ai-skills/
 |--------|---------|----------|
 | install.sh | Unified install for all agents | Linux/macOS |
 | install.ps1 | Unified install for all agents | Windows |
-| sync-claude.sh | Deploy skills to Claude Code | Linux/macOS |
-| sync-claude.ps1 | Deploy skills to Claude Code | Windows |
-| sync-codex.sh | Deploy skills to Codex | Linux/macOS |
-| sync-codex.ps1 | Deploy skills to Codex | Windows |
 | new-skill.sh | Scaffold new technology support | Linux/macOS |
 | new-skill.ps1 | Scaffold new technology support | Windows |
 | check-command-parity.sh | Validate unified command parity | Linux/macOS |
 | check-command-parity.ps1 | Validate unified command parity | Windows |
+| test-install.sh | Verify installation flow | Linux/macOS |
+| test-install.ps1 | Verify installation flow | Windows |

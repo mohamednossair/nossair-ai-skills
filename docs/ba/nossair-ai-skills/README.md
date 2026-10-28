@@ -4,7 +4,7 @@
 > Auto-generated from source code. Written for product owners and business analysts. Review and adjust for accuracy.
 
 ## What is this system?
-This is a centralized toolkit that provides consistent coding assistance across multiple AI coding assistants. It enables development teams to maintain unified coding standards, workflows, and commands across different AI tools (Claude Code, Codex, Junie, Windsurf, and JetBrains AI Assistant). The system manages skill definitions, coding guidelines, and deployment scripts to ensure developers receive consistent guidance regardless of which AI assistant they use.
+This is a centralized toolkit that provides consistent coding assistance across multiple AI coding assistants. It enables development teams to maintain unified coding standards, workflows, and commands across different AI tools (Junie, JetBrains AI Assistant (AIR), and Devin). The system manages skill definitions, coding guidelines, and deployment scripts to ensure developers receive consistent guidance regardless of which AI assistant they use.
 
 ## Health Summary
 
@@ -33,17 +33,16 @@ This is a centralized toolkit that provides consistent coding assistance across 
 **Primary Users**: Software developers, engineering leads, DevOps engineers
 
 **Key Capabilities**:
-- Unified commands across 5 AI coding assistants
+- Unified commands across 3 AI coding assistants (Junie, AIR, Devin)
 - Centralized coding standards for Java, TypeScript, Python, Spring Boot, Angular
-- Automated deployment scripts for skill distribution
+- Single source of truth in .junie/skills/ referenced by all agents
+- Automated install and parity-validation scripts
 - Speckit toolkit for specification-driven development workflows
 
 **Integration Points**:
-- Claude Code (global skill deployment)
-- Codex (global skill deployment)
 - Junie (per-project deployment)
-- Windsurf (per-project deployment)
 - JetBrains AI Assistant (per-project rules)
+- Devin (per-project skills)
 
 ## How to Use This Document Set
 

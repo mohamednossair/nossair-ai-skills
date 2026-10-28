@@ -18,10 +18,8 @@
 - Anti-patterns to avoid
 
 **Storage Location**:
-- `.junie/skills/<tech>/SKILL.md` (detailed skill definitions)
-- `.junie/skills/<tech>.md` (summary references)
-- `.claude/skills/<tech>-review.md` (Claude-specific review commands)
-- `.windsurf/memories/<tech>-standards.md` (Windsurf-specific standards)
+- `.junie/skills/<tech>/SKILL.md` (detailed skill definitions — source of truth)
+- `.devin/skills/<tech>/SKILL.md` (Devin skills referencing the source of truth)
 
 **Business Purpose**: Provide AI assistants with technology-specific guidance to ensure code quality and consistency.
 
@@ -39,9 +37,8 @@
 - Output format requirements
 
 **Storage Location**:
-- `.junie/commands/<command>.md` (Junie-specific)
-- `.windsurf/workflows/<command>.md` (Windsurf-specific)
-- `.claude/skills/<command>.md` (Claude-specific)
+- `.junie/commands/<command>.md` (Junie custom slash commands)
+- `.devin/skills/<command>/SKILL.md` (Devin project skills)
 
 **Business Purpose**: Ensure consistent behavior of unified commands across different AI assistants.
 
@@ -59,11 +56,8 @@
 - Testing standards
 
 **Storage Location**:
-- `.junie/guidelines.md` (comprehensive guidelines)
-- `.windsurf/memories/coding-standards.md` (coding standards)
-- `.windsurf/memories/tech-stack.md` (technology stack)
-- `.windsurf/memories/testing-standards.md` (testing patterns)
-- `.windsurf/memories/spring-angular-patterns.md` (framework patterns)
+- `.junie/guidelines.md` (comprehensive guidelines — source of truth)
+- `.aiassistant/rules/*.md` (JetBrains AI Assistant project rules)
 
 **Business Purpose**: Provide a single source of truth for coding standards across the organization.
 
@@ -104,14 +98,12 @@
 **Storage Location**:
 - `scripts/install.sh` (Linux/macOS unified install)
 - `scripts/install.ps1` (Windows unified install)
-- `scripts/sync-claude.sh` (Linux/macOS Claude sync)
-- `scripts/sync-claude.ps1` (Windows Claude sync)
-- `scripts/sync-codex.sh` (Linux/macOS Codex sync)
-- `scripts/sync-codex.ps1` (Windows Codex sync)
 - `scripts/new-skill.sh` (Linux/macOS skill scaffolding)
 - `scripts/new-skill.ps1` (Windows skill scaffolding)
 - `scripts/check-command-parity.sh` (Linux/macOS parity validation)
 - `scripts/check-command-parity.ps1` (Windows parity validation)
+- `scripts/test-install.sh` (Linux/macOS install verification)
+- `scripts/test-install.ps1` (Windows install verification)
 
 **Business Purpose**: Automate the distribution of skills to AI assistants, reducing manual effort and errors.
 
@@ -141,12 +133,11 @@
 **Key Fields**:
 - Skill template structure
 - Command template structure
-- Claude skill template structure
+- Devin skill template structure
 - Junie command template structure
 
 **Storage Location**:
 - `templates/skill_template.md`
-- `templates/claude_skill_template.md`
 - `templates/junie_command_template.md`
 
 **Business Purpose**: Accelerate the creation of new skills and commands by providing starting templates.
@@ -158,22 +149,18 @@
 ### Skill Authoring Flow
 
 1. Engineering lead identifies need for new technology support or updated standards
-2. Engineering lead edits or creates skill definition files in `.junie/skills/`
-3. Engineering lead updates corresponding Claude and Windsurf files
-4. Engineering lead updates `.junie/guidelines.md` if needed
-5. Engineering lead runs sync scripts to deploy changes to Claude Code and Codex
-6. Changes are immediately available to developers using those AI assistants
+2. Engineering lead edits or creates skill definition files in `.junie/skills/` (source of truth)
+3. Engineering lead updates `.junie/guidelines.md` if needed
+4. Engineering lead updates the Standards Map in `.aiassistant/rules/project-rules.md` and the Devin skill in `.devin/skills/`
+5. Changes are immediately available to developers using those AI assistants
 
 ### Command Update Flow
 
 1. Maintainer identifies need to update a unified command
-2. Maintainer updates command definition in `.claude/skills/`
-3. Maintainer updates corresponding command in `.junie/commands/`
-4. Maintainer updates corresponding workflow in `.windsurf/workflows/`
-5. Maintainer updates `.windsurf/memories/commands-reference.md`
-6. Maintainer runs parity validation script
-7. Maintainer runs sync scripts to deploy changes
-8. Changes are immediately available across all AI assistants
+2. Maintainer updates command definition in `.junie/commands/`
+3. Maintainer updates the corresponding Devin skill in `.devin/skills/`
+4. Maintainer runs parity validation script
+5. Changes are immediately available across all AI assistants
 
 ### Speckit Workflow Flow
 
@@ -233,7 +220,7 @@
 **Potential KPIs** (if tracking were implemented):
 - Number of developers using the skills repository
 - Frequency of unified command invocations per developer
-- Number of projects set up with Junie, Windsurf, or JetBrains AI Assistant rules
+- Number of projects set up with Junie, AIR, or Devin project files
 - Number of skill deployments (sync script executions)
 - Frequency of skill updates
 - Time between skill updates and deployment to all AI assistants

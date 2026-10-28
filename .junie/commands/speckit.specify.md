@@ -13,12 +13,12 @@ description: Create or update a concise feature spec from a natural language des
 7. Note open questions with `[NEEDS CLARIFICATION]` markers — max 3 total. Use only for decisions that significantly impact scope, security, or UX.
 8. After writing the spec, run **spec-quality validation**: create `specs/<dir>/checklists/requirements.md` and check for testable criteria, measurable success metrics, and no implementation leaks. Iterate up to 3 times if items fail.
 9. Risks and assumptions (top 3) with mitigation or validation notes.
-10. Keep it brief; link to `.windsurf/memories/*` and team standards where relevant.
+10. Keep it brief; link to `.junie/guidelines.md` and team standards where relevant.
 
 Follow-ups:
 - Run `/speckit.clarify` to resolve open questions.
 - Run `/speckit.plan` to convert this spec into milestones.
-- Use tech reviews after drafting: `/java-review`, `/ts-review`, `/sql-review`, `/maven-help` as applicable.
+- Apply the relevant `.junie/skills/` standards after drafting: `java`, `spring-boot`, `typescript`, `angular`, `oracle`, `mysql`, `maven` as applicable.
 
 Git Branching (before writing files):
 - Prompt the user: *"Do you have a Jira / Bitbucket issue ID? (e.g., SE-123) Enter it, or press Enter to skip."*

@@ -8,39 +8,37 @@
 
 ### Technology Assumptions
 
-**A-001**: Developers have access to and are familiar with at least one of the supported AI assistants (Claude Code, Codex, Junie, Windsurf, or JetBrains AI Assistant).
+**A-001**: Developers have access to and are familiar with at least one of the supported AI assistants (Junie, JetBrains AI Assistant, or Devin).
 
-**A-002**: Developers using Claude Code, Codex, or JetBrains AI Assistant have administrator or sudo privileges to install global skills.
+**A-002**: Developers have write access to their project directories to copy the .junie/, .aiassistant/, or .devin/ folders.
 
-**A-003**: Developers using Junie or Windsurf have write access to their project directories to copy the .junie/ or .windsurf/ folders.
+**A-003**: Developers have Git installed and configured for version control operations.
 
-**A-004**: Developers have Git installed and configured for version control operations.
+**A-004**: Development teams primarily use the supported technologies (Java 21+, TypeScript, Python, Spring Boot 3.2+, Angular 20+, Oracle, MySQL, Maven).
 
-**A-005**: Development teams primarily use the supported technologies (Java 21+, TypeScript, Python, Spring Boot 3.2+, Angular 20+, Oracle, MySQL, Maven).
+**A-005**: Development teams follow Conventional Commits format for Git commit messages.
 
-**A-006**: Development teams follow Conventional Commits format for Git commit messages.
-
-**A-007**: Development teams use feature branches for development work (not committing directly to main/master/develop).
+**A-006**: Development teams use feature branches for development work (not committing directly to main/master/develop).
 
 ### Process Assumptions
 
-**A-008**: Engineering leads are responsible for maintaining and updating skill definitions.
+**A-007**: Engineering leads are responsible for maintaining and updating skill definitions.
 
-**A-009**: Maintainers run command parity validation scripts after updating unified commands.
+**A-008**: Maintainers run command parity validation scripts after updating unified commands.
 
-**A-010**: Developers read and understand the coding standards before relying on AI assistants for guidance.
+**A-009**: Developers read and understand the coding standards before relying on AI assistants for guidance.
 
-**A-011**: Organizations have processes for reviewing and approving coding standards before they are deployed to AI assistants.
+**A-010**: Organizations have processes for reviewing and approving coding standards before they are deployed to AI assistants.
 
-**A-012**: Development teams have code review processes that complement AI assistant reviews.
+**A-011**: Development teams have code review processes that complement AI assistant reviews.
 
 ### Infrastructure Assumptions
 
-**A-013**: The repository is hosted on a platform that supports CI/CD (GitHub Actions or Bitbucket Pipelines) for automated parity validation.
+**A-012**: The repository is hosted on a platform that supports CI/CD (GitHub Actions or Bitbucket Pipelines) for automated parity validation.
 
-**A-014**: Developers have internet access to clone the repository and access documentation.
+**A-013**: Developers have internet access to clone the repository and access documentation.
 
-**A-015**: The repository is accessible to all developers who need to use the skills.
+**A-014**: The repository is accessible to all developers who need to use the skills.
 
 ---
 
@@ -134,7 +132,7 @@
 - Prioritize commonly requested technologies
 - Provide clear documentation for adding new skills
 
-**R-005**: **AI Assistant Compatibility Risk**: Changes to AI assistant platforms (Claude Code, Codex, etc.) could break skill integration.
+**R-005**: **AI Assistant Compatibility Risk**: Changes to AI assistant platforms (Junie, JetBrains AI Assistant, Devin) could break skill integration.
 
 **Mitigation**:
 - Monitor AI assistant platform updates
@@ -281,7 +279,7 @@
 
 ### External Dependencies
 
-**D-001**: **AI Assistant Platforms**: The system depends on the continued availability and compatibility of Claude Code, Codex, Junie, Windsurf, and JetBrains AI Assistant.
+**D-001**: **AI Assistant Platforms**: The system depends on the continued availability and compatibility of Junie, JetBrains AI Assistant (AIR), and Devin.
 
 **Impact**: High - Changes to these platforms could break skill integration
 

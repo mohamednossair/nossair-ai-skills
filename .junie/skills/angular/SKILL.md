@@ -1,11 +1,17 @@
 ---
 name: angular
-description: Review or develop Angular 20+ standalone components, signals, and modern template control flow
+description: Review or develop Angular 20+ code (.ts components/templates) — standalone components, signals, OnPush, modern control flow
 ---
 
 # Angular 20+ Skill
 
 Use this skill when developing or reviewing Angular components, services, and templates. This project follows Angular 20+ standards with standalone components and signal-based reactivity.
+
+## When to Use
+- Creating or modifying Angular components, directives, pipes, guards, or services.
+- Reviewing templates, change detection, or RxJS subscription patterns.
+- Migrating NgModule-based or decorator-based (`@Input`/`@Output`) code to modern Angular.
+- Choosing between `resource()`, `toSignal()`, and manual subscriptions.
 
 ## Key Principles
 - **Standalone components only** — NgModules are deprecated.

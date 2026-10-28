@@ -1,11 +1,17 @@
 ---
 name: junit
-description: Generate or review Java unit tests using JUnit 5, Mockito, and AssertJ
+description: Generate or review Java unit tests (.java tests) using JUnit 5, Mockito, and AssertJ
 ---
 
 # JUnit Skill
 
 Use this skill when generating or reviewing Java unit and integration tests. The project follows the AAA pattern and uses modern AssertJ assertions.
+
+## When to Use
+- Writing or reviewing `*Test.java` files (JUnit 5 + Mockito + AssertJ).
+- Deciding what to test: happy path, edge cases, error paths.
+- Choosing between unit tests, `@WebMvcTest`/`@DataJpaTest` slices, and Testcontainers.
+- Reviewing test naming, structure, or assertion style.
 
 ## Key Principles
 - **AAA Pattern**: Arrange → Act → Assert.

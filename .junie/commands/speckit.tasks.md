@@ -22,4 +22,4 @@ description: Generate dependency-ordered tasks grouped by user story
 
 Follow-ups:
 - Generate tests with `/test-generate` after tasks with testing DoD are identified.
-- Use tech reviewers: `/java-review`, `/ts-review`, `/sql-review` for risky or core tasks.
+- Apply tech skills: `java`, `typescript`, `oracle`/`mysql` for risky or core tasks.

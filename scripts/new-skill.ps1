@@ -1,5 +1,5 @@
 # new-skill.ps1
-# Automates the creation of a new skill across Claude Code, Junie, and Windsurf.
+# Automates the creation of a new skill across Junie, AI Assistant, and Devin.
 # Usage: .\scripts\new-skill.ps1 <tech-name>
 
 $TechName = $args[0]
@@ -10,64 +10,52 @@ if (-not $TechName) {
 
 $RepoDir = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Definition)
 $JunieSkillDir = Join-Path $RepoDir ".junie\skills\$TechName"
-$ClaudeSkillFile = Join-Path $RepoDir ".claude\skills\$TechName-review.md"
-$WindsurfMemoryFile = Join-Path $RepoDir ".windsurf\memories\$TechName-standards.md"
-$WindsurfWorkflowFile = Join-Path $RepoDir ".windsurf\workflows\$TechName-review.md"
+$DevinSkillDir = Join-Path $RepoDir ".devin\skills\$TechName"
+$CapTechName = $TechName.ToUpper().Substring(0,1) + $TechName.Substring(1)
 
-# 1. Create Junie Skill folder and file
+# 1. Create Junie Skill folder and file (source of truth)
 if (-not (Test-Path $JunieSkillDir)) {
     New-Item -ItemType Directory -Path $JunieSkillDir -Force | Out-Null
     $Content = Get-Content (Join-Path $RepoDir "templates\skill_template.md") -Raw
     $Content = $Content -replace '\[technology-name\]', $TechName
-    $Content = $Content -replace '\[Technology Name\]', ($TechName.ToUpper().Substring(0,1) + $TechName.Substring(1))
+    $Content = $Content -replace '\[Technology Name\]', $CapTechName
     $Content | Out-File -FilePath (Join-Path $JunieSkillDir "SKILL.md") -Encoding utf8
     Write-Host "  * Created Junie Skill: .junie\skills\$TechName\SKILL.md"
 } else {
     Write-Warning "  ! Junie Skill directory already exists: $JunieSkillDir"
 }
 
-# 2. Create Claude Skill file
-if (-not (Test-Path $ClaudeSkillFile)) {
-    $Content = Get-Content (Join-Path $RepoDir "templates\claude_skill_template.md") -Raw
-    $Content = $Content -replace '\[Technology\]', ($TechName.ToUpper().Substring(0,1) + $TechName.Substring(1))
-    $Content | Out-File -FilePath $ClaudeSkillFile -Encoding utf8
-    Write-Host "  * Created Claude Command: .claude\skills\$TechName-review.md"
-} else {
-    Write-Warning "  ! Claude Command file already exists: $ClaudeSkillFile"
-}
+# 2. Create Devin Skill folder and file
+if (-not (Test-Path $DevinSkillDir)) {
+    New-Item -ItemType Directory -Path $DevinSkillDir -Force | Out-Null
+    $DevinContent = @"
+---
+name: $TechName
+description: Review or develop $CapTechName code following project standards in .junie/skills/$TechName/SKILL.md
+allowed-tools:
+  - read
+  - grep
+  - glob
+triggers:
+  - user
+  - model
+---
 
-# 3. Create Windsurf Memory file
-if (-not (Test-Path $WindsurfMemoryFile)) {
-    $Header = "# $($TechName.ToUpper().Substring(0,1) + $TechName.Substring(1)) Standards`n"
-    $Header += "## Coding Standards`n- Standard 1`n- Standard 2`n"
-    $Header | Out-File -FilePath $WindsurfMemoryFile -Encoding utf8
-    Write-Host "  * Created Windsurf Memory: .windsurf\memories\$TechName-standards.md"
-} else {
-    Write-Warning "  ! Windsurf Memory file already exists: $WindsurfMemoryFile"
-}
+Apply the project's $CapTechName standards when working on $CapTechName code.
 
-# 4. Create Windsurf Workflow file
-if (-not (Test-Path $WindsurfWorkflowFile)) {
-    $CapTechName = $TechName.ToUpper().Substring(0,1) + $TechName.Substring(1)
-    $WorkflowContent = "---`ndescription: Review $CapTechName code using tech standards and guidelines`n---`n`n**Usage**: ``/$TechName-review file=`"path/to/file`"```"`n"
-    $WorkflowContent += "`n1. Identify $CapTechName-specific patterns and anti-patterns.`n"
-    $WorkflowContent += "2. Apply standards from ``.windsurf/memories/$TechName-standards.md`` and ``coding-standards.md``.`n"
-    $WorkflowContent += "3. Analyze: correctness, security, performance, readability, SOLID/DRY.`n"
-    $WorkflowContent += "4. Output findings grouped by: [Critical] | [Warning] | [Suggestion]`n"
-    $WorkflowContent += "   - **Location**: [File:line]`n"
-    $WorkflowContent += "   - **Issue**: [What is wrong]`n"
-    $WorkflowContent += "   - **Why**: [Impact]`n"
-    $WorkflowContent += "   - **Fix**: [Corrected code]`n"
-    $WorkflowContent | Out-File -FilePath $WindsurfWorkflowFile -Encoding utf8
-    Write-Host "  * Created Windsurf Workflow: .windsurf\workflows\$TechName-review.md"
+1. Read the detailed skill at ``.junie/skills/$TechName/SKILL.md`` and follow it.
+2. Also apply ``.junie/guidelines.md`` and the ``global`` skill.
+3. When reviewing, group findings by: [Critical] | [Warning] | [Suggestion] with Location, Issue, Why, Fix.
+"@
+    $DevinContent | Out-File -FilePath (Join-Path $DevinSkillDir "SKILL.md") -Encoding utf8
+    Write-Host "  * Created Devin Skill: .devin\skills\$TechName\SKILL.md"
 } else {
-    Write-Warning "  ! Windsurf Workflow file already exists: $WindsurfWorkflowFile"
+    Write-Warning "  ! Devin Skill directory already exists: $DevinSkillDir"
 }
 
 Write-Host "`nSkill scaffolding complete for: $TechName"
 Write-Host "Next steps:"
-Write-Host "1. Edit the generated files to add specific rules."
-Write-Host "2. Add the technology to .junie/guidelines.md (Optional for core tech)."
-Write-Host "3. Update the relevant README sections if needed (for example: Tech Stack Covered or Claude tech-review commands)."
-Write-Host "4. Re-sync Claude Code with .\scripts\sync-claude.ps1"
-Write-Host "5. Re-sync Codex with .\scripts\sync-codex.ps1"
+Write-Host "1. Edit .junie\skills\$TechName\SKILL.md to add specific rules (source of truth)."
+Write-Host "2. Add the technology to .junie\guidelines.md (optional for core tech)."
+Write-Host "3. Update README.md (Tech Stack Covered) and the .aiassistant\rules\project-rules.md Standards Map if needed."
+Write-Host "4. Run .\scripts\check-command-parity.ps1 to validate."

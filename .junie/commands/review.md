@@ -12,7 +12,9 @@ description: Review code in a file using relevant tech skill and guidelines.
 3. **In-Depth Analysis**:
    - Analyze the code against SOLID, DRY, and Clean Code principles.
    - Check against specific technology standards (e.g., Signals in Angular, Virtual Threads in Java 21, PEP 8 in Python).
-   - Evaluate security (OWASP Top 10), performance (O-notation, resource leaks), and maintainability.
+   - Evaluate security using the `security` skill (`.junie/skills/security/SKILL.md`) whenever the code handles auth, user input, secrets, or PII.
+   - Evaluate performance using the `performance` skill (`.junie/skills/performance/SKILL.md`) for hot paths, queries, and list endpoints.
+   - Evaluate accessibility using the `accessibility` skill (`.junie/skills/accessibility/SKILL.md`) for UI templates and forms.
    - Verify alignment with project-specific patterns (Layers in Spring Boot, standalone components in Angular).
 4. **Produce Technical Review Report**:
    - Generate a full, structured technical document with the following sections:

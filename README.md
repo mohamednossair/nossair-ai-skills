@@ -1,11 +1,10 @@
 # nossair-ai-skills
 
-Centralized repository for AI agent skills across Codex, Claude Code, Junie, and Windsurf, plus shared JetBrains AI Assistant project rules.
-Single source of truth: add a skill once, deploy to all agents.
+Centralized repository for AI agent skills across **Junie**, **JetBrains AI Assistant (AIR)**, and **Devin**.
+Single source of truth: add a skill once in `.junie/skills/`, reference it everywhere.
 
 ## Tech Stack Covered
-Global, Java, TypeScript, Python, Spring Boot, Angular, Maven, Git, Oracle, MySQL, JUnit, Jest
-
+Global, Java 21+, Spring Boot 3.2+, TypeScript, Python, Angular 20+, Maven, Git, Oracle, MySQL, JUnit, Jest, Security (OWASP/Spring Security), Performance, Accessibility, Speckit
 
 ---
 
@@ -13,21 +12,15 @@ Global, Java, TypeScript, Python, Spring Boot, Angular, Maven, Git, Oracle, MySQ
 
 ```
 nossair-ai-skills/
-|-- .claude/skills/        <- Claude Code slash commands (global deploy)
-|-- .aiassistant/rules/    <- JetBrains AI Assistant project rules
-|-- .junie/                <- Junie Agent Skills and Codex-compatible skill sources
-|   |-- skills/            <- Detailed skill folders per technology
-|   |-- commands/          <- Junie CLI custom slash commands
-|   `-- guidelines.md      <- Project-wide coding standards
-|-- .windsurf/memories/    <- Windsurf persistent context and commands
+|-- .junie/                <- Junie Agent Skills and commands
+|   |-- skills/            <- SOURCE OF TRUTH: detailed skill folders per technology
+|   |   `-- <tech>/SKILL.md
+|   |-- commands/          <- Junie custom slash commands (unified + speckit)
+|   `-- guidelines.md      <- Project-wide coding standards (one-page summary)
+|-- .aiassistant/rules/    <- JetBrains AI Assistant (AIR) project rules
+|-- .devin/skills/         <- Devin skills (unified commands + standards loader)
 |-- templates/             <- Templates for new skills and commands
-|-- scripts/               <- Helper scripts
-|   |-- install.sh         <- Install all skills for all agents (unified)
-|   |-- install.ps1        <- Install all skills (PowerShell unified)
-|   |-- sync-claude.sh     <- Sync Claude commands globally
-|   |-- sync-claude.ps1    <- Sync Claude commands (PowerShell)
-|   |-- new-skill.sh       <- Scaffold a new skill across all agents
-|   `-- new-skill.ps1      <- Scaffold a new skill (PowerShell)
+|-- scripts/               <- Helper scripts (install, parity check, scaffolding)
 `-- docs/                  <- Guides and documentation
 ```
 
@@ -37,8 +30,8 @@ For detailed agent-specific usage, see [AGENTS.md](./AGENTS.md).
 
 ## Setup: Deploy Skills to Your Agents
 
-### 🚀 Quick Start: All Agents (Recommended)
-Install Claude Code and Codex skills globally AND set up Junie, Windsurf, and AI Assistant project files in one command:
+### Quick Start (Recommended)
+Install Junie, AI Assistant, and Devin project files in one command:
 
 **Linux/macOS:**
 ```bash
@@ -49,93 +42,44 @@ bash scripts/install.sh /your-project-root/
 .\scripts\install.ps1 C:\your-project-root\
 ```
 
----
-
-### Claude Code (global, one-time)
-**Linux/macOS:**
-```bash
-bash scripts/sync-claude.sh
-```
-**Windows (PowerShell):**
-```powershell
-.\scripts\sync-claude.ps1
-```
-
-### Codex (global, one-time)
-Codex can use the existing `.junie/skills/` folders directly. Sync them to `$CODEX_HOME/skills` (or `~/.codex/skills` if `CODEX_HOME` is not set):
-
-**Linux/macOS:**
-```bash
-bash scripts/sync-codex.sh
-```
-**Windows (PowerShell):**
-```powershell
-.\scripts\sync-codex.ps1
-```
-
-Restart Codex after syncing to pick up newly installed skills.
-
-Installed skills include:
-- `global`
-- `java`
-- `spring-boot`
-- `typescript`
-- `python`
-- `angular`
-- `git`
-- `maven`
-- `oracle`
-- `mysql`
-- `junit`
-- `jest`
-
- - `speckit`
-
 ### Junie (per project)
-**Linux/macOS:**
 ```bash
-cp -r .junie /your-project/
+cp -r .junie /your-project/          # Linux/macOS
 ```
-**Windows (PowerShell):**
 ```powershell
-Copy-Item -Path .junie -Destination C:\your-project\ -Recurse
+Copy-Item -Path .junie -Destination C:\your-project\ -Recurse   # Windows
 ```
 
-> Note: `.junie/commands/` is loaded by Junie custom slash commands. JetBrains AI Assistant prompt shortcuts are configured separately through the IDE Prompt Library, so these files are not auto-imported there as generic prompts.
-
-### JetBrains AI Assistant (per project rules)
-**Linux/macOS:**
+### JetBrains AI Assistant (per project)
 ```bash
-cp -r .aiassistant /your-project/
+cp -r .aiassistant /your-project/    # Linux/macOS
 ```
-**Windows (PowerShell):**
 ```powershell
-Copy-Item -Path .aiassistant -Destination C:\your-project\ -Recurse
+Copy-Item -Path .aiassistant -Destination C:\your-project\ -Recurse   # Windows
 ```
 
-> Note: `.aiassistant/rules/` provides shareable project rules for JetBrains AI Assistant. Prompt Library shortcuts are still managed manually inside the IDE.
+> Note: `.aiassistant/rules/` provides shareable project rules for JetBrains AI Assistant. Prompt Library shortcuts are managed manually inside the IDE.
 
-### Windsurf (per project)
-**Linux/macOS:**
+### Devin (per project)
 ```bash
-cp -r .windsurf /your-project/
+cp -r .devin /your-project/          # Linux/macOS
 ```
-**Windows (PowerShell):**
 ```powershell
-Copy-Item -Path .windsurf -Destination C:\your-project\ -Recurse
+Copy-Item -Path .devin -Destination C:\your-project\ -Recurse   # Windows
 ```
 
-See [AGENTS.md](./AGENTS.md) for details.
+> Note: Devin picks up `.devin/skills/` automatically (also available as `/review`, `/plan`, `/test-generate`, `/git-commit`, `/project-standards`). Devin additionally reads `AGENTS.md` at the repo root.
 
 ---
 
 ## Unified Commands (Same on All Agents)
 
-All commands work the same way across Claude Code, Junie, and Windsurf.
+All commands work the same way across Junie, AIR, and Devin.
 
 | Command | Description | Usage |
 |---------|-------------|-------|
 | `/review` | Review code using relevant tech skill and guidelines | `/review file="src/App.java"` |
+| `/review-pr` | Review a PR or branch diff (multi-file) with merge recommendation | `/review-pr main` |
 | `/plan` | Create a detailed implementation plan for a task | `/plan task="Add user auth"` |
 | `/test-generate` | Generate unit tests (JUnit/Jest/pytest) | `/test-generate file="src/Service.java"` |
 | `/git-commit` | Create a work branch if needed, then a conventional commit for current changes | `/git-commit` |
@@ -144,20 +88,41 @@ Git workflow note:
 - `/git-commit` should create a dedicated branch with `git switch -c <branch-name>` when invoked from `main`, `master`, or `develop`.
 - Branch names should use `feature/`, `bugfix/`, `docs/`, or `chore/`, and include a Bitbucket/Jira issue ID only when one is clearly available.
 
+### Cross-Agent Workflow (plan with one tool, implement with another)
+
+Speckit artifacts are plain Markdown tracked in `.specify/feature.json` — any agent can continue the chain at any stage:
+
+```
+/speckit-specify ──► feature branch (feature/spec/<id>-<slug>) + specs/NNN-<name>/spec.md
+/speckit-clarify ──► answers encoded back into spec.md
+/speckit-plan    ──► plan.md (+ research.md, data-model.md, contracts/, quickstart.md)
+                      plan.md includes a "## Standards" section listing the .junie/skills/ files
+/speckit-tasks   ──► tasks.md (T### [P] [US#] checklist format)
+/speckit-validate or /speckit-analyze ──► cross-artifact consistency report
+/speckit-implement ──► verifies feature branch, loads plan Standards, executes tasks, marks [X]
+/test-generate + /review + /review-pr ──► tests and reviews before merge
+/speckit-taskstoissues ──► GitHub issues from tasks.md (GitHub remote required)
+```
+
+- Every command starts by running the prerequisite checker (`scripts/powershell/check-prerequisites.ps1 -Json` or `scripts/bash/check-prerequisites.sh --json`), which auto-locates the active feature.
+- To hand off: plan with Junie, implement with Devin (`/speckit-implement`) or AIR — the implementing agent reads `.specify/feature.json`, the plan's `## Standards` section, and the listed `.junie/skills/` files.
+
 ### Speckit Toolkit (Spec → Plan → Tasks → Validate/Analyze → Implement)
 
-Available as Junie commands and Windsurf workflows, and as a Codex skill:
-- `/speckit.specify feature="..."` — generates a short name, creates `specs/NNN-short-name/`, persists to `.specify/feature.json`, and produces a spec-quality checklist.
-- `/speckit.clarify context="..."` — scans the spec against a structured taxonomy and asks up to 5 targeted questions with recommended answers, encoding responses back into the spec.
-- `/speckit.plan spec="..."` — loads `.specify/feature.json`, cross-checks the constitution, generates `research.md`, `data-model.md`, and `contracts/`, then produces milestones with DoD.
-- `/speckit.tasks plan="..."` — loads `.specify/feature.json`, organizes tasks by user story (P1, P2...), supports parallel markers `[P]`, and uses the strict checklist format (`T### [P] [US#]`).
-- `/speckit.validate spec="..." plan="..." tasks="..."` — cross-artifact checks and traceability.
-- `/speckit.analyze spec="..." plan="..." tasks="..."` — read-only cross-artifact analysis with severity assignment (CRITICAL / HIGH / MEDIUM / LOW) and constitution alignment checks.
-- `/speckit.checklist domain="ux|api|security|..."` — generates domain-specific requirement-quality checklists (unit tests for English) under `checklists/<domain>.md`.
-- `/speckit.implement tasks="..."` — executes the plan with constitution governance, checklist gating, project-setup verification (ignore files), and `[X]` task completion tracking.
-- `/speckit.taskstoissues tasks="..."` — converts tasks into actionable GitHub issues (requires a GitHub remote).
-- `/speckit.document-generate module="..." [project="..."] [parts="..."]` — generate a 10-file Business Analysis document set under `docs/ba/<module>/` (README + 01-overview through 09-page-catalog). Always unified — treats all sub-projects as one system.
-- `/speckit.test-generate file="..." [spec="..."] [ac="AC-1,AC-2"]` — generate spec-linked unit tests (JUnit/Jest/pytest) with AC traceability annotations.
+Available as Junie commands (and usable from Devin/AIR by following `.junie/commands/`). In Devin, each subcommand is also an individual skill: `/speckit-specify`, `/speckit-clarify`, `/speckit-plan`, `/speckit-tasks`, `/speckit-validate`, `/speckit-analyze`, `/speckit-checklist`, `/speckit-implement`, `/speckit-taskstoissues`, `/speckit-document-generate`, `/speckit-test-generate` (plus the `/speckit` orchestrator that lists them).
+
+> Note: Devin skill identifiers allow only lowercase letters, digits, and hyphens — dots are rejected, so Devin subcommands are hyphenated (`/speckit-specify`). Junie/AIR keep the dotted `.junie/commands/speckit.<name>.md` files.
+- `/speckit-specify feature="..."` — generates a short name, creates `specs/NNN-short-name/`, persists to `.specify/feature.json`, and produces a spec-quality checklist.
+- `/speckit-clarify context="..."` — scans the spec against a structured taxonomy and asks up to 5 targeted questions with recommended answers, encoding responses back into the spec.
+- `/speckit-plan spec="..."` — loads `.specify/feature.json`, cross-checks the constitution, generates `research.md`, `data-model.md`, and `contracts/`, then produces milestones with DoD.
+- `/speckit-tasks plan="..."` — loads `.specify/feature.json`, organizes tasks by user story (P1, P2...), supports parallel markers `[P]`, and uses the strict checklist format (`T### [P] [US#]`).
+- `/speckit-validate spec="..." plan="..." tasks="..."` — cross-artifact checks and traceability.
+- `/speckit-analyze spec="..." plan="..." tasks="..."` — read-only cross-artifact analysis with severity assignment (CRITICAL / HIGH / MEDIUM / LOW) and constitution alignment checks.
+- `/speckit-checklist domain="ux|api|security|..."` — generates domain-specific requirement-quality checklists (unit tests for English) under `checklists/<domain>.md`.
+- `/speckit-implement tasks="..."` — executes the plan with constitution governance, checklist gating, project-setup verification (ignore files), and `[X]` task completion tracking.
+- `/speckit-taskstoissues tasks="..."` — converts tasks into actionable GitHub issues (requires a GitHub remote).
+- `/speckit-document-generate module="..." [project="..."] [parts="..."]` — generate an 11-file Business Analysis document set under `docs/ba/<module>/` (README + `01-overview` through `10-technical-map`). Always unified — treats all sub-projects as one system.
+- `/speckit-test-generate file="..." [spec="..."] [ac="AC-1,AC-2"]` — generate spec-linked unit tests (JUnit/Jest/pytest) with AC traceability annotations.
 
 ### Prerequisite Scripts
 
@@ -173,42 +138,18 @@ These scripts read `.specify/feature.json` (or fall back to the most recent `spe
 - `TASKS_PATH` / `TASKS_EXISTS` — tasks.md location and status
 - `AVAILABLE_DOCS` — list of all existing artifacts
 
-Each Speckit command now runs the prerequisite checker as Step 1 and auto-populates paths when the user does not provide them explicitly.
+Each Speckit command runs the prerequisite checker as Step 1 and auto-populates paths when the user does not provide them explicitly.
 
 ## Adding a New Technology
 
-1. **Scaffold files**: Run the `new-skill` script to generate templates for all agents:
+1. **Scaffold files**: Run the `new-skill` script to generate templates:
    - **Linux/macOS:** `bash scripts/new-skill.sh <tech>`
    - **Windows:** `.\scripts\new-skill.ps1 <tech>`
-2. **Refine skills**: Edit the generated files:
-   - `.junie/skills/<tech>/SKILL.md` (Detailed reference)
-   - `.windsurf/memories/<tech>-standards.md` (Context memory)
-   - Update `.windsurf/workflows/review.md` with tech-specific rules
+2. **Refine the skill**: Edit `.junie/skills/<tech>/SKILL.md` (source of truth) — fill in "When to Use", principles, guidelines, checklist, and example.
 3. **Update Junie guidelines**: Add relevant rules to `.junie/guidelines.md`.
-4. **Re-sync Claude**: Run `bash scripts/sync-claude.sh` or `.\scripts\sync-claude.ps1`.
-5. **Re-sync Codex**: Run `bash scripts/sync-codex.sh` or `.\scripts\sync-codex.ps1`.
-6. **Add to Global** (optional): Update `.junie/skills/global/SKILL.md` for shared principles.
-
----
-
-## Re-sync After Changes
-Any time you update or add a `.claude/skills/` file:
-```bash
-# Linux/macOS
-bash scripts/sync-claude.sh
-
-# Windows (PowerShell)
-.\scripts\sync-claude.ps1
-```
-
-Any time you update or add a `.junie/skills/` folder for Codex:
-```bash
-# Linux/macOS
-bash scripts/sync-codex.sh
-
-# Windows (PowerShell)
-.\scripts\sync-codex.ps1
-```
+4. **Update AIR rules**: Add the tech to the Standards Map in `.aiassistant/rules/project-rules.md`.
+5. **Update Devin skill**: Fill in `.devin/skills/<tech>/SKILL.md` (generated by the scaffold script).
+6. **Validate**: Run the parity check (below).
 
 ## Validate Unified Command Parity
 Run this after editing any unified command definitions:

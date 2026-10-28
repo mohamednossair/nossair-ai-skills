@@ -8,6 +8,14 @@ Use these rules when generating or reviewing code in this project.
 
 ---
 
+## Standards Sources
+
+- **Technology skills**: `.junie/skills/<tech>/SKILL.md` — load the relevant one before generating or reviewing code (java, spring-boot, typescript, angular, python, maven, git, oracle, mysql, junit, jest, security, performance, accessibility, speckit, global).
+- **Consolidated guidelines**: `.junie/guidelines.md`.
+- **General principles**: `.junie/skills/global/SKILL.md` (SOLID, DRY, Clean Code).
+
+---
+
 ## Tech Stack
 
 - **Java 21+ LTS**: Records, sealed classes, pattern matching, virtual threads
@@ -29,6 +37,13 @@ When the user invokes these commands, follow the instructions exactly:
 2. Check against SOLID, DRY, security, performance
 3. Output: [Critical] | [Warning] | [Suggestion] with Location, Issue, Why, Fix
 
+### /review-pr [base]
+1. Diff current branch against the base (default: main/master/develop)
+2. Load relevant `.junie/skills/` standards per changed file
+3. Per-file findings + cross-file consistency + test coverage
+4. Output: [Critical] | [Warning] | [Suggestion] with Location, Issue, Why, Fix
+5. End with Merge Recommendation: Approve / Approve with comments / Request changes
+
 ### /plan task="..."
 1. Break into logical steps with files to modify/create
 2. Identify applicable coding standards and patterns
@@ -47,6 +62,11 @@ When the user invokes these commands, follow the instructions exactly:
 3. Conventional Commits: `type(scope): description`
 4. Types: feat, fix, refactor, test, docs, chore, perf, style
 5. Output commit hash and message only
+
+### Speckit Commands (/speckit.*)
+For any `/speckit.<name>` invocation, read and follow `.junie/commands/speckit.<name>.md` exactly (source of truth for all agents). Available: specify, clarify, plan, tasks, validate, analyze, checklist, implement, taskstoissues, document-generate, test-generate.
+- Every command starts with the prerequisite checker: `scripts/powershell/check-prerequisites.ps1 -Json` (Windows) or `scripts/bash/check-prerequisites.sh --json` (Linux/macOS).
+- Artifacts live under `specs/NNN-<short-name>/` and are plain Markdown — a plan created with one AI tool can be implemented with another.
 
 ---
 
@@ -90,6 +110,36 @@ When the user invokes these commands, follow the instructions exactly:
 - Lombok: `@RequiredArgsConstructor`, `@Getter`, `@Slf4j` — avoid `@Data` on entities
 - API versioning: `/api/v1/...`
 - `spring.threads.virtual.enabled=true`
+
+---
+
+## Security Standards
+
+- Validate all input server-side; never trust client input
+- Deny by default — every endpoint authorized; object-level checks (no IDOR)
+- `SecurityFilterChain` (not `WebSecurityConfigurerAdapter`); stateless JWT; BCrypt passwords
+- `@PreAuthorize` on service methods for fine-grained authorization
+- CORS restricted to known origins; generic error responses (no stack traces)
+- No secrets in code/configs/logs; mask PII in logs; rate limit auth endpoints
+- Angular: no unsafe `[innerHTML]`; server enforces authorization
+
+---
+
+## Performance Standards
+
+- Measure first — no speculative optimization
+- No N+1 queries (`@EntityGraph`, `JOIN FETCH`, DTO projections); paginate all list endpoints
+- Cache with explicit TTL/eviction; virtual threads for I/O only
+- Angular: OnPush, `track`, `@defer`, `computed()`; parallelize independent requests
+
+---
+
+## Accessibility Standards
+
+- Semantic HTML first; every control keyboard-operable with logical Tab order
+- Programmatic labels on all inputs; accessible names on icon-only buttons
+- Dialogs trap and restore focus; errors announced, never color-only
+- Contrast 4.5:1 (3:1 large text); respect `prefers-reduced-motion`
 
 ---
 

@@ -14,7 +14,7 @@
 - Analyze the code for correctness, security, performance, and readability
 - Group findings by severity (Critical, Warning, Suggestion)
 - Output each finding with location, issue description, impact, and fix suggestion
-- Apply the same logic regardless of which AI assistant is used (Claude Code, Junie, Windsurf)
+- Apply the same logic regardless of which AI assistant is used (Junie, AIR, and Devin)
 
 ---
 
@@ -73,27 +73,26 @@
 
 ---
 
-## AC-005: Claude Code Skill Deployment
+## AC-005: One-Command Installation
 
-**Given** a developer has access to the nossair-ai-skills repository and Claude Code is installed
-**When** the developer runs the sync script (bash scripts/sync-claude.sh on Linux/macOS, .\scripts\sync-claude.ps1 on Windows)
+**Given** a developer has access to the nossair-ai-skills repository and a target project directory
+**When** the developer runs the install script (bash scripts/install.sh on Linux/macOS, .\scripts\install.ps1 on Windows)
 **Then** the script should:
-- Copy all files from .claude/skills/ to ~/.claude/skills/
-- Create the target directory if it doesn't exist
-- Report which files were copied
-- Not fail if the target directory already exists
+- Copy .junie/, .aiassistant/, and .devin/ folders to the target project
+- Copy the helper scripts to the target project
+- Report which folders were copied
+- Fail with a clear error if the target directory does not exist
 
 ---
 
-## AC-006: Codex Skill Deployment
+## AC-006: Devin Skill Discovery
 
-**Given** a developer has access to the nossair-ai-skills repository and Codex is installed
-**When** the developer runs the sync script (bash scripts/sync-codex.sh on Linux/macOS, .\scripts\sync-codex.ps1 on Windows)
-**Then** the script should:
-- Copy all folders from .junie/skills/ to $CODEX_HOME/skills/ or ~/.codex/skills/
-- Create the target directory if it doesn't exist
-- Report which skills were copied
-- Not fail if the target directory already exists
+**Given** the .devin/ folder has been copied to a project
+**When** the developer opens Devin in that project
+**Then** Devin should:
+- List the project skills (/review, /plan, /test-generate, /git-commit, /project-standards) in slash-command completions
+- Auto-load a skill when the request matches its description
+- Read technology standards from .junie/skills/ when executing a skill
 
 ---
 
@@ -108,13 +107,13 @@
 
 ---
 
-## AC-008: Windsurf Project Setup
+## AC-008: Devin Project Setup
 
 **Given** a developer has access to the nossair-ai-skills repository and a project directory
-**When** the developer copies the .windsurf/ folder to their project directory
+**When** the developer copies the .devin/ folder to their project directory
 **Then** the project directory should contain:
-- .windsurf/memories/ with persistent context files
-- .windsurf/workflows/ with slash command definitions
+- .devin/skills/<name>/SKILL.md for each unified command and the standards map
+- Each SKILL.md with name and description frontmatter
 
 ---
 
@@ -196,7 +195,7 @@
 **Given** a maintainer has made changes to unified command definitions
 **When** the maintainer runs the validation script (bash scripts/check-command-parity.sh on Linux/macOS, powershell -ExecutionPolicy Bypass -File scripts/check-command-parity.ps1 on Windows)
 **Then** the script should:
-- Compare command definitions across .claude/skills/, .junie/commands/, and .windsurf/workflows/
+- Compare command definitions across .junie/commands/ and .devin/skills/
 - Report any inconsistencies in command names, descriptions, or parameters
 - Exit with success code if no inconsistencies found
 - Exit with error code if inconsistencies found
@@ -209,8 +208,8 @@
 **When** the engineering lead runs the scaffold script (bash scripts/new-skill.sh <tech> on Linux/macOS, .\scripts\new-skill.ps1 <tech> on Windows)
 **Then** the script should:
 - Create .junie/skills/<tech>/ folder with SKILL.md template
-- Create .claude/skills/<tech>-review.md template
-- Create .windsurf/memories/<tech>-standards.md template
+- Create .junie/skills/<tech>/SKILL.md template (source of truth)
+- Create .devin/skills/<tech>/SKILL.md template
 - Report which files were created
 - Not fail if the technology folder already exists
 

@@ -1,11 +1,17 @@
 ---
 name: java
-description: Review or develop Java 21+ code following modern LTS standards and best practices
+description: Review or develop Java 21+ code (.java) following modern LTS standards — records, sealed classes, pattern matching, virtual threads, Optional
 ---
 
 # Java 21+ Skill
 
 Use this skill when developing or reviewing Java 21+ code. The project targets Java 21 LTS minimum and emphasizes safety, immutability, and modern concurrency.
+
+## When to Use
+- Creating or modifying any `.java` file (combine with the `spring-boot` skill for Spring code).
+- Reviewing Java code for quality, safety, and modern-language usage.
+- Migrating older Java (8/11/17) code to Java 21 idioms.
+- Designing new domain models, DTOs, or service classes.
 
 ## Key Principles
 - **Target Java 21 LTS minimum**: Use latest features.

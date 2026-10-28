@@ -1,11 +1,17 @@
 ---
 name: oracle
-description: Review or develop Oracle database schemas and queries
+description: Review or develop Oracle SQL and schemas (.sql) — bind variables, indexing, pagination, performance
 ---
 
 # Oracle Skill
 
 Use this skill when designing Oracle schemas or writing/optimizing SQL queries for Oracle Database.
+
+## When to Use
+- Writing or reviewing SQL targeting Oracle (bind `:param` syntax, `VARCHAR2`, `MERGE`).
+- Designing Oracle tables, indexes, sequences, or constraints.
+- Optimizing slow Oracle queries (`EXPLAIN PLAN`, `DBMS_XPLAN`).
+- Writing Flyway migrations for Oracle.
 
 ## Key Principles
 - **Bind Variables**: Always use bind variables. Never concatenate user input.
