@@ -16,3 +16,6 @@ jobs:
 
       - name: Run unified command parity check
         run: bash scripts/check-command-parity.sh
+
+      - name: Run contract template check
+        run: bash scripts/check-contract-templates.sh

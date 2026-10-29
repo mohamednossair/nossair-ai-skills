@@ -6,3 +6,4 @@ pipelines:
         name: Unified Command Parity
         script:
           - bash scripts/check-command-parity.sh
+          - bash scripts/check-contract-templates.sh
