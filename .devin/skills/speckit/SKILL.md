@@ -16,25 +16,23 @@ You invoked the Speckit orchestrator without a specific subcommand.
 
 | Command | What it does |
 |---------|--------------|
-| `/speckit-specify feature="..."` | Create/update the feature spec, create the feature branch, persist `.specify/feature.json` |
+| `/speckit-specify feature="..." [mode="draft|feature|refine"]` | Create/update the feature spec (draft = no branch); persist `.specify/feature.json` |
 | `/speckit-clarify context="..."` | Ask up to 5 targeted questions; encode answers into the spec |
-| `/speckit-plan spec="..."` | Turn the spec into milestones + research + data model + contracts |
-| `/speckit-tasks plan="..."` | Generate dependency-ordered tasks (`T### [P] [US#]`) |
+| `/speckit-plan spec="..."` | Turn the spec into milestones + research + data model + contracts + machine-readable `## Standards` |
+| `/speckit-tasks plan="..."` | Generate dependency-ordered tasks (`T### [P] [US#]` + `Depends on`/`Covers`/`Validate`); tests in the task graph |
 | `/speckit-validate spec="..." plan="..." tasks="..."` | Cross-artifact consistency and traceability |
-| `/speckit-analyze spec="..." plan="..." tasks="..."` | Read-only analysis with severity assignment |
+| `/speckit-analyze ... [current_state="..."] [mode="pre|post-implementation"]` | Read-only analysis with severities and a PASS / PASS_WITH_WARNINGS / BLOCKED verdict |
 | `/speckit-checklist domain="..."` | Domain requirement-quality checklist under `checklists/` |
-| `/speckit-implement tasks="..."` | Execute the plan: branch check, checklist gate, `[X]` tracking |
+| `/speckit-implement tasks="..." [mode="plan|execute"]` | `plan` = dry-run runbook (default); `execute` = gated execution with `[X]` tracking |
 | `/speckit-taskstoissues tasks="..."` | Convert tasks into GitHub issues (GitHub remote required) |
-| `/speckit-document-generate module="..."` | Generate the 11-file BA document set under `docs/ba/<module>/` |
+| `/speckit-document-generate module="..."` | Generate the lean 6-file AI BA set (`docs/ba/<module>/`) — AI index + facts JSON + code map + graphs |
 | `/speckit-test-generate file="..."` | Spec-linked unit tests with AC traceability |
 
 ## What to Do
 
 1. If the user's request clearly matches one subcommand (e.g., "create a spec for X" → specify), read and follow `.junie/commands/speckit.<name>.md` directly.
 2. Otherwise, show the table above and ask the user which subcommand to run.
-3. Every subcommand starts with the prerequisite checker:
-   - Windows: `scripts/powershell/check-prerequisites.ps1 -Json`
-   - Linux/macOS: `scripts/bash/check-prerequisites.sh --json`
+3. Every subcommand resolves artifacts via the shared Artifact Resolution Contract (see `.junie/skills/speckit/SKILL.md`): explicit parameter → `.specify/feature.json` → prerequisite checker (`scripts/powershell/check-prerequisites.ps1 -Json` / `scripts/bash/check-prerequisites.sh --json`) → single-candidate discovery → structured missing-input error. Never guess when multiple candidates exist.
 
 ## Artifact Chain (cross-agent handoff)
 

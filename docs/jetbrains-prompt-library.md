@@ -31,7 +31,7 @@ For each command below:
 | `/speckit.checklist` | `.junie/commands/speckit.checklist.md` | Domain requirement-quality checklists (unit tests for English) |
 | `/speckit.implement` | `.junie/commands/speckit.implement.md` | Execute the plan with constitution governance and checklist gating |
 | `/speckit.taskstoissues` | `.junie/commands/speckit.taskstoissues.md` | Convert tasks into GitHub issues (GitHub remote required) |
-| `/speckit.document-generate` | `.junie/commands/speckit.document-generate.md` | 10-file Business Analysis document set under `docs/ba/<module>/` |
+| `/speckit.document-generate` | `.junie/commands/speckit.document-generate.md` | Lean 6-file AI-optimized Business Analysis set under `docs/ba/<module>/` (AI index + facts JSON + code map + graphs) |
 | `/speckit.test-generate` | `.junie/commands/speckit.test-generate.md` | Spec-linked unit tests with AC traceability annotations |
 
 ## Notes

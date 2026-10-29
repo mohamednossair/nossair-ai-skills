@@ -6,7 +6,7 @@ description: Generate domain-specific requirement-quality checklists (unit tests
 
 > **Core concept**: Checklists are **unit tests for requirements writing** — they validate the quality, clarity, and completeness of requirements, NOT the implementation.
 
-1. **Prerequisite check** — Run `scripts/powershell/check-prerequisites.ps1 -Json` (Windows) or `scripts/bash/check-prerequisites.sh --json` (Linux/macOS). Use `FEATURE_DIR` from the script output as the feature directory for creating `checklists/<domain>.md`. If no feature directory exists, ask the user.
+1. **Artifact resolution** — apply the shared resolution priority: explicit parameter → `.specify/feature.json` → prerequisite script (`scripts/powershell/check-prerequisites.ps1 -Json` / `scripts/bash/check-prerequisites.sh --json`) → repository discovery when exactly one candidate exists → structured missing-input error. Use `FEATURE_DIR` from the script output as the feature directory for creating `checklists/<domain>.md`.
 2. Derive up to 3 clarifying questions from the user's phrasing + spec/plan context to calibrate scope, depth, and risk emphasis.
 3. Create `checklists/<domain>.md` under the feature directory (append if it exists). Use globally incrementing IDs: `CHK001`, `CHK002`, etc.
 4. Write checklist items that test the **requirements themselves** for:

@@ -135,7 +135,7 @@ Copy-Item -Path .devin -Destination C:\your-project-root\ -Recurse
 | `/review` | Full technical review report using the relevant `.junie/skills/` standard |
 | `/review-pr` | Multi-file PR/branch-diff review with change inventory and merge recommendation |
 | `/plan` | Numbered implementation plan with files, standards, skills, and Risk per step |
-| `/test-generate` | Complete runnable tests (JUnit 5/Jest/pytest) with AAA pattern |
+| `/test-generate` | Generate unit tests (JUnit 5/Jest/pytest) — thin unlinked wrapper around `/speckit-test-generate`; `action=preview` by default |
 | `/git-commit` | Branch-then-commit workflow with Conventional Commits |
 | `/security` | OWASP/Spring Security review for auth, input, secrets, PII |
 | `/performance` | N+1, caching, SQL tuning, bundle size review |

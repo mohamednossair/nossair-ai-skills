@@ -1,29 +1,22 @@
 ---
 name: test-generate
-description: Generate unit tests for provided code using JUnit 5, Jest, or pytest
-argument-hint: 'file="path/to/file"'
+description: Generate unit tests for provided code without requiring feature-spec linkage — thin unlinked wrapper around the canonical /speckit-test-generate generator; never resolves or uses feature specifications
+argument-hint: 'file="path/to/file" [action="preview|write"]'
 allowed-tools:
   - read
   - grep
   - glob
+  - exec
   - edit
+  - write
 triggers:
   - user
   - model
 ---
 
-Generate tests for $file.
+Run the **test-generate** unified command.
 
-1. Identify the technology from the file extension.
-2. Read the relevant skill from `.junie/skills/<tech>/SKILL.md` and guidelines in `.junie/guidelines.md`.
-3. Choose the correct framework: JUnit 5 + AssertJ (Java), Jest (TypeScript/Angular), pytest (Python).
-4. Apply AAA pattern (Arrange, Act, Assert) for all tests.
-5. Name tests: `should<Behavior>_when<Condition>`.
-6. Cover: happy path, edge cases, error paths, and each branch of conditional logic.
-7. Use mocks/spies only for external dependencies — test real behavior.
-8. Output the complete test file ready to save (complete, runnable code — not pseudocode or stubs).
-
-Framework notes:
-- Java: `@ExtendWith(MockitoExtension.class)`, `@Mock`/`@InjectMocks`, AssertJ `assertThat(...)`; `@WebMvcTest` for controllers, `@DataJpaTest` for repositories; parameterized tests where helpful.
-- Jest: `jest.spyOn()` / `jest.fn()`, `jest.clearAllMocks()` in `beforeEach()`, `TestBed.configureTestingModule()` for Angular.
-- pytest: fixtures for setup, parameterized tests for edge-case matrices.
+1. Read and follow `.junie/commands/test-generate.md` exactly — it is the source of truth for all agents.
+2. This command is a thin unlinked wrapper: delegate test generation to `/speckit.test-generate` with `allow_unlinked=true`; do not resolve or require a specification unless one is explicitly supplied; pass `action` through unchanged (default `preview` — no file modification).
+3. Framework selection (repository configuration → plan Standards → technology skill → fallback default: JUnit 5 + AssertJ for Java, Jest for TypeScript/Angular, pytest for Python), existing-test inspection, naming conventions, mocking rules, write safety, and the traceability summary are defined by the canonical command — do not duplicate that logic here.
+4. Arguments: file="<path/to/source>" (required); action="preview|write" (optional, default preview)

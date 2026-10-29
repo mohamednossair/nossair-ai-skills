@@ -1,356 +1,293 @@
 ---
-description: Reverse-engineer an 11-file Technical Business Analysis document set from the codebase with two-layer documentation (business + technical notes)
+description: Reverse-engineer a lean 6-file AI-optimized Business Analysis document set from the codebase (AI index, machine-readable facts, code map, Mermaid graphs)
 ---
 
-**Usage**: `/speckit.document-generate module="<module-name>" [project="<project-name>"] [parts="<path1>, <path2>, <path3>"]`
+**Usage**: `/speckit.document-generate module="<module-name>" [project="<project-name>"] [parts="<path1>, <path2>"] [mode="interactive|auto|resume"]`
 
-> **Always unified by default.** Every codebase and sub-project found is treated as one integrated system. One document set covers everything. If `parts` is not provided, all sub-projects found under the active workspace are automatically included.
+Default `mode=interactive`. Execution modes:
+- `interactive` — save discovery checkpoints; pause after the discovered business picture (Step 2.5); continue after corrections.
+- `auto` — do not wait for confirmation; mark uncertain findings with `confidence` values and open questions; continue through validation.
+- `resume` — load the latest valid checkpoint under `docs/ba/<module>/.work/`; revalidate changed source files only; preserve stable IDs for unchanged facts.
+
+Checkpoints (internal working artifacts, written after each extraction stage): `docs/ba/<module>/.work/discovery.json`, `frontend-facts.json`, `backend-facts.json`, `reconciliation.json`, `coverage.json`, `id-registry.json`. Each checkpoint carries `schema_version`, `created_at`, `repository_commit`, `source_fingerprints` (path → hash), and `completed_stage`. All generated timestamps (`created_at` in checkpoints, `generated` in `99-facts.json`) use ISO 8601 with the execution environment's local offset, e.g. `2026-10-29T09:17:00+03:00`. Resume rules: invalid JSON, unknown schema version, or missing stage metadata invalidates the checkpoint; modified, deleted, or renamed files invalidate all facts depending on them; re-run reconciliation whenever frontend or backend facts change; preserve IDs for semantically unchanged facts; never reuse a checkpoint from a different repository or module.
+
+> **Always unified.** Treat every part found (customer app, admin panel, backend, shared libs) as ONE integrated system — one document set, never per-part documents. If `parts` is omitted, auto-include all sub-projects found under the active workspace.
 
 ## Purpose
 
-Generate a useful Business Analysis document for the **active project** by extracting business meaning from the source code.
+Extract business meaning from source code into a lean, AI-optimized BA document set for AI planning agents, developers, and business stakeholders. **Frontend first** (screens define structure); **user journeys first** (screens are steps inside journeys); document **business behavior**, never implementation details.
 
-**Goals:**
-- Explain what the system does in business terms — for a product owner, not a developer
-- Help humans understand the project quickly through user journeys and screen-by-screen walkthroughs
-- Help AI plan and perform tasks correctly
-- Give business analysts and product owners a clear, readable project summary they can act on immediately
+**AI-first outputs (mandatory):**
+- **AI reading path** (state it in `00-ai-index.md` and `README.md`): `00-ai-index.md` (answer from the map) → `99-facts.json` (structured, grep-able facts) → `11-code-map.md` (jump to the exact source files) → deep-read a business file only when narrative is needed.
+- **Mermaid graphs**: embed journey, data-model, lifecycle, and architecture diagrams in the generated files so structure is visible at a glance to humans and AI agents alike.
+- **Token-efficient AI index**: `00-ai-index.md` is a dense one-line-per-item map of the whole set with anchor links — an AI agent answers most questions from this single small file and deep-reads only the linked section.
+- **Machine-readable fact base**: `99-facts.json` holds every fact (journeys, screens, rules, stories, criteria, entities, statuses, limits) as structured data with IDs and doc anchors — deterministic to parse, filter, and grep; no re-reading of Markdown to extract facts.
+- **Code map**: `11-code-map.md` maps every source file to its business purpose and the rules/journeys it implements — an AI can jump from a business question to the exact files without re-scanning the codebase.
+- **Lookup-friendly writing**: stable fixed-width IDs (`BR-###`, `US-###`, `AC-###`, `J-###`, exact screen names), descriptive headings, and tables over prose in every file, so any section can be read in isolation.
 
-**Guiding principles:**
-- **Frontend first**: if a frontend exists, treat it as the primary source of business truth — screens and user actions define the structure
-- **User journeys first, screens inside**: group everything around end-to-end user journeys; list the screens and steps inside each journey
-- **Always unified**: always treat every part found (customer app, admin panel, backend, shared libraries) as one integrated system across all modules. A journey may start in one part and complete in another — document the full journey, not each part in isolation. Never generate separate documents per part.
-- **Exhaustive coverage (MANDATORY)**: document every discovered screen in the frontend and every business-facing API in the backend. No part of the business logic or user interface should be omitted. For every screen, you must explicitly identify and document every API it calls and the business purpose of those calls. **If a file or screen is missed, the document is considered failed.**
-- **Forceful Scanning**: You must proactively search for "hidden" screens, modal dialogs, and dynamic routes. Do not rely only on top-level navigation. Check every `import` and `route` definition.
-- **Deep contextual understanding**: as you scan each screen, immediately trace its actions to the backend APIs they trigger. Document the business rules enforced by those APIs directly in the context of the screen.
-- Focus on **business behavior**, not implementation details
-- Translate technical code into **plain business language**
-- **NEVER include** in any output file: API endpoint URLs (e.g. `/api/users`), class names, method names, DTO/entity names, framework terms (e.g. "controller", "service", "repository", "component", "hook"), HTTP verbs, or database table names. These are **strictly forbidden** in all prose, tables, and lists
-- Mark anything that cannot be inferred from code as `TBD` -- never leave a section blank
-- Keep output structured, practical, and based on code evidence
-- Make the output readable for: business analysts, product owners, and AI planning/task-execution agents
-- The final document must be understandable by a non-technical product owner with no explanation
-- **Skip generated / boilerplate code**: Do NOT read or document auto-generated code (e.g., protobuf generated classes, OpenAPI/Swagger generated DTOs, JPA metamodel, GraphQL generated code). Identify generated code by: `generated` in package/path, `@Generated` annotation, `DO NOT EDIT` headers, or files in `generated-sources/`, `gen/`, `.proto/` output folders.
-- **Feature flag / toggle awareness**: When reading business logic, check for feature flags, toggles, or conditional configuration. If a business rule is conditional on a flag, document: the rule, the flag name, the default state, and which users/roles see the gated behavior. Do NOT omit flagged rules.
+**Lean set principle** — generate only what an AI needs: README, `00-ai-index`, `02-scope-context` (journeys + journey-map diagrams), `10-technical-map` (architecture + Data Model + Status Lifecycle diagrams + command mapping), `11-code-map`, `99-facts.json`. Rules, stories, criteria, entities, statuses, glossary, KPIs, assumptions, constraints, mismatches, and open questions ALWAYS live in `99-facts.json` — no narrative files are generated.
 
----
+**Global rules (apply to every step below):**
+- **Exhaustive coverage (MANDATORY, two-pass)**: every discovered screen and business-facing API is documented, including each screen's API calls and their business purpose. Coverage means every file is CLASSIFIED (Pass 1) and every business-relevant file is DEEP-READ (Pass 2) — not that every file received equal-depth reading. A missed screen, business API, or unclassified file = failed document.
+- **Forceful scanning**: search for hidden screens, modal dialogs, and dynamic routes — check every `import` and route definition, not just top-level navigation.
+- **Skip generated/boilerplate code**: `generated` in package/path, `@Generated` annotation, `DO NOT EDIT` headers, `generated-sources/`, `gen/`, `.proto/` output. Record the skip and why.
+- **Feature flags**: if a business rule is conditional on a flag/toggle, document the rule, flag name, default state, and which users/roles see the gated behavior.
+- **Plain business language — scoped per file** (fine in these instructions): `README.md`, `00-ai-index.md`, and `02-scope-context.md` are business-language files and HARD-BAN implementation details: no API endpoint URLs (`/api/users`), HTTP verbs, class/method/function names (`UserService`, `createOrder()`), DTO/entity names, framework terms (controller, service, repository, component, hook, reducer, selector, interceptor, module), DB/table names (`tbl_orders`), or config keys. Translate instead: `UserController` → "User Management feature"; `/api/orders` → "the order submission process". In `99-facts.json`, business-facing fields follow the same hard ban, while only the designated technical and evidence fields (see the JSON field boundary below) may contain implementation identifiers. Exception: `10-technical-map.md` and `11-code-map.md` are for implementers and MAY use technical terms.
+- **Never leave a section blank — TBD is controlled**: mark anything not inferable from code as `TBD`; every `TBD` must be accompanied by the missing fact, the evidence searched, why it could not be determined, the required owner or source, and the impact on confidence. Represent each unresolved fact as one nested record — generate as normal Markdown without the example indentation:
+
+    - Session timeout: TBD
+      - Evidence searched: Application configuration and environment templates
+      - Why unresolved: Production identity-provider policy is unavailable
+      - Required source: Identity platform owner or production policy
+      - Confidence impact: Authentication lifecycle remains unconfirmed
+- The business-language files (`README.md`, `00-ai-index.md`, `02-scope-context.md`, `99-facts.json`) must be understandable by a non-technical product owner with no explanation.
+- **Dual representation for technical references**: business-facing fields stay plain language; technical references (HTTP method, endpoint path, source symbol) appear only in technical outputs (`10-technical-map.md`, `11-code-map.md`) or designated machine fields (e.g. a screen action's `technical_refs` in `99-facts.json`). Never remove source paths, symbols, routes, schema objects, or technical identifiers from the technical maps.
+- **JSON field boundary (schema-driven)**: business-language validation applies to `99-facts.json` fields `name`, `statement`, `purpose`, `business_effect`, `user_message`, `assumption`, `constraint`, `question`, and acceptance text; technical terminology is permitted only in `technical_refs`, `evidence.path`, `evidence.symbol`, `evidence.lines`, `evidence.evidence_type`, `source_part`, and `implementation_layer`.
+- **Stable fact-ID lifecycle**: never renumber an existing fact; preserve IDs when meaning remains materially the same; mark removed facts `Deprecated` with `replaced_by` when applicable; assign new IDs only to genuinely new facts; detect possible renames via source evidence and semantic similarity; maintain `docs/ba/<module>/.work/id-registry.json` so regeneration never breaks links from specifications, plans, tasks, or tests. IDs are fixed-width zero-padded: `J-###` (journey), `SJ-###` (system journey), `SCR-###` (screen), `BR-###`, `US-###`, `AC-###`, `ENT-###`, `INT-###`. Authority: `99-facts.json` is authoritative for published business facts; `.work/id-registry.json` is authoritative only for ID allocation, aliases, deprecation history, and replacement relationships — when they disagree, generation is BLOCKED until reconciled.
 
 ## Steps
 
-### 1. Discover Project Structure
+### 1. Discover Parts
 
-#### Discover All Parts (always — no flag needed)
-- **Determine the workspace root**: use the git root or the workspace folder explicitly active when the command was invoked. If ambiguous, ask the user BEFORE proceeding.
-- **If `parts` parameter is provided**: use those exact paths.
-- **If `parts` is NOT provided**: scan the workspace root and identify every sub-project automatically. Look for:
-  - Multiple `package.json` files (each = a separate frontend or Node app)
-  - Multiple `src/main/java`, `src/main/kotlin`, `app.py`, `Program.cs` roots (each = a backend)
-  - Folders named `admin`, `portal`, `dashboard`, `api`, `backend`, `frontend`, `client`, `server`, `app`, `web` — treat each as a potential part
-- **Label each part** by its type:
-  - Customer-facing frontend (e.g. web app, mobile app)
-  - Admin / back-office panel
-  - Backend API / business logic
-  - Shared library or common module
-- **If only one part exists**: treat it as a single-part system and continue.
-- **Cross-part integration signals** — actively look for:
-  - Data objects that appear in multiple parts (same concept, different views)
-  - Roles that exist in one part but not another (e.g. Admin role only in admin panel)
-  - Journeys that require actions in more than one part to complete
-  - Business rules enforced in the backend but visible in multiple frontends
-- **Fallback discovery** — If no conventional markers above are found, use these heuristics:
-  - Any folder containing a `main` entry point (`main.py`, `main.go`, `index.js`, `App.java`, `Program.cs`, etc.) is a potential standalone part.
-  - Any folder with a `Dockerfile` or `docker-compose.yml` that defines a service is a potential backend part.
-  - Any folder with `.html`, `.css`, `.jsx`, `.tsx`, `.vue`, `.svelte` files alongside a `package.json` or `vite.config.*` is a potential frontend part.
-  - Any folder with a `pyproject.toml`, `setup.py`, `Cargo.toml`, `go.mod`, `pom.xml`, `build.gradle`, or `*.csproj` is a potential backend/library part.
-  - When in doubt, treat each top-level folder under the workspace root as a candidate part and classify it by dominant file type.
-- List every part found with its label before proceeding to Step 2.
+- Workspace root = git root or the active workspace folder; if ambiguous, ask the user BEFORE proceeding.
+- If `parts` is provided, use those exact paths. Otherwise scan the root for sub-projects: multiple `package.json` files; multiple `src/main/java` / `app.py` / `Program.cs` roots; folders named `admin|portal|dashboard|api|backend|frontend|client|server|app|web`.
+- Fallback heuristics: a folder with a `main` entry point (`main.py`, `index.js`, `App.java`, `Program.cs`...); a `Dockerfile`/`docker-compose.yml` defining a service; `.html/.css/.jsx/.tsx/.vue/.svelte` alongside `package.json`/`vite.config.*` (frontend); `pyproject.toml|setup.py|Cargo.toml|go.mod|pom.xml|build.gradle|*.csproj` (backend/library). When in doubt, classify each top-level folder by dominant file type.
+- Label each part: Customer-facing frontend | Admin/back-office panel | Backend API | Shared library. One part only → single-part system.
+- Actively look for cross-part signals: data objects appearing in multiple parts, roles existing in only one part, journeys requiring actions in several parts, backend rules visible in multiple frontends.
+- List every part with its label before Step 2.
 
-### 2. Read and Extract Business Meaning from Code
+### 2. Read and Extract Business Meaning
 
-#### 2.0 Mandatory File Inventory (FORCE STEP)
+**Mandatory file inventory first (FORCE STEP)**: inventory every source, test, configuration, migration, and documentation file under the discovered parts — before reading any content. Cross-reference frontend files against discovered routes — any file not in a route must be traced to its usage (modals, tabs, conditional rendering). Classify every file in Pass 1; deep-read only business-relevant files in Pass 2 — no file is silently excluded before classification.
 
-Before reading any content, you MUST generate a complete inventory of all files you intend to process.
-1.  **Frontend Inventory**: List every file ending in `.js`, `.ts`, `.tsx`, `.vue`, `.html`, `.css` (to find styles that hide/show logic).
-2.  **Backend Inventory**: List every file ending in `.java`, `.py`, `.ts`, `.go`, `.cs`, etc.
-3.  **Verification**: Cross-reference the "Frontend Inventory" with your discovered routes. If a file exists in the component folder but isn't in a route, find where it is used (Modals, Tabs, Conditional rendering).
+**Reading discipline (two-pass, evidence-driven)**:
+- **Pass 1 — Structural inventory**: classify every file via manifests, entry points, routes, imports, source roots, APIs, data models, migrations, tests, jobs, and integrations — without reading full contents. Record per file: `path`, `classification` (business | technical-support | generated | configuration | test), `scan_depth` (structural | deep), `business_relevance`, `reason`.
+- **Pass 2 — Evidence-driven deep read**: deep-read only files reachable from screens, implementing business APIs, containing policy/validation, state transitions, permission enforcement, data constraints, or automated business processes. For each deep-read file record the business action/rule/data it reveals; for every service/logic method ask what business decision it makes (10 methods = 10 potential rules).
+- Never claim a file was deep-read when only its structure was scanned; the classification record is the honest coverage artifact. Repeat for every part, labeling findings with the source part.
 
-**Reading discipline — this is mandatory:**
-- Do NOT skim. Read every file in each layer listed below, one by one.
-- **Proof of Work**: For every file you read, you must record its path in your internal scratchpad.
-- For every file you read, ask: "What business action, rule, or data does this file reveal?" Write the answer before moving to the next file.
-- Do not stop after finding the obvious screens or main flows. Keep reading until you have covered every file in the project.
-- **Skip generated / boilerplate code**: Do NOT read or document code that is auto-generated (e.g., protobuf generated classes, OpenAPI/Swagger generated DTOs, JPA metamodel, GraphQL generated code). Identify generated code by: `generated` in package/path, `@Generated` annotation, `DO NOT EDIT` headers, or files in `generated-sources/`, `gen/`, `.proto/` output folders. Record that the file was skipped and why.
-- If a file seems purely technical (e.g. a config loader, a logger setup), still check it for business limits, defaults, or constraints before skipping.
-- **Feature flag / toggle awareness**: When reading business logic, check for feature flags, toggles, or conditional configuration. If a business rule is conditional on a flag, document: the rule, the flag name, the default state, and which users/roles see the gated behavior. Do NOT omit flagged rules.
-- Depth required: for every service/logic file, read **every individual method or function** and ask what business decision or action it performs. A service with 10 methods = 10 potential business rules to extract.
-- Repeat Steps A and B for **every part** found. Label each finding with its source part (e.g. "Customer App", "Admin Panel", "Backend API"). Step C merges all parts into one unified picture.
+#### Step A — Frontend (primary source, always first if present)
 
-**Translate everything into plain business language** — what the user sees, does, and gets as a result. Never extract technical details into the output.
+| Layer | Inventory every file; deep-read business-relevant files (Pass 1 → Pass 2) | Extract (translate, do not copy) |
+|---|---|---|
+| Routing/Pages | every route file + page/folder name | screen names + navigation ("User List Screen") |
+| Access Control | every auth/role guard | who can access which screen (plain role names) |
+| Forms & Inputs | every form, validation rule, field definition | what users fill in + every enforced input rule |
+| Interactions | every page and feature component | every button, action, selection, search, trigger per screen |
+| State & Data | every store/slice/context/binding | everything displayed; filter/sort options |
+| Errors/Empty | error messages, empty states, toasts | what the system says when something fails or is empty |
 
-#### Step A — Frontend (Primary Source, always first if present)
+Produce: 1) exhaustive screen inventory grouped by role (12 screens found = 12 listed); 2) journey map — every screen belongs to ≥1 named end-to-end journey; 3) all actions per screen (not just the main one); 4) all user-visible validation rules and error texts; 5) all statuses/states shown ("Pending", "Approved"...).
 
-List every file you will read before you start. Then read each one and record what business signal it gives.
+#### Step B — Backend (full independent extraction — not just filling frontend gaps)
 
-| Layer | What to Read — read EVERY file, not just the first one found | Business Signals to Extract (translate, do not copy) |
-|-------|--------------------------------------------------------------|------------------------------------------------------|
-| Routing / Pages | **Every** route file and every page/folder name | Every screen name and navigation path — translate to plain names: "User List Screen", "Order Detail Screen" |
-| Access Control | **Every** auth guard and role guard file | Who can access which screen — translate to role names: "Administrator", "Sales Manager" |
-| Forms & Inputs | **Every** form file, every validation rule, every field definition | Every piece of information the user fills in; every rule the system enforces on that input |
-| Screen Interactions | **Every** page component and feature component | Every button, action, selection, search, and trigger available to the user on each screen |
-| State & Data Shown | **Every** store, state slice, context, and data binding | Every piece of information displayed to the user — what they see, what they can filter/sort |
-| Error & Empty States | Error messages, empty state text, toast/snackbar messages | What the system tells the user when something goes wrong or is empty |
+| Layer | Inventory every file; deep-read business-relevant files (Pass 1 → Pass 2) | Extract |
+|---|---|---|
+| Specs/Docs | `.spec/`, `docs/`, README files | requirements, constraints, stated goals |
+| API/Controllers | every controller and route handler | business action per endpoint ("Create User", "Process Payment") |
+| Business Logic | every method in every service/use-case/handler | each method = one rule/action: what decision it makes, what it allows/prevents |
+| Data | every entity/model/schema/migration/enum + every DB constraint, unique index, check constraint, trigger | business objects, meaningful fields, statuses in plain values (`STATUS_PENDING` → "Waiting for approval"), rules hidden in constraints |
+| Security | every security config, role definition, permission list, JWT claim | role capabilities in plain terms ("Sales Manager can view but not edit prices") |
+| Config | every config/env file | limits, thresholds, defaults ("max file size 10 MB", "logout after 30 min idle") |
+| Tests | every test name + assertion | intended business behavior proven |
+| Comments | every TODO/FIXME/HACK/NOTE | risks, open questions, business impact |
+| Errors | every custom error/exception/message string | what can go wrong; what the system refuses to do |
+| Validators | every validator class, constraint annotation, pre-save hook, AOP aspect | rules enforced on data before acceptance |
+| Events | every event listener, queue consumer, webhook handler | "when X happens, the system does Y" |
+| Scheduled | every `@Scheduled`/cron/batch/background worker | automated processes, triggers, outcomes |
+| SQL | every native query, stored procedure, view, trigger in migrations/`.sql`/code | record filters, hardcoded status rules, aggregations, computed fields |
 
-After reading ALL frontend files, produce:
-1. **Screen inventory** — every screen, grouped by role. Must be exhaustive — if you found 12 screens, list all 12.
-2. **User journey map** — group screens into named end-to-end goals. Every screen must belong to at least one journey.
-3. **User actions per screen** — for every screen, every action available (not just the main one).
-4. **All validation rules visible to the user** — every error message and constraint the user can encounter.
-5. **All statuses and states shown** — every status label, badge, or state the user sees (e.g. "Pending", "Approved", "Rejected").
+Produce: 1) complete API→business mapping; 2) numbered business-rules list (who / when triggers / allows-prevents — include minor ones); 3) backend-only journeys (automated processes with no user screen); 4) full data picture (objects, fields, relationships, lifecycles); 5) role & permission picture; 6) system limits & policies; 7) state-machine transitions (every status, condition, trigger, side effects like notifications/audit).
 
-#### Step B — Backend (Full Independent Extraction)
+Tests and comments follow the two-pass rule: structurally inventory all of them; deep-read only those connected to business behavior, risk, constraints, or selected business-relevant source files.
 
-List every file you will read before you start. Then read each one. Do not stop early.
+#### Step C — Merge into One Business Picture
 
-Read the backend **completely and independently** — not just to fill frontend gaps. Extract every business capability, rule, and data object the system has, covering every single API endpoint and internal service.
+- Frontend only → mark backend-dependent facts `TBD`. Backend only → derive journeys from logic/data flows; for screens, set `screens` to an empty array with a business-language `screens_note` — never create invented or placeholder screens. Both → merge:
+- Backend rules not visible on any screen → `99-facts.json` business_rules as BR-###, noted "Enforced by the system, not shown to the user"
+- Backend-only journeys → `02-scope-context.md` as "System Journey" + `99-facts.json` system_journeys
+- Backend-only data objects → `99-facts.json` data_entities with `visible_to_user: false`
+- Backend roles with no frontend guard → `99-facts.json` roles
+- **Multi-part merge**: cross-part journeys stay ONE journey with `[Customer App] Step 1`, `[Admin Panel] Step 2` labels; shared data concepts merge into one entry noting role visibility ("Customer (read-only), Admin (full access)"); all roles compile into one roles list; scope grouped by part in `02-scope-context.md` ("**Customer App**: ...", "**System (automated)**: ..."); part interactions in `02-scope-context.md` §Integration Points in plain language.
+- **Flag gaps in `99-facts.json`** (mismatches + open_questions): screens with no backend logic behind them; backend capabilities no screen exposes ("Should this be exposed to users?"); backend rules contradicting frontend validation; capabilities missing where expected.
 
-| Layer | What to Read — read EVERY file, not just the obvious ones | Business Signals to Extract (translate, do not copy) |
-|-------|-----------------------------------------------------------|------------------------------------------------------|
-| Specs/Docs | Every `.spec/`, `docs/`, `README` file | Requirements, constraints, stated business goals |
-| API / Controllers | **Every controller and route handler file** | What business action the API performs (e.g. "Create User", "Process Payment"). Map each endpoint to its business purpose. |
-| Business Logic | **Every method in every service/use-case/handler file** | Each method = one potential business rule or action. Ask: "What decision does this method make? What does it allow or prevent?" |
-| Data | **Every entity, model, schema, migration, and enum/constant file** | Every data object (translate name to business label), every field that matters, every status/state enum translated to plain values (e.g. `STATUS_PENDING` → "Waiting for approval"). **Also read every DB constraint, unique index, check constraint, and trigger** — each enforces a business rule. |
-| Security | **Every** security config, role definition, permission list, JWT claim | Every role, every permission granted or denied — translate to plain: "Sales Manager can view but not edit prices" |
-| Config | **Every** config/env file | Every limit, threshold, default (translate: "Maximum file size: 10 MB", session timeout: "Users are logged out after 30 minutes of inactivity") |
-| Tests | **Every** test file — read each test name and assertion | Each test = one piece of intended business behavior. Extract what it proves the system does. |
-| Comments | Every TODO, FIXME, HACK, NOTE comment in the codebase | Risks, open questions, known gaps — translate to business impact |
-| Error Handling | Every custom error, exception, and error message string | What can go wrong for the business; what the system refuses to do |
-| Validators / Constraints | **Every** custom validator class, constraint annotation, pre-save hook, or AOP/aspect that enforces rules | Each validator = one business rule that the system enforces on data before it is accepted |
-| Event Listeners | **Every** event listener, message-queue consumer, or webhook handler | Business reactions to events: "When X happens, the system does Y" |
-| Scheduled / Batch Jobs | **Every** `@Scheduled`, cron job, batch processor, or background worker | Automated processes and their business triggers/outcomes |
-| SQL / Queries / Stored Procedures | **Every** native SQL query, stored procedure, function, view definition, or database trigger found in migrations, `.sql` files, or inline in code | Business rules hidden in SQL: which records are included/excluded, hardcoded status filters, aggregation logic, computed fields |
+### 2.5 Pause and Confirm (REQUIRED when frontend exists)
 
-After reading ALL backend files, produce independently:
-1. **Complete API-to-Business mapping** — a list of every discovered API endpoint and the business function it serves, translated to plain language.
-2. **Complete business rules list** — every rule found, numbered, in plain language. Include: who it applies to, when it triggers, what it allows or prevents. Target: capture every rule, even minor ones.
-3. **Backend-only journeys** — every automated process, scheduled job, batch operation, or capability that has no user screen (e.g. "Nightly stock recalculation", "Auto-expire pending requests after 7 days").
-4. **Complete data picture** — every business object, every meaningful field, every relationship, every status/lifecycle.
-5. **Complete role & permission picture** — every role, every capability granted, every restriction enforced.
-6. **System limits & policies** — every threshold, limit, timeout, and default that affects the user or business.
-7. **State-machine and workflow transition rules** — if the codebase uses a state machine, workflow engine, or status-transition logic, document every status/state, each transition condition, who/what triggers it, and side effects (notifications, cascading updates, audit entries).
+Before generating any file, output a live summary populated with actual discovered data (never placeholders):
+1. `## Discovered Business Picture — <project name>`
+2. **Parts Read**: "Customer App (frontend) | Admin Panel (frontend) | Backend API (backend)" or "Single project — <name>"
+3. **User Journeys** table: Name | Who Does This | Parts Involved | Screens
+4. **System Journeys** table (omit if none): Process | Trigger | Business Effect
+5. **Screens Inventory** table, grouped by part: Part | Screen | Who Can Access | Main Actions
+6. **Backend Business Rules**: count only ("Found N rules; these will be added to Requirements")
+7. **Open Questions** (omit if none)
 
-**Do NOT copy into output**: endpoint URLs, HTTP methods, class names, method names, DTO names, framework terms. Translate everything.
+Close with: `Please confirm, correct, or add to this list. Type 'ok' to proceed, or tell me what to change.` — wait for confirmation in `mode=interactive` (skip for backend-only projects). In `mode=auto`, do not pause: present the same summary, mark uncertain findings with `confidence` values and open questions, and continue. In `mode=resume`, continue from the approved checkpoint instead of re-deriving the picture.
 
-#### Step C — Merge All Layers into One Complete Business Picture
+### 2.7 Per-Screen Extraction Records (MANDATORY before generating any file)
 
-**If only frontend exists**: document what can be inferred from screens and forms; mark backend-dependent sections `TBD`. Skip the merge bullets below.
-**If only backend exists**: derive journeys from business logic and data flows; mark screen-level sections `TBD`. Skip the merge bullets below.
-**If both exist**, do all of the following:
+Per-screen extraction records are JSON working records — not Markdown:
 
-**Merge — enrich the document with backend business:**
-- For every backend business rule found in Step B that is NOT visible on any frontend screen: add it to `03-requirements.md` as a business rule (BR-xx) and note "Enforced by the system, not shown to the user"
-- For every backend-only journey or automated process found in Step B: add it to `02-scope-context.md` as a separate journey section labelled "System Journey" (no user interaction required) and to `04-use-cases.md` as a UC with "Who does this: System (automated)"
-- For every data object found in Step B that is not visible on any frontend screen: add it to `06-data-reporting.md` section 6.1 with `Visible to User? No`
-- For every role or permission found in the backend that has no matching frontend guard: add it to the stakeholders table in `01-overview.md` and note the permission in `03-requirements.md`
+- Save them in the reconciliation checkpoint (`.work/reconciliation.json`).
+- Validate them against the `99-facts.json` screen schema before generation.
+- Render human-readable screen summaries into `00-ai-index.md` and `02-scope-context.md` only when generating those files.
 
-**Multi-part merge (when more than one part was found):**
-- **Cross-part journeys**: if a user journey spans more than one part (e.g. customer places order in Customer App → admin approves in Admin Panel → backend processes it), document it as ONE journey with steps labelled by part: `[Customer App] Step 1 ...`, `[Admin Panel] Step 2 ...`. Do not split it into separate journeys.
-- **Shared data objects**: if the same data concept appears in multiple parts (e.g. "Order" exists in customer app, admin panel, and backend), merge into ONE data object row in `06-data-reporting.md`. In the "Visible to User?" column note which roles see it: "Customer (read-only), Admin (full access)".
-- **Role reconciliation**: compile all roles found across all parts into a single stakeholders table in `01-overview.md`. Note which part(s) each role accesses.
-- **Part-specific scope**: in `02-scope-context.md` section 2.1, group capabilities by which part delivers them — e.g. "**Customer App**: ...", "**Admin Panel**: ...", "**System (automated)**: ...".
-- **Integration points**: in `07-supporting.md` section 7.1 (How the Parts Connect), document how the parts interact in plain language — e.g. "When a customer submits an order, it immediately becomes visible to the admin team for review."
+Every action declares one `interaction_type` — backend process, client-side interaction, navigation, external integration, or unknown; backend and external actions include the business process and `technical_refs`; client-side actions describe the local state or presentation effect; never invent an API link for actions that do not call a backend.
 
-**Flag — identify gaps for the product owner:**
-- Screens that exist in the frontend but have no backend business logic behind them (flag in `07-supporting.md` 7.4 as a mismatch)
-- Backend capabilities that no screen exposes to the user yet (flag in `07-supporting.md` 7.5 as an open question: "Should this capability be exposed to users?")
-- Business rules enforced in the backend that contradict or conflict with frontend validation (flag in `07-supporting.md` 7.4)
-- Capabilities that exist in one part but are missing in another where they would be expected — e.g. "Admin can approve orders but there is no screen to view order history" (flag in `07-supporting.md` 7.5)
+Build every screen record using this structure — fields: `id` (`SCR-###`) · `name` · `source_part` · `roles` · `journey_ids` · `displayed_data` · `fields` (each: `name`, `required`, `rules`, `confidence`, `evidence`) · `actions` (each: an action record as below) · `visible_rule_ids` · `silent_rule_ids` · `errors` · `empty_states` · `confidence` · `evidence` — generate as normal JSON without the example indentation:
 
-### 2.5 Pause and Confirm — Full Business Picture Review (REQUIRED when frontend exists)
+    {
+      "id": "SCR-001",
+      "name": "Order List",
+      "source_part": "Customer App",
+      "roles": ["Customer"],
+      "journey_ids": ["J-001"],
+      "displayed_data": [
+        "Order number",
+        "Submission date",
+        "Current status"
+      ],
+      "fields": [
+        {
+          "name": "Status filter",
+          "required": false,
+          "rules": [],
+          "confidence": "confirmed",
+          "evidence": []
+        }
+      ],
+      "actions": [],
+      "visible_rule_ids": ["BR-003"],
+      "silent_rule_ids": [],
+      "errors": [],
+      "empty_states": [],
+      "confidence": "confirmed",
+      "evidence": []
+    }
 
-**Before generating any file**, output a live populated summary using the actual data discovered — do NOT print placeholder text. Structure it as follows:
+**Gate before Step 3** — per screen: ≥1 action documented (else flag as mismatch); every field has a rule (else `TBD` + flag); all displayed data listed; all backend rules captured; client-side and navigation actions are valid — only `unknown` interaction types are flagged for follow-up; every record validates against the screen schema. Backend-only projects: apply the Step C backend-only fallback (rules → BR-###, automated processes → System Journeys, data objects → data_entities, roles → roles, `screens: []` + `screens_note` in `99-facts.json`).
 
-1. Heading: `## Discovered Business Picture — [actual project name]`
-2. **Parts Read**: list each part and its type — e.g. "Customer App (frontend) | Admin Panel (frontend) | Backend API (backend)". If only one part, write "Single project — [name]".
-3. **User Journeys** table — one row per journey. If multiple parts were found, note which parts the journey spans:
-   - Journey Name (plain language goal) | Who Does This | Parts Involved | Screens (comma-separated)
-4. **System Journeys** table — one row per automated process. Omit if none found:
-   - Process Name (plain language) | What Triggers It | What It Does for the Business
-5. **Screens Inventory** table — one row per screen, grouped by part if multiple parts were found:
-   - Part | Screen Name | Who Can Access It | Main Actions Available
-6. **Backend Business Rules** — count only: "Found N business rules enforced by the system. These will be added to the Requirements document."
-7. **Open Questions** — ambiguities or cross-part gaps found. Omit if none.
-8. Close with: `Please confirm, correct, or add to this list. Type 'ok' to proceed, or tell me what to change.`
+Example action records — fields: `label` · `interaction_type` · `business_effect` · `business_process` (null for client-side) · `technical_refs` (each: `method`, `path`, `symbol`; empty for client-side) · `confidence` · `evidence` — generate as normal JSON without the example indentation. Client-side action:
 
-Only proceed to Step 2.7 after the user confirms.
-**Exception**: if no frontend exists (backend-only project), skip this pause and proceed directly to Step 2.7.
+    {
+      "label": "Filter by status",
+      "interaction_type": "client-side interaction",
+      "business_effect": "Limits displayed records to the selected status",
+      "business_process": null,
+      "technical_refs": [],
+      "confidence": "confirmed",
+      "evidence": [
+        {
+          "path": "src/app/orders/order-list.component.ts",
+          "symbol": "applyStatusFilter",
+          "lines": "72-84",
+          "evidence_type": "business-logic"
+        }
+      ]
+    }
 
-### 2.7 Build Per-Page Extraction Plan and Verify Completeness (MANDATORY before generating any file)
+Backend action:
 
-For **every screen** found in Step A, build a structured extraction record. Do this for every screen — no screen may be skipped.
+    {
+      "label": "Submit order",
+      "interaction_type": "backend process",
+      "business_effect": "Sends the completed order for processing",
+      "business_process": "Order submission",
+      "technical_refs": [
+        {
+          "method": "POST",
+          "path": "/api/orders",
+          "symbol": "OrderController#create"
+        }
+      ],
+      "confidence": "confirmed",
+      "evidence": []
+    }
 
-For each screen, build the following extraction record. This data feeds directly into `09-page-catalog.md` — every item captured here MUST appear in the final Page Catalog file. **Crucial**: Every action on the screen must be linked to its backend API business logic.
+### 3. Output Directory
 
-```
-Screen: <Plain screen name>
-Role(s) who access it: <role 1>, <role 2>
-Buttons / Actions available:
-  - <Button or action label in plain language> → <what it does> [Calls API: <Business purpose of API call>]
-  - ...
-Input fields on this screen:
-  - <Field label in plain language> | Required? | Validation rule (plain language)
-  - ...
-Data displayed to the user:
-  - <What the user sees on this screen — list each piece of information> [Source API: <Business purpose of data fetch>]
-Business rules that apply on this screen:
-  - <Rule in plain language — from frontend validation OR backend logic of called APIs>
-  - ...
-Error messages the user can see:
-  - <Error text or plain description of when it appears> [Triggered by API: <Business reason for error>]
-Linked to journey(s): <Journey name(s) this screen is part of>
-Backend rules that apply but are NOT shown on screen:
-  - <Rule in plain language — silent backend enforcement during screen actions>
-```
+`<project-root>/docs/ba/<module-name>/` — create if missing.
 
-**Verification gate — before moving to Step 3:**
-For every screen in the list, confirm:
-- [ ] At least one button or action is documented (if a screen has none, flag it as a risk in `07-supporting.md` 7.4)
-- [ ] Every input field has a validation rule documented (if unknown, mark `TBD` and flag)
-- [ ] Every piece of data shown to the user is listed
-- [ ] All backend rules for this screen are captured (from Step B)
+### 4. Generate the 6 Files
 
-Only proceed to Step 3 when every screen has a completed extraction record.
+Generate exactly these 6 published files (internal working artifacts under `docs/ba/<module>/.work/` — checkpoints, ID registry, backups, coverage — are allowed and are NOT part of the published document set):
 
-**Backend-only fallback (no screens found):**
-If no frontend screens were found, skip the per-page extraction above but verify instead:
-- [ ] Every backend business rule from Step B has a corresponding BR-xx in `03-requirements.md`
-- [ ] Every backend-only journey has a System Journey in `02-scope-context.md` and a UC in `04-use-cases.md`
-- [ ] Every data object has an entry in `06-data-reporting.md` section 6.1
-- [ ] Every role/permission has an entry in the stakeholders table in `01-overview.md`
-- [ ] `09-page-catalog.md` is marked as `N/A — no user screens in this module` and skipped
+1. `README.md` — entry point + health summary
+2. `00-ai-index.md` — AI navigation layer
+3. `02-scope-context.md` — journeys + journey-map diagrams + system journeys + integrations + limitations
+4. `10-technical-map.md` — architecture + Data Model + Status Lifecycle diagrams + command mapping (technical language allowed)
+5. `11-code-map.md` — source file → business concept map (technical language allowed)
+6. `99-facts.json` — machine-readable fact base (authoritative home for rules, stories, criteria, entities, statuses, glossary, KPIs, assumptions, constraints, mismatches, open questions)
 
-### 3. Determine Output Directory
-- Default directory: `<current-project-root>/docs/ba/<module-name>/`
-- Create the output directory if it does not exist.
+**Pre-generation check** per file: does not exist → **CREATE**; exists → **UPDATE** only generated regions; accurate and complete → **SKIP**. Report per file at the end: `CREATED` | `UPDATED (sections: ...)` | `SKIPPED (already up to date)`.
 
-### 4. Generate the File Set
+**Ownership markers (protect human edits)** — generated content lives inside deterministic regions; human-maintained content lives inside protected regions. Marker prefixes: `SPECKIT:GENERATED:BEGIN` + `SPECKIT:GENERATED:END` delimit generated regions; `SPECKIT:HUMAN:BEGIN` + `SPECKIT:HUMAN:END` delimit human regions; each marker wraps an HTML comment around the prefix plus `section=<stable-section-name>`. Generate these markers as normal text without the example indentation:
 
-#### 4.0 Pre-Generation Check (Existing Files)
+    <!-- SPECKIT:GENERATED:BEGIN section=journeys -->
+    Generated content
+    <!-- SPECKIT:GENERATED:END section=journeys -->
 
-Before writing any file, **check if it already exists** in `docs/ba/<module-name>/`.
-There are **11 files** to generate: `README.md` (index) plus the 10 numbered files `01-overview.md` through `10-technical-map.md`.
-For each of the 11 files apply the following decision:
+    <!-- SPECKIT:HUMAN:BEGIN section=business-notes -->
+    Human-maintained content
+    <!-- SPECKIT:HUMAN:END section=business-notes -->
 
-| Condition | Action |
-|-----------|--------|
-| File does not exist | **Create** it from the template below |
-| File exists but has empty or `TBD`-only sections that the current code can now fill | **Update** those sections; keep human-edited content intact |
-| File exists and is already accurate and complete | **Skip** -- do not overwrite |
+Update rules: replace generated regions deterministically; never overwrite human regions; report conflicts between human assertions and current code evidence; create a backup or diff of the previous version before updating existing documentation (saved under `.work/backups/<timestamp>/`); never silently delete a stable fact ID. Marker failure behavior: a generated BEGIN marker without its matching END marker is BLOCKED; duplicate stable section names in one file are BLOCKED; human regions are never modified; content outside recognized generated regions is treated as human-owned. Marker contract: section names are lowercase kebab-case and unique within one file; nested ownership regions are not allowed; JSON files do not use Markdown comment markers.
 
-At the end of Step 4, report per file (all 11): `CREATED`, `UPDATED (sections: ...)`, or `SKIPPED (already up to date)`.
+**JSON ownership exception (`99-facts.json`)** — the complete JSON document is generated (HTML comments would make it invalid JSON). Human-maintained overrides are preserved in `.work/human-overrides.json`, merged by stable fact ID; conflicts between source evidence and human overrides are reported; ownership comments are never inserted into JSON.
 
----
+**Writing rules**: business-language files write for a product owner (see Global rules for the file scoping); every row/bullet says something real (no placeholders); `TBD` only with the controlled accompaniments defined in Global rules; journeys are the top-level structure — screens are steps inside them. Navigation: `README.md` is the documentation home and carries no back-navigation header; `00-ai-index.md` starts `[← Documentation Home](./README.md)`; every other published Markdown file starts `[← Documentation Home](./README.md) · [AI Index](./00-ai-index.md)` and ends with prev/next navigation (none at the ends); `99-facts.json` receives no Markdown navigation links.
 
-#### 4.1 Writing Rules (Apply to Every File)
+#### Templates (inline below — do NOT read example sets under `docs/ba/`)
 
-- **Write for a product owner** -- someone who understands the business but does not read code.
-- Use plain business language in all prose. No class names, method names, or framework terms in sentences.
-- Every table row and bullet must say something real -- no placeholder text left in the final output.
-- Use `TBD` only when the code gives no evidence at all, and add a note explaining what is missing.
-- Navigation links: first line `[<- Back to Index](./README.md)`, last line prev/next (first file: no Previous; last file: no Next).
-- **Hard ban — the following terms are banned in the generated output files only** (they are fine inside these workflow instructions as source-reading guidance):
-  - API endpoint URLs (e.g. `/api/users`, `/v1/orders`)
-  - HTTP methods (GET, POST, PUT, DELETE, PATCH)
-  - Class names, method names, function names (e.g. `UserService`, `createOrder()`)
-  - DTO or entity names (e.g. `UserDTO`, `OrderEntity`)
-  - Framework or library terms (e.g. "controller", "service bean", "repository", "component", "hook", "reducer", "selector", "interceptor", "module")
-  - Database or table names (e.g. `users_table`, `tbl_orders`)
-  - Config key names (e.g. `spring.datasource.url`, `JWT_SECRET`)
-  - If any such term is the only way to identify something, translate it: `UserController` → "User Management feature", `/api/orders` → "the order submission process"
-- **Structure use cases and flows around user journeys** — each journey is a named goal (e.g. "Register a New Customer", "Approve a Purchase Request"). Screens are steps inside a journey, not top-level items.
+- **00-ai-index.md** (FIRST file — AI navigation layer, plain business language, dense):
+  - Title line: "AI Index — read this file first; it maps every question to the file and section that answers it."
+  - **Reading strategy** (the AI reading path, verbatim): 1) answer from this index; 2) for structured lookups load `99-facts.json`; 3) to touch code use `11-code-map.md`; 4) deep-read a business file only when narrative is needed.
+  - **Question → location routing table** (Question | Read: file + section anchor) covering at minimum: what the system does; who uses it; all screens and their actions; all input fields and validation; all business rules; why the system refuses/rejects something; data objects and fields; statuses and transitions; journeys end-to-end; automated background processes; integrations; known gaps/risks; glossary; grep-able structured facts (`99-facts.json`); which source file implements a concept (`11-code-map.md`).
+  - **One-line inventory tables** with anchor links to detail sections: Journeys (Name | Who | Parts | Screens | Link); System Journeys (Process | Trigger | Effect | Link); Screens (Screen | Part | Roles | #Actions | Link); Business Rules (BR-### | one-line rule | Link); User Stories (ID | one-line story | Link); Data Entities (Entity | Key fields | Link); Roles (Role | Part(s) | What they do | Link); Diagrams (Diagram | Type | File + anchor).
+  - Stable IDs everywhere (`BR-###`, `US-###`, `AC-###`, `J-###`, exact screen names) so AI answers can cite and link precisely.
+  - Every row links to its section anchor; counts match the README Health Summary; no placeholders, no prose paragraphs.
+- **99-facts.json** (machine-readable fact base — for deterministic AI parsing, filtering, and grep):
+  - Valid JSON, UTF-8. Top-level keys: `module`, `generated`, `parts`, `roles`, `journeys`, `system_journeys`, `screens`, `business_rules`, `user_stories`, `acceptance_criteria`, `data_entities`, `statuses`, `integrations`, `background_processes`, `limits`, `assumptions`, `constraints`, `mismatches`, `kpis`, `glossary`, `open_questions`, `diagrams`.
+  - Every item carries a `doc` field linking back to the human-readable file + anchor (in ai mode, re-homed categories point to `99-facts.json` itself as the authoritative home); IDs match the Markdown set exactly (`BR-###`, `US-###`, `AC-###`, `J-###`, screen names).
+  - Every fact carries `confidence` (`confirmed | derived | suggested | unknown`) and `evidence` — source references with `path`, `symbol`, `lines`, and `evidence_type` (business-logic, test, configuration, constraint, comment) — so planning commands can weigh the fact.
+  - Strings are one-liners; narrative lives in the Markdown files, never here.
+  - Backend-only modules: `screens: []` plus a `note` field; every other key still fully populated.
+- **11-code-map.md** (technical file map — bridges business concepts to source files; technical language allowed):
+  - Per part: table `File | Purpose (one line) | Key items (routes/classes/tables/stores) | Implements (business concept + rule/journey IDs) | Notes`.
+  - Coverage: every file from the Step 2 inventory appears, or is listed under a "Skipped" section with the reason (generated/boilerplate/non-business).
+  - Purpose: an AI jumps question → rule/journey ID → exact source files without re-scanning the codebase.
+- **README.md**: what the system does + who uses it; Health Summary table (counts: journeys, screens, rules, buttons, fields, TBDs, mismatches); Contents table (file | one-line description | status) with `00-ai-index.md` as the first row; a note: "AI agents: start with `00-ai-index.md` — then `99-facts.json` for structured facts, `11-code-map.md` to reach source files."
+- **02-scope-context.md**: `# 2. Scope & Context` — What Is Built (capabilities grouped by part: "**Customer App**: ..."); How It Works Today (As-Is narrative); End-to-End Business Flow (per journey: step table Step | Screen [Part] | User Action | System Response); Journey Map Mermaid diagram (one path per journey, part-labeled); System Journeys; Integration Points; Current Limitations.
+- **10-technical-map.md**: technical architecture overview, Architecture Mermaid diagram (parts + main components + integrations), Background Processes Mermaid diagram (scheduled/event-driven, omit if none), API-to-business mapping table, integration points, background processes, Data Model Mermaid diagram (erDiagram of business objects), Status Lifecycle Mermaid diagrams (stateDiagram-v2 per status-bearing object). (This file MAY use technical terms — it is for implementers.)
 
----
+#### Mermaid Diagrams (mandatory, embedded in the files above)
 
-#### Files to Generate
+Every document set includes these Mermaid graphs, kept in sync with the tables (no invented data), each ≤ ~15 nodes, labels in plain business language (except `10-technical-map.md`, which may use technical terms):
 
-| File | What a product owner will find here |
-|------|--------------------------------------|
-| `README.md` | What the system does, who uses it, and a guide to all documents |
-| `01-overview.md` | What the system does, why it exists, who uses it -- in 30-second readable form |
-| `02-scope-context.md` | What is built, how the system works today, and the end-to-end business flow |
-| `03-requirements.md` | User stories and rules the system enforces in plain language |
-| `04-use-cases.md` | Step-by-step walkthroughs written as user journeys |
-| `05-acceptance-criteria.md` | Given/When/Then criteria a product owner can verify manually |
-| `06-data-reporting.md` | What data the system manages, what users see vs. what is stored |
-| `07-supporting.md` | Assumptions, constraints, mismatches flagged as plain questions |
-| `08-reference.md` | Glossary translating every term to plain business language |
-| `09-page-catalog.md` | Complete page-by-page business catalog — every screen's details in one place |
-| `10-technical-map.md` | Technical architecture, API mappings, and integration points |
+| Diagram | File | Type | Content |
+|---|---|---|---|
+| Journey Map | `02-scope-context.md` | `flowchart LR` | One path per journey through its screen steps, nodes labeled `Screen [Part]` |
+| Data Model | `10-technical-map.md` | `erDiagram` | Business objects, meaningful fields, relationships and cardinalities |
+| Status Lifecycles | `10-technical-map.md` | `stateDiagram-v2` | Every status of a status-bearing object and what moves it forward/back (one diagram per object) |
+| Architecture | `10-technical-map.md` | `flowchart TB` | Parts, main components, integrations |
+| Background Processes | `10-technical-map.md` | `flowchart LR` | Scheduled/event-driven processes, triggers, outcomes (omit if none) |
 
-### 4.2 File Templates
-
-> **Template source of truth:** the highlights below plus the example document set in `docs/ba/nossair-ai-skills/` (README + `01-overview` … `08-reference`), which demonstrates the exact structure, tables, and columns for each file. The example set is partial — the full output is 11 files including `09-page-catalog.md` and `10-technical-map.md`.
-
-Key template highlights:
-- **README.md**: Health Summary with counts (journeys, screens, rules, buttons, fields, TBDs, mismatches), Contents table with status per file
-- **01-overview.md**: One-line summary, business goals, stakeholders table with Part(s) They Access column
-- **02-scope-context.md**: In-scope capabilities, As-Is narrative, Journey templates with step tables, System Journey templates
-- **03-requirements.md**: User stories table (with Journey, Screen, Part, Priority columns), Business Rules table (with Screen, Type, Enforced In columns), cross-link to Page Catalog
-- **04-use-cases.md**: Journey-based UCs with screen step tables, error scenarios, business value; System-automated UC template, cross-link to Page Catalog
-- **05-acceptance-criteria.md**: Given/When/Then per FR, linked to journeys
-- **06-data-reporting.md**: Data objects, business relationships, user-sees-vs-system-has table, KPIs
-- **07-supporting.md**: 7.1 Integration Points table (multi-part), 7.2 Assumptions, 7.3 Constraints, 7.4 Mismatches, 7.5 Risks & Open Questions
-- **08-reference.md**: Glossary, Change History
-- **09-page-catalog.md**: Quick Summary table with anchor links, then per-page sections with: Actions & Buttons, Input Fields, Data Displayed, Business Rules on This Page, Error Messages & Edge Cases
+Diagram writing rules: wrap in ` ```mermaid ` fences; never use `end` as a node/state label (breaks Mermaid — use `Finish`); quote labels containing parentheses, slashes, or commas; a 1-step journey still gets its path; omit a diagram only when its subject does not exist and note the omission in the file; every diagram appears in the `00-ai-index.md` Diagrams table.
 
 ### 5. Quality Checks Before Saving
 
-**Coverage verification (do this FIRST, before any other check):**
-Use the per-page extraction records built in Step 2.7 as the source of truth. For every generated file, verify:
-- [ ] **Completeness Check**: I have compared the final screen list against the "Mandatory File Inventory" (Step 2.0).
-- [ ] **No Orphan Components**: Every UI component file found in the source code has been assigned to a screen or marked as shared/utility.
-- [ ] **Every single file** in the module has been read and analyzed (no files skipped)
-- [ ] **Every class and method** (business logic, controllers, entities) has been processed
-- [ ] Every screen from Step 2.7 has a full entry in `09-page-catalog.md` with ALL five sections (Actions & Buttons, Input Fields, Data Displayed, Business Rules, Error Messages). Each section MUST include the business logic of the specific APIs called by that screen.
-- Every screen from Step 2.7 appears in `02-scope-context.md` (journey steps) and `04-use-cases.md`
-- Every button/action from Step 2.7 appears in `09-page-catalog.md` Actions table AND as a user story in `03-requirements.md` or as a step in `04-use-cases.md`
-- Every input field and its validation rule from Step 2.7 appears in `09-page-catalog.md` Input Fields table AND as a business rule (BR-xx) in `03-requirements.md`
-- Every backend-only rule from Step 2.7 appears in `09-page-catalog.md` Business Rules table with "System Only" AND in `03-requirements.md`
-- Every error message from Step 2.7 appears in `09-page-catalog.md` Error Messages table AND in the "What if something goes wrong" section of the relevant use case
-- Every data item displayed on screen appears in `09-page-catalog.md` Data Displayed table AND in `06-data-reporting.md` section 6.1 or 6.2
-- The Quick Summary table in `09-page-catalog.md` has correct counts matching the detailed sections below it
-- If any of the above is missing — add it before saving.
-
-**Hard-ban check (scan every generated file before saving):**
-- Search for: `/api/`, `/v1/`, `Controller`, `Service`, `Repository`, `Entity`, `DTO`, `GET `, `POST `, `PUT `, `DELETE `, `PATCH `, `component`, `hook`, `reducer`, `selector`, `interceptor`, `tbl_`, `_table`
-- If any of these are found in prose, table cells, or bullet points — rewrite that item in plain business language before saving.
-
-**Content checks:**
-- Every section filled from code evidence -- not left blank without reason.
-- Use `TBD` only when no code evidence exists for that section -- never leave a section blank.
-- Language must be **plain business language** -- no class names, method signatures, or framework jargon in prose sections.
-- User stories follow `As a / I want / So that` format and include screen reference.
-- Business rules note whether enforced in frontend, backend, or both, and include rule type (Policy / Compliance / Technical Default / UX Constraint).
-- Use cases are structured as user journeys — each UC traces the screens visited, what the user does at each screen, and what the system does in response. System-automated UCs use the UC-XX pattern. No technical trace.
-- Field mapping table in `06-data-reporting.md` describes what the user sees vs. what the system has or returns — no technical field or column names from code.
-- Glossary translates screen names, feature names, and any domain terms into plain business meaning.
-- Every file has `[<- Back to Index]` at top and prev/next navigation at bottom.
-- The final document must be understandable by a non-technical product owner with no explanation.
+- **Coverage (first)**: final screen list must match the Mandatory file inventory and the Per-Screen Extraction Records; no orphan component files (assign to a screen or mark shared/utility); every screen's record from 2.7 is fully captured in the `99-facts.json` screens array; every action/field/rule/error/data item appears there AND in its cross-target (rules → business_rules, steps → journey steps in `02-scope-context.md`, data → data_entities); every `00-ai-index.md` row has a working anchor link and its counts match the README Health Summary and the fact base.
+- **Diagrams**: every required Mermaid diagram present (or omission noted); syntax-safe (no bare `end` labels; special characters quoted); content matches the tables — no invented nodes/edges; all diagrams listed in the `00-ai-index.md` Diagrams table.
+- **Machine-readable**: `99-facts.json` parses as valid JSON; it is the authoritative home for rules, stories, criteria, entities, statuses, glossary, KPIs, assumptions, constraints, mismatches, and open questions; every item has a `doc` anchor; IDs match the Markdown set exactly.
+- **Code map**: every file from the Step 2 inventory appears in `11-code-map.md` or in its Skipped list with a reason; every mapped file references the business concepts (rule/journey IDs) it implements.
+- **Terminology validation (scoped)**: apply the business-language hard ban ONLY to `README.md`, `00-ai-index.md`, `02-scope-context.md`, and business-facing fields in `99-facts.json` — rewrite hits (endpoint URLs, HTTP verbs, class/method names, DTO/entity names, framework terms, table names, config keys) into plain business language before saving. Technical language is allowed and expected in `10-technical-map.md`, `11-code-map.md`, and evidence/source-reference fields in `99-facts.json`; in mixed files validate each field per its declared audience. Do not remove source paths, symbols, routes, schema objects, or technical identifiers from the technical maps.
+- **Content**: no blank sections (`TBD` + note only when no code evidence); stories in As a/I want/So that with journey reference; rules note enforcement layer + type; journey steps trace screens/actions/responses with no technical trace; navigation links present; AI-readable and stakeholder-readable.
 
 ### 6. Output Confirmation
-- List all 11 files created with their full paths and status (CREATED / UPDATED / SKIPPED).
-- Summarize key findings in business language:
-  - User journeys identified (list names)
-  - Automated system processes / backend-only journeys found (list names, or "None" if absent)
-  - Screens discovered (count and list)
-  - User roles found (list plain names)
-  - Business rules captured: frontend-visible (count) + backend-only / system-enforced (count) + validator-based (count) + event-driven (count) + scheduled-job (count) + state-machine (count) + DB-constraint (count)
-  - Buttons / actions documented (total count across all pages)
-  - Input fields documented (total count across all pages)
-  - Error messages captured (total count)
-  - Mismatches flagged (count and brief plain-language description)
-  - Files skipped (count and brief reason: generated code, third-party library, etc.)
-  - Feature flags / toggles found (count and list of flag names affecting business behavior)
-- List sections left as `TBD` and explain what information is missing (in plain language — not "no entity found" but "no data structure could be identified for this section").
-- Suggest follow-ups:
-  - `/speckit.specify feature="..."` to convert this BA doc set into a technical spec.
-  - `/speckit.document-generate module="..."` to generate a BA doc set for another module.
+
+- List all 6 generated files with full paths + status (CREATED / UPDATED / SKIPPED).
+- Summarize in business language: journeys (names); system journeys; screens (count + list); roles; rule counts by kind (frontend-visible / backend-only / validator / event-driven / scheduled / state-machine / DB-constraint); buttons, fields, error-message totals; diagrams generated (count by type); fact-base item counts (per key); code-map coverage (files mapped / skipped); mismatches flagged; skipped files (why); feature flags found; `TBD` sections with what is missing.
+- Suggest follow-ups: `/speckit.specify feature="..."` to convert this BA set into a technical spec; `/speckit.document-generate module="..."` for another module.
+- End with a deterministic quality verdict:
+  - **BLOCKED** — invalid JSON; unmapped discovered files; unrecorded screens; broken stable-ID references; a missing mandatory output; or contradictory authoritative facts.
+  - **COMPLETE_WITH_GAPS** — no structural blockers, but TBDs, open questions, or low-confidence findings remain.
+  - **COMPLETE** — coverage and consistency checks pass and no material unresolved gaps remain.

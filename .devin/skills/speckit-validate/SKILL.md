@@ -1,7 +1,7 @@
 ---
 name: speckit-validate
-description: Check cross-artifact consistency and traceability across spec, plan, and tasks
-argument-hint: 'spec="..." plan="..." tasks="..."'
+description: Compatibility alias for /speckit-analyze mode=pre — returns the same traceability matrix, findings, severities, semantic coverage statuses, and mutually exclusive verdict from the canonical analysis engine
+argument-hint: '[spec="..."] [plan="..."] [tasks="..."] [current_state="..."]'
 allowed-tools:
   - read
   - grep
@@ -20,5 +20,5 @@ Run the **speckit.validate** Speckit command.
 2. Start with the prerequisite checker (Step 1 of the command):
    - Windows: `scripts/powershell/check-prerequisites.ps1 -Json`
    - Linux/macOS: `scripts/bash/check-prerequisites.sh --json`
-3. Apply the relevant technology standards from `.junie/skills/` (see `project-standards`) and `.junie/guidelines.md`.
+3. Token discipline: do NOT read `.junie/guidelines.md` or tech skill files just to produce the artifact — reference them by name (e.g., in the plan's `## Standards` section). Read one only if the artifact genuinely needs its standards detail.
 4. Arguments: all optional; defaults from feature.json
