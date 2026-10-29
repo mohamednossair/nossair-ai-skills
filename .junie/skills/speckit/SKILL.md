@@ -83,6 +83,7 @@ Behavior-changing tasks declare an expectation; execution and analysis record th
   - `accessibility` skill for user-facing UI
   - `git` skill to validate branch and commit strategy
 - Tests in the task graph: `/speckit.tasks` creates test tasks BEFORE their implementation tasks; `/speckit.test-generate` (canonical, spec/task-linked; `/test-generate` is its thin unlinked wrapper) assists writing test code during implementation — it is not a post-hoc step.
+- Codebase Knowledge Graph: when `graphify-out/graph.json` exists (see the `graphify` skill), use `graphify query`/`path`/`explain` for research (plan), impact analysis and `[P]` conflict checks (tasks), and dependency checks (implement) instead of broad grep sweeps. Build the graph BEFORE `/speckit.implement` — building writes `graphify-out/`, queries are read-only.
 - Validation Loop: Use `/speckit.validate` (alias of the analyzer) or `/speckit.analyze` after any major spec/plan/tasks update; run `/speckit.analyze` for the full report with verdict; run `/speckit.clarify` to resolve flagged ambiguities.
 
 ## Minimal Workflow

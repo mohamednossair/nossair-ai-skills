@@ -58,6 +58,7 @@ bash scripts/install.sh /your-project-root/
 | `performance` | N+1, caching, SQL tuning, bundle size, virtual threads |
 | `accessibility` | Semantic HTML, keyboard nav, ARIA, focus management |
 | `speckit` | Spec → plan → tasks → validate → implement toolkit |
+ `graphify` | Knowledge-graph codebase understanding (Graphify CLI: query/path/explain) |
 
 `.junie/guidelines.md` is the consolidated one-page summary of all standards.
 
@@ -140,12 +141,13 @@ Copy-Item -Path .devin -Destination C:\your-project-root\ -Recurse
 | `/security` | OWASP/Spring Security review for auth, input, secrets, PII |
 | `/performance` | N+1, caching, SQL tuning, bundle size review |
 | `/accessibility` | A11y review for Angular templates and forms |
+ `/graphify` | Build/query a codebase knowledge graph with the Graphify CLI (architecture questions, impact analysis, speckit research) |
 | `/speckit` | Orchestrator — lists all `/speckit-*` subcommands; each subcommand also has its own skill |
 | `/speckit-specify` `/speckit-clarify` `/speckit-plan` `/speckit-tasks` `/speckit-validate` `/speckit-analyze` `/speckit-checklist` `/speckit-implement` `/speckit-taskstoissues` `/speckit-document-generate` `/speckit-test-generate` | Individual speckit commands — each follows the matching `.junie/commands/speckit.<name>.md` |
 | `/project-standards` | Standards map: which `.junie/skills/` file to load per file type |
 
 ### Usage
-1. Type any command in Devin: `/review`, `/review-pr`, `/plan`, `/test-generate`, `/git-commit`, `/security`, `/performance`, `/accessibility`, `/speckit`, `/project-standards`.
+1. Type any command in Devin: `/review`, `/review-pr`, `/plan`, `/test-generate`, `/git-commit`, `/security`, `/performance`, `/accessibility`, `/graphify`, `/speckit`, `/project-standards`.
 2. Speckit subcommands are individually available: `/speckit-specify`, `/speckit-plan`, `/speckit-tasks`, `/speckit-implement`, etc. — typing `/speckit` shows the full list.
 3. Devin also auto-loads skills when the request matches their descriptions (e.g., "review this service" → `/review`).
 4. Devin skill frontmatter supports `name`, `description`, `argument-hint`, `allowed-tools`, `permissions`, and `triggers`.

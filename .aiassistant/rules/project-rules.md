@@ -10,7 +10,7 @@ Use these rules when generating or reviewing code in this project.
 
 ## Standards Sources
 
-- **Technology skills**: `.junie/skills/<tech>/SKILL.md` — load the relevant one before generating or reviewing code (java, spring-boot, typescript, angular, python, maven, git, oracle, mysql, junit, jest, security, performance, accessibility, speckit, global).
+- **Technology skills**: `.junie/skills/<tech>/SKILL.md` — load the relevant one before generating or reviewing code (java, spring-boot, typescript, angular, python, maven, git, oracle, mysql, junit, jest, security, performance, accessibility, speckit, graphify, global).
 - **Consolidated guidelines**: `.junie/guidelines.md`.
 - **General principles**: `.junie/skills/global/SKILL.md` (SOLID, DRY, Clean Code).
 

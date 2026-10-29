@@ -4,7 +4,7 @@ Centralized repository for AI agent skills across **Junie**, **JetBrains AI Assi
 Single source of truth: add a skill once in `.junie/skills/`, reference it everywhere.
 
 ## Tech Stack Covered
-Global, Java 21+, Spring Boot 3.2+, TypeScript, Python, Angular 20+, Maven, Git, Oracle, MySQL, JUnit, Jest, Security (OWASP/Spring Security), Performance, Accessibility, Speckit
+Global, Java 21+, Spring Boot 3.2+, TypeScript, Python, Angular 20+, Maven, Git, Oracle, MySQL, JUnit, Jest, Security (OWASP/Spring Security), Performance, Accessibility, Speckit, Graphify (knowledge graph)
 
 ---
 
@@ -140,6 +140,20 @@ These scripts read `.specify/feature.json` (or fall back to the most recent `spe
 - `AVAILABLE_DOCS` — list of all existing artifacts
 
 Each Speckit command runs the prerequisite checker as Step 1 and auto-populates paths when the user does not provide them explicitly.
+
+### Graphify (Codebase Knowledge Graph)
+
+The `/graphify` skill (Devin) / `graphify` skill (Junie, AIR via `.junie/skills/graphify/SKILL.md`) maps the codebase — code, docs, SQL schemas, configs, PDFs — into a queryable knowledge graph using the [Graphify CLI](https://github.com/Graphify-Labs/graphify). Code is parsed locally with tree-sitter AST (no LLM, no vector store); query it instead of grepping files.
+
+```bash
+uv tool install graphifyy      # PyPI package is "graphifyy" (double y); CLI command is "graphify"
+graphify .                     # build graphify-out/ (graph.html, GRAPH_REPORT.md, graph.json)
+graphify query "what connects X to the database?"
+graphify path "UserService" "DatabasePool"
+graphify explain "RateLimiter"
+```
+
+Speckit integration: when `graphify-out/graph.json` exists, `/speckit-plan` research, `/speckit-tasks` impact/conflict checks, and `/speckit-implement` dependency checks use graph queries instead of broad grep sweeps (see the speckit Integration Map). Graphify complements — does not replace — vector stores (e.g., Qdrant) for document retrieval.
 
 ## Adding a New Technology
 
