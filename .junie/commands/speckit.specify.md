@@ -11,7 +11,7 @@ description: Create or update a concise feature spec from a natural language des
 
 Branch prefix is resolved from the mode — never hardcoded: `feature` → `feature/spec` · `refine` → `chore/spec` · `draft` → no branch.
 
-1. **Artifact resolution** — apply the shared resolution priority: explicit parameter → `.specify/feature.json` → prerequisite script (`scripts/powershell/check-prerequisites.ps1 -Json` / `scripts/bash/check-prerequisites.sh --json`) → repository discovery when exactly one candidate exists → structured missing-input error. Never guess when multiple candidates exist. For `refine`, the existing spec must resolve; for `draft`/`feature`, create `specs/NNN-short-name/` and persist the path to `.specify/feature.json`.
+1. **Artifact resolution** — apply the shared resolution priority: explicit parameter → `.specify/feature.json` → prerequisite script (`.junie/scripts/powershell/check-prerequisites.ps1 -Json` / `.junie/scripts/bash/check-prerequisites.sh --json`) → repository discovery when exactly one candidate exists → structured missing-input error. Never guess when multiple candidates exist. For `refine`, the existing spec must resolve; for `draft`/`feature`, create `specs/NNN-short-name/` and persist the path to `.specify/feature.json`.
 2. Generate a short feature name (2–4 words, action-noun format, e.g. `user-auth`).
 3. Extract goals, non-goals, users, and constraints.
 4. Capture success metrics and non-functional requirements with stable IDs — `NFR-SEC-###`, `NFR-PERF-###`, `NFR-AVL-###`, `NFR-PRV-###`, `NFR-OPS-###`. Each NFR must be measurable (threshold + condition).
@@ -82,8 +82,8 @@ Git Branching (mode=`feature` or `refine` only, before writing files; `draft` ne
 - Prompt the user: *"Do you have a Jira / Bitbucket issue ID? (e.g., SE-123) Enter it, or press Enter to skip."*
 - Resolve the prefix from the mode: `feature` → `feature/spec`, `refine` → `chore/spec`.
 - Pass the issue ID (if any), the mode-resolved prefix, and the short feature name to the helper script:
-  - Windows: `scripts/powershell/create-branch.ps1 -Prefix "<mode prefix>" -ShortName "<short-name>" [-IssueId "<id>"]`
-  - Linux/macOS: `scripts/bash/create-branch.sh --prefix "<mode prefix>" --short-name "<short-name>" [--issue-id "<id>"]`
+  - Windows: `.junie/scripts/powershell/create-branch.ps1 -Prefix "<mode prefix>" -ShortName "<short-name>" [-IssueId "<id>"]`
+  - Linux/macOS: `.junie/scripts/bash/create-branch.sh --prefix "<mode prefix>" --short-name "<short-name>" [--issue-id "<id>"]`
 - If already on a non-protected branch, the script returns `created: false` and continues safely.
 - Ensure alignment with repo rules from `/.junie/skills/git/`.
 

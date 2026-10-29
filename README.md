@@ -105,7 +105,7 @@ Speckit artifacts are plain Markdown tracked in `.specify/feature.json` — any 
 /speckit-taskstoissues ──► GitHub issues from tasks.md (GitHub remote required)
 ```
 
-- Every command resolves artifacts via the shared Artifact Resolution Contract (explicit parameter → `.specify/feature.json` → prerequisite checker → single-candidate discovery → structured missing-input error); the prerequisite checker (`scripts/powershell/check-prerequisites.ps1 -Json` or `scripts/bash/check-prerequisites.sh --json`) auto-locates the active feature.
+- Every command resolves artifacts via the shared Artifact Resolution Contract (explicit parameter → `.specify/feature.json` → prerequisite checker → single-candidate discovery → structured missing-input error); the prerequisite checker (`.junie/scripts/powershell/check-prerequisites.ps1 -Json` or `.junie/scripts/bash/check-prerequisites.sh --json`) auto-locates the active feature.
 - To hand off: plan with Junie, implement with Devin (`/speckit-implement`) or AIR — the implementing agent reads `.specify/feature.json`, the plan's `## Standards` section, and the listed `.junie/skills/` files.
 
 ### Speckit Toolkit (Spec → Plan → Tasks → Validate/Analyze → Implement)
@@ -129,8 +129,8 @@ Available as Junie commands (and usable from Devin/AIR by following `.junie/comm
 
 Speckit commands can auto-locate the active feature directory and verify artifact presence using helper scripts:
 
-- **Windows**: `scripts/powershell/check-prerequisites.ps1 [-Json] [-PathsOnly] [-RequireTasks] [-IncludeTasks]`
-- **Linux/macOS**: `scripts/bash/check-prerequisites.sh [--json] [--paths-only] [--require-tasks] [--include-tasks]`
+- **Windows**: `.junie/scripts/powershell/check-prerequisites.ps1 [-Json] [-PathsOnly] [-RequireTasks] [-IncludeTasks]`
+- **Linux/macOS**: `.junie/scripts/bash/check-prerequisites.sh [--json] [--paths-only] [--require-tasks] [--include-tasks]`
 
 These scripts read `.specify/feature.json` (or fall back to the most recent `specs/` directory) and report:
 - `FEATURE_DIR` — the active feature directory

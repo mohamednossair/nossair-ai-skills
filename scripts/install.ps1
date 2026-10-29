@@ -33,15 +33,7 @@ if (-not $TargetProject) {
     Copy-Item -Path "$RepoDir\.devin" -Destination $TargetProject -Recurse -Force
 
     Write-Host ""
-    # Copy only the speckit runtime helpers — maintenance scripts (install, test-install,
-    # new-skill, check-command-parity, check-contract-templates) stay in this skills repo.
-    Write-Host "  Copying speckit runtime helpers (scripts\bash, scripts\powershell)..."
-    New-Item -ItemType Directory -Path "$TargetProject\scripts" -Force | Out-Null
-    Copy-Item -Path "$RepoDir\scripts\bash" -Destination "$TargetProject\scripts\" -Recurse -Force
-    Copy-Item -Path "$RepoDir\scripts\powershell" -Destination "$TargetProject\scripts\" -Recurse -Force
-
-    Write-Host ""
-    Write-Host "Done! Junie, AI Assistant, Devin project files, and speckit runtime helpers installed to $TargetProject."
+    Write-Host "Done! Junie (skills, commands, guidelines, speckit runtime helpers), AI Assistant, and Devin project files installed to $TargetProject."
 }
 
 Write-Host "All supported agents setup complete!"

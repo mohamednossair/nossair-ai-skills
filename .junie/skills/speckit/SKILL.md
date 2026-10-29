@@ -31,7 +31,7 @@ Resolve every artifact path (spec, plan, tasks, feature dir, current-state BA fa
 
 1. Explicit command parameter (e.g. `spec="..."`).
 2. `.specify/feature.json` (registered active feature).
-3. Prerequisite script output (`scripts/powershell/check-prerequisites.ps1 -Json` / `scripts/bash/check-prerequisites.sh --json`).
+3. Prerequisite script output (`.junie/scripts/powershell/check-prerequisites.ps1 -Json` / `.junie/scripts/bash/check-prerequisites.sh --json`).
 4. Repository discovery — ONLY when exactly one candidate exists.
 5. Structured missing-input error — stop and ask the user.
 

@@ -65,7 +65,7 @@ When the user invokes these commands, follow the instructions exactly:
 
 ### Speckit Commands (/speckit.*)
 For any `/speckit.<name>` invocation, read and follow `.junie/commands/speckit.<name>.md` exactly (source of truth for all agents). Available: specify, clarify, plan, tasks, validate, analyze, checklist, implement, taskstoissues, document-generate, test-generate.
-- Every command starts with the prerequisite checker: `scripts/powershell/check-prerequisites.ps1 -Json` (Windows) or `scripts/bash/check-prerequisites.sh --json` (Linux/macOS).
+- Every command starts with the prerequisite checker: `.junie/scripts/powershell/check-prerequisites.ps1 -Json` (Windows) or `.junie/scripts/bash/check-prerequisites.sh --json` (Linux/macOS).
 - Artifacts live under `specs/NNN-<short-name>/` and are plain Markdown — a plan created with one AI tool can be implemented with another.
 
 ---

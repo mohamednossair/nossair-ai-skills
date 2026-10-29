@@ -4,7 +4,7 @@ description: Read-only cross-artifact consistency and quality analysis
 
 **Usage**: `/speckit.analyze [spec="..."] [plan="..."] [tasks="..."] [current_state="docs/ba/<module>/99-facts.json"] [mode="pre|post-implementation"] [base_ref="main"] [test_report="path/to/report"]`
 
-1. **Artifact resolution** — apply the shared resolution priority: explicit parameter → `.specify/feature.json` → prerequisite script (`scripts/powershell/check-prerequisites.ps1 -Json` / `scripts/bash/check-prerequisites.sh --json`) → repository discovery when exactly one candidate exists → structured missing-input error. Never guess when multiple candidates exist.
+1. **Artifact resolution** — apply the shared resolution priority: explicit parameter → `.specify/feature.json` → prerequisite script (`.junie/scripts/powershell/check-prerequisites.ps1 -Json` / `.junie/scripts/bash/check-prerequisites.sh --json`) → repository discovery when exactly one candidate exists → structured missing-input error. Never guess when multiple candidates exist.
 2. **STRICTLY READ-ONLY** — Do not modify any files. Output a structured Markdown report only.
 3. Build the traceability matrix in BOTH directions:
    - Forward: Spec AC/NFR → Plan milestone → Tasks (coverage).

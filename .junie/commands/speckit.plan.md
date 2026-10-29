@@ -4,7 +4,7 @@ description: Turn the spec into an outcome-oriented implementation plan
 
 **Usage**: `/speckit.plan [spec="path/to/spec.md"]`
 
-1. **Artifact resolution** — apply the shared resolution priority: explicit parameter → `.specify/feature.json` → prerequisite script (`scripts/powershell/check-prerequisites.ps1 -Json` / `scripts/bash/check-prerequisites.sh --json`) → repository discovery when exactly one candidate exists → structured missing-input error. Never guess when multiple candidates exist. If the spec does not resolve, stop and ask the user.
+1. **Artifact resolution** — apply the shared resolution priority: explicit parameter → `.specify/feature.json` → prerequisite script (`.junie/scripts/powershell/check-prerequisites.ps1 -Json` / `.junie/scripts/bash/check-prerequisites.sh --json`) → repository discovery when exactly one candidate exists → structured missing-input error. Never guess when multiple candidates exist. If the spec does not resolve, stop and ask the user.
 2. Read `/memory/constitution.md` if it exists in the target project and cross-check against the spec — flag MUST-principle violations before planning. Skip gracefully if absent. Then check the spec's `## Specification Status`: proceed freely only when it is `ready-for-planning`; if it is `draft` or lists blocking clarifications, stop and direct the user to `/speckit.clarify` first (record this as BLOCKED in the Planning Result).
 3. Identify milestones (2–5), each outcome-oriented.
 

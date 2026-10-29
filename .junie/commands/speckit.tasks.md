@@ -4,7 +4,7 @@ description: Generate dependency-ordered tasks grouped by user story
 
 **Usage**: `/speckit.tasks [plan="path/to/plan.md"]`
 
-1. **Artifact resolution** — apply the shared resolution priority: explicit parameter → `.specify/feature.json` → prerequisite script (`scripts/powershell/check-prerequisites.ps1 -Json` / `scripts/bash/check-prerequisites.sh --json`) → repository discovery when exactly one candidate exists → structured missing-input error. Never guess when multiple candidates exist. If the plan does not resolve, stop and ask the user.
+1. **Artifact resolution** — apply the shared resolution priority: explicit parameter → `.specify/feature.json` → prerequisite script (`.junie/scripts/powershell/check-prerequisites.ps1 -Json` / `.junie/scripts/bash/check-prerequisites.sh --json`) → repository discovery when exactly one candidate exists → structured missing-input error. Never guess when multiple candidates exist. If the plan does not resolve, stop and ask the user.
 2. Load `plan.md` (tech stack, `## Standards`, validation approach) and `spec.md` (user stories with priorities P1, P2, P3..., `AC-###` IDs, `NFR-###` IDs).
 3. Organize tasks by user story — each story becomes its own phase. Map models, services, and interfaces to the story that needs them.
 4. Use the strict task contract — the first line stays checklist-parser compatible; details live in sub-bullets.

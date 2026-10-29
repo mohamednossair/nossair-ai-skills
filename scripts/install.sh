@@ -34,15 +34,7 @@ else
   cp -r "$REPO_DIR/.devin" "$TARGET_PROJECT/"
 
   echo ""
-  # Copy only the speckit runtime helpers — maintenance scripts (install, test-install,
-  # new-skill, check-command-parity, check-contract-templates) stay in this skills repo.
-  echo "  Copying speckit runtime helpers (scripts/bash, scripts/powershell)..."
-  mkdir -p "$TARGET_PROJECT/scripts"
-  cp -r "$REPO_DIR/scripts/bash" "$TARGET_PROJECT/scripts/"
-  cp -r "$REPO_DIR/scripts/powershell" "$TARGET_PROJECT/scripts/"
-
-  echo ""
-  echo "Done! Junie, AI Assistant, Devin project files, and speckit runtime helpers installed to $TARGET_PROJECT."
+  echo "Done! Junie (skills, commands, guidelines, speckit runtime helpers), AI Assistant, and Devin project files installed to $TARGET_PROJECT."
 fi
 
 echo "All supported agents setup complete!"

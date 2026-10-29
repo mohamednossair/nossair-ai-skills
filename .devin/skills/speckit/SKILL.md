@@ -32,7 +32,7 @@ You invoked the Speckit orchestrator without a specific subcommand.
 
 1. If the user's request clearly matches one subcommand (e.g., "create a spec for X" → specify), read and follow `.junie/commands/speckit.<name>.md` directly.
 2. Otherwise, show the table above and ask the user which subcommand to run.
-3. Every subcommand resolves artifacts via the shared Artifact Resolution Contract (see `.junie/skills/speckit/SKILL.md`): explicit parameter → `.specify/feature.json` → prerequisite checker (`scripts/powershell/check-prerequisites.ps1 -Json` / `scripts/bash/check-prerequisites.sh --json`) → single-candidate discovery → structured missing-input error. Never guess when multiple candidates exist.
+3. Every subcommand resolves artifacts via the shared Artifact Resolution Contract (see `.junie/skills/speckit/SKILL.md`): explicit parameter → `.specify/feature.json` → prerequisite checker (`.junie/scripts/powershell/check-prerequisites.ps1 -Json` / `.junie/scripts/bash/check-prerequisites.sh --json`) → single-candidate discovery → structured missing-input error. Never guess when multiple candidates exist.
 4. If `graphify-out/graph.json` exists (see the `/graphify` skill), use `graphify query`/`path`/`explain` for codebase research during plan/tasks/implement instead of broad grep sweeps; build the graph BEFORE `/speckit-implement` (building writes `graphify-out/`, queries are read-only).
 
 ## Artifact Chain (cross-agent handoff)
