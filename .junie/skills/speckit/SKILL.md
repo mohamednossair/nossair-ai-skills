@@ -14,16 +14,8 @@ Use this skill to create concise specs, convert them into actionable plans and t
 - When generating a Business Analysis document set from an existing codebase.
 
 ## Capabilities
-- /speckit.specify: Create or update a concise feature spec. Modes: `draft` (no branch), `feature` (branch + stable scope), `refine` (branch only when required). Persists to `.specify/feature.json`; produces a spec-quality checklist and a `## Specification Status` block (`draft` → `ready-for-clarification` → `ready-for-planning`, plus `deprecated`).
-- /speckit.clarify: Ask up to 5 targeted questions to resolve ambiguities and encode answers back into the spec (or plan with `mode=plan`). Preview-first mutation safety (`apply=preview|apply`, default preview); recommendations state basis and confidence; preserves AC/NFR IDs; ends with a COMPLETE / PARTIAL / BLOCKED verdict.
-- /speckit.plan: Turn the spec into an outcome-oriented implementation plan. Resolves technology standards ONCE in a machine-readable `## Standards` section (with parse validation); carries NFR and `TR-###` technical-requirement IDs; owns the technical data model; ends with a `## Planning Result` verdict (READY | READY_WITH_WARNINGS | BLOCKED).
-- /speckit.tasks: Generate dependency-ordered tasks grouped by user story. Multi-line task contract — all fields mandatory (`Depends on` with `None` for root tasks, `Covers` with `FEATURE-FOUNDATION` for setup tasks, `Capability`, `Estimate`, `Risk`, `Standards`, `Validate` with the `Expected result: PASS | FAIL` expectation contract, `Done when`, `Evidence`); tests are part of the task graph (test-first tasks may end with an expected failing test); `TR-###` consumed from the plan, never invented; ends with a Task Generation Validation verdict.
-- /speckit.validate: Compatibility alias for `/speckit.analyze mode="pre"` — one canonical analysis engine; forwards artifact paths and returns the same traceability matrix, findings, severities, semantic coverage statuses, and mutually exclusive verdict.
-- /speckit.checklist: Generate domain-specific requirement-quality checklists (unit tests for English) under `checklists/`.
-- /speckit.analyze: Read-only cross-artifact analysis with severity assignment (CRITICAL / HIGH / MEDIUM / LOW), a required mutually exclusive PASS / PASS_WITH_WARNINGS / BLOCKED verdict ending in a machine-readable `## Analysis Result` summary, semantic-drift and bidirectional-traceability checks, and optional current-state (BA facts) validation. Post-implementation mode verifies the Git diff (`base_ref`) and test reports.
-- /speckit.implement: Execute the implementation plan. Modes: `plan` (read-only dry-run runbook, default, under a Mode Safety Invariant — no writes/branches/hooks; read-only inspection allowed) and `execute` (real work with validation gates). Selectors `task_ids` / `phase` / `resume` / `checkpoint` choose what runs and when to pause; only `mode` controls write permission. Ends with an Execution Result verdict.
-- /speckit.taskstoissues: Convert tasks into actionable GitHub issues (requires a GitHub remote).
-- /speckit.document-generate: Reverse-engineer a Business Analysis (BA) document set from the current codebase -- no manual writing required. Modes `interactive|auto|resume` with `.work/` checkpoints; two-pass evidence-driven scanning; stable fact-ID lifecycle; confidence + evidence per fact; ownership markers protect human edits; scoped terminology validation; ends with COMPLETE / COMPLETE_WITH_GAPS / BLOCKED.
+
+`/speckit.specify` · `/speckit.clarify` · `/speckit.plan` · `/speckit.tasks` · `/speckit.analyze` · `/speckit.checklist` · `/speckit.implement` · `/speckit.taskstoissues` · `/speckit.document-generate` · `/speckit.test-generate` — each command's `.junie/commands/speckit.<name>.md` file is the source of truth; see the Minimal Workflow below for the chain.
 
 ## Artifact Resolution Contract (shared by all /speckit.* commands)
 
@@ -84,7 +76,7 @@ Behavior-changing tasks declare an expectation; execution and analysis record th
   - `git` skill to validate branch and commit strategy
 - Tests in the task graph: `/speckit.tasks` creates test tasks BEFORE their implementation tasks; `/speckit.test-generate` (canonical, spec/task-linked; `/test-generate` is its thin unlinked wrapper) assists writing test code during implementation — it is not a post-hoc step.
 - Codebase Knowledge Graph: when `graphify-out/graph.json` exists (see the `graphify` skill), use `graphify query`/`path`/`explain` for research (plan), impact analysis and `[P]` conflict checks (tasks), and dependency checks (implement) instead of broad grep sweeps. Build the graph BEFORE `/speckit.implement` — building writes `graphify-out/`, queries are read-only.
-- Validation Loop: Use `/speckit.validate` (alias of the analyzer) or `/speckit.analyze` after any major spec/plan/tasks update; run `/speckit.analyze` for the full report with verdict; run `/speckit.clarify` to resolve flagged ambiguities.
+- Validation Loop: run `/speckit.analyze` after any major spec/plan/tasks update; run `/speckit.clarify` to resolve flagged ambiguities.
 
 ## Minimal Workflow
 0. BA Doc (optional, existing apps): `/speckit.document-generate module="..."` — create a business analysis doc before drafting a tech spec.

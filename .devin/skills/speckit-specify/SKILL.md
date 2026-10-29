@@ -1,6 +1,6 @@
 ---
 name: speckit-specify
-description: Create or update a concise feature spec (modes draft/feature/refine — draft skips branching) and persist .specify/feature.json; ends with a ## Specification Status block (draft → ready-for-clarification → ready-for-planning)
+description: Create or update a concise feature spec (modes draft/feature/refine) and persist .specify/feature.json
 argument-hint: 'feature="..." [mode="draft|feature|refine"] [current_state="..."]'
 allowed-tools:
   - read

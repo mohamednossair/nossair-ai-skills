@@ -1,6 +1,6 @@
 ---
 name: speckit-document-generate
-description: Generate a lean 6-file AI-optimized Business Analysis set under docs/ba/<module>/ (AI index, facts JSON, code map, Mermaid graphs) — two-pass evidence-driven scanning, .work/ checkpoints with interactive/auto/resume modes, stable fact-ID lifecycle, confidence+evidence per fact, ownership markers for human edits, scoped terminology validation, COMPLETE/COMPLETE_WITH_GAPS/BLOCKED verdict
+description: Generate a lean 6-file AI-optimized BA doc set under docs/ba/<module>/ (AI index, facts JSON, code map, Mermaid graphs)
 argument-hint: 'module="..." [project="..."] [parts="..."] [mode="interactive|auto|resume"]'
 allowed-tools:
   - read

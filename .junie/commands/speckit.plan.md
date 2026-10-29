@@ -4,11 +4,13 @@ description: Turn the spec into an outcome-oriented implementation plan
 
 **Usage**: `/speckit.plan [spec="path/to/spec.md"]`
 
-1. **Artifact resolution** — apply the shared resolution priority: explicit parameter → `.specify/feature.json` → prerequisite script (`.junie/scripts/powershell/check-prerequisites.ps1 -Json` / `.junie/scripts/bash/check-prerequisites.sh --json`) → repository discovery when exactly one candidate exists → structured missing-input error. Never guess when multiple candidates exist. If the spec does not resolve, stop and ask the user.
+> All examples below are format templates — generate real content as normal Markdown without the example indentation.
+
+1. **Artifact resolution** — explicit parameter → `.specify/feature.json` → prerequisite script (`.junie/scripts/powershell/check-prerequisites.ps1 -Json` / `.junie/scripts/bash/check-prerequisites.sh --json`) → single-candidate discovery → structured missing-input error; never guess with multiple candidates. If the spec does not resolve, stop and ask the user.
 2. Read `/memory/constitution.md` if it exists in the target project and cross-check against the spec — flag MUST-principle violations before planning. Skip gracefully if absent. Then check the spec's `## Specification Status`: proceed freely only when it is `ready-for-planning`; if it is `draft` or lists blocking clarifications, stop and direct the user to `/speckit.clarify` first (record this as BLOCKED in the Planning Result).
 3. Identify milestones (2–5), each outcome-oriented.
 
-Use this structure for every milestone. Generate this as normal Markdown without the example indentation:
+Use this structure for every milestone:
 
     ### M1: <Outcome>
     - Covers: <AC-### / NFR-### / TR-### IDs; include BR-### for changed existing rules>
@@ -28,9 +30,7 @@ Traceability validation: every Must AC maps to at least one milestone; every mil
    - **Codebase research (when `graphify-out/graph.json` exists — see the `graphify` skill)**: use `graphify query` / `graphify path` / `graphify affected` to map affected components, callers, and data flow for the spec's touched areas before writing `research.md` and `data-model.md`. Record graph-derived findings with their `EXTRACTED`/`INFERRED` tags and confirm critical ones in source. If the graph is missing or stale, offer to build/refresh it first (`graphify .` / `graphify update .`).
 7. Phase 1 — generate the technical artifacts when applicable (see Output artifacts): `data-model.md`, `contracts/` (API/interface specs), `quickstart.md`. `data-model.md` owns the TECHNICAL storage representation: database types, table/column names, constraints, indexes, migrations, and entity mappings. Business entities stay conceptual in `spec.md`.
 8. Carry forward every `NFR-###` ID from the spec. For each NFR: describe the planned implementation approach, map it to a milestone, and define the validation method. Reserve task-level mapping for `/speckit.tasks` — task IDs do not exist yet at planning time.
-   When the plan introduces technical requirements that are neither business ACs nor NFRs (e.g. migrations, backward compatibility), assign stable `TR-###` IDs and list them in a `## Technical Requirements` section.
-
-Generate this as normal Markdown without the example indentation:
+   When the plan introduces technical requirements that are neither business ACs nor NFRs (e.g. migrations, backward compatibility), assign stable `TR-###` IDs and list them in a `## Technical Requirements` section:
 
     ### TR-001: Backward-compatible API migration
 
@@ -40,9 +40,7 @@ Generate this as normal Markdown without the example indentation:
 
 Reference them in milestone `Covers` lines (`AC-###, NFR-###, TR-###`). TR IDs are stable across replanning: never renumber an existing TR; mark invalidated TRs `Deprecated`; assign a new ID to replacement requirements; preserve references from milestones and tasks.
 
-9. **Standards section (required, machine-readable for cross-agent handoff)** — Include exactly one `## Standards` section in `plan.md`, resolving technology standards ONCE for the whole chain. Downstream commands (`/speckit.tasks`, `/speckit.implement`) parse this section, so it must be exactly one `## Standards` H2 followed by one `yaml` fenced block.
-
-Generate this as normal Markdown without the example indentation:
+9. **Standards section (required, machine-readable for cross-agent handoff)** — Include exactly one `## Standards` section in `plan.md`, resolving technology standards ONCE for the whole chain. Downstream commands (`/speckit.tasks`, `/speckit.implement`) parse this section, so it must be exactly one `## Standards` H2 followed by one `yaml` fenced block:
 
     ## Standards
 
@@ -71,9 +69,7 @@ Each entry maps to `.junie/skills/<tech>/SKILL.md` (plus `.junie/guidelines.md`)
 5. Return BLOCKED (Planning Result) if a missing standard is required for a Must requirement.
 
 10. **Output artifacts** — Always generate `plan.md`. Generate the others only when applicable: `research.md` (clarification or research decisions exist), `data-model.md` (the feature changes business or persistence data), `contracts/` (interfaces, APIs, events, or external integrations change), `quickstart.md` (special developer setup or verification required). Never emit empty placeholder files.
-11. **Planning Result** — end with this verdict.
-
-Generate it as normal Markdown without the example indentation:
+11. **Planning Result** — end with this verdict:
 
     ## Planning Result
 

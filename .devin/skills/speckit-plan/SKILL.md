@@ -1,6 +1,6 @@
 ---
 name: speckit-plan
-description: Turn the spec into an outcome-oriented implementation plan with milestones, research, technical data model, contracts, a machine-readable ## Standards section (with parse validation), TR-### technical requirements, and a ## Planning Result verdict (READY | READY_WITH_WARNINGS | BLOCKED)
+description: Turn the spec into an implementation plan with milestones and a machine-readable ## Standards section
 argument-hint: 'spec="..."'
 allowed-tools:
   - read

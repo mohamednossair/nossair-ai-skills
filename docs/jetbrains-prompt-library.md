@@ -26,7 +26,6 @@ For each command below:
 | `/speckit.clarify` | `.junie/commands/speckit.clarify.md` | Up to 5 targeted questions; encode answers back into the spec |
 | `/speckit.plan` | `.junie/commands/speckit.plan.md` | Milestones with DoD, research.md, data-model.md, contracts/ |
 | `/speckit.tasks` | `.junie/commands/speckit.tasks.md` | Dependency-ordered tasks grouped by user story |
-| `/speckit.validate` | `.junie/commands/speckit.validate.md` | Cross-artifact consistency and traceability checks |
 | `/speckit.analyze` | `.junie/commands/speckit.analyze.md` | Read-only analysis with CRITICAL/HIGH/MEDIUM/LOW severities |
 | `/speckit.checklist` | `.junie/commands/speckit.checklist.md` | Domain requirement-quality checklists (unit tests for English) |
 | `/speckit.implement` | `.junie/commands/speckit.implement.md` | Execute the plan with constitution governance and checklist gating |

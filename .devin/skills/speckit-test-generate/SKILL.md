@@ -1,6 +1,6 @@
 ---
 name: speckit-test-generate
-description: Canonical spec-linked test generator — task linkage preferred (auto-select single candidate, ambiguity error on many), spec never auto-discovered with allow_unlinked=true, AC scoping by target-symbol mapping (never all ACs), validates AC IDs (BLOCKED on invalid), repo-first framework resolution with no unapproved dependency adds, existing-test inspection, risk-based case selection, expected-red generation, action=preview|write with atomic rollback, run_tests=false by default, ends with a Test Traceability summary
+description: Generate spec-linked unit tests with AC traceability; action=preview|write, run_tests=false by default
 argument-hint: 'file="..." [spec="..."] [plan="..."] [tasks="..."] [task="T012"] [ac="..."] [action="preview|write"] [allow_unlinked="false|true"] [run_tests="false|true"]'
 allowed-tools:
   - read

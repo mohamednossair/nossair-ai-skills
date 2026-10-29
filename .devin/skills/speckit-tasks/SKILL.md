@@ -1,6 +1,6 @@
 ---
 name: speckit-tasks
-description: Generate dependency-ordered tasks grouped by user story (T### [P] [US#] + all-fields-mandatory contract — Depends on/Covers/Capability/Estimate/Risk/Standards/Validate/Done when/Evidence — with an Expected result PASS|FAIL expectation contract; AC/NFR/TR coverage; test-first semantics; ends with a Task Generation Validation verdict)
+description: Generate dependency-ordered tasks grouped by user story with a strict all-fields-mandatory contract
 argument-hint: 'plan="..."'
 allowed-tools:
   - read

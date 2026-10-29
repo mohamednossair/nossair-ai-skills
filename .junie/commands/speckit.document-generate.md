@@ -4,26 +4,19 @@ description: Reverse-engineer a lean 6-file AI-optimized Business Analysis docum
 
 **Usage**: `/speckit.document-generate module="<module-name>" [project="<project-name>"] [parts="<path1>, <path2>"] [mode="interactive|auto|resume"]`
 
-Default `mode=interactive`. Execution modes:
-- `interactive` — save discovery checkpoints; pause after the discovered business picture (Step 2.5); continue after corrections.
-- `auto` — do not wait for confirmation; mark uncertain findings with `confidence` values and open questions; continue through validation.
-- `resume` — load the latest valid checkpoint under `docs/ba/<module>/.work/`; revalidate changed source files only; preserve stable IDs for unchanged facts.
+Default `mode=interactive`. Modes: `interactive` — save checkpoints per stage, pause after Step 2.5 for corrections; `auto` — no pauses, mark uncertain findings with `confidence` values and open questions; `resume` — load the latest valid `.work/` checkpoint, revalidate changed source files only, preserve stable IDs for unchanged facts.
 
-Checkpoints (internal working artifacts, written after each extraction stage): `docs/ba/<module>/.work/discovery.json`, `frontend-facts.json`, `backend-facts.json`, `reconciliation.json`, `coverage.json`, `id-registry.json`. Each checkpoint carries `schema_version`, `created_at`, `repository_commit`, `source_fingerprints` (path → hash), and `completed_stage`. All generated timestamps (`created_at` in checkpoints, `generated` in `99-facts.json`) use ISO 8601 with the execution environment's local offset, e.g. `2026-10-29T09:17:00+03:00`. Resume rules: invalid JSON, unknown schema version, or missing stage metadata invalidates the checkpoint; modified, deleted, or renamed files invalidate all facts depending on them; re-run reconciliation whenever frontend or backend facts change; preserve IDs for semantically unchanged facts; never reuse a checkpoint from a different repository or module.
+Checkpoints live in `docs/ba/<module>/.work/` (`discovery.json`, `frontend-facts.json`, `backend-facts.json`, `reconciliation.json`, `coverage.json`, `id-registry.json`); each carries `schema_version`, `created_at`, `repository_commit`, `source_fingerprints` (path → hash), and `completed_stage`. Timestamps (`created_at` in checkpoints, `generated` in `99-facts.json`) use ISO 8601 with the execution environment's local offset, e.g. `2026-10-29T09:17:00+03:00`. Resume rules: invalid JSON, unknown schema version, or missing stage metadata invalidates the checkpoint; modified, deleted, or renamed files invalidate all facts depending on them; re-run reconciliation whenever frontend or backend facts change; preserve IDs for semantically unchanged facts; never reuse a checkpoint from a different repository or module.
 
 > **Always unified.** Treat every part found (customer app, admin panel, backend, shared libs) as ONE integrated system — one document set, never per-part documents. If `parts` is omitted, auto-include all sub-projects found under the active workspace.
+
+All examples below are format templates — generate real content as normal Markdown/JSON without the example indentation.
 
 ## Purpose
 
 Extract business meaning from source code into a lean, AI-optimized BA document set for AI planning agents, developers, and business stakeholders. **Frontend first** (screens define structure); **user journeys first** (screens are steps inside journeys); document **business behavior**, never implementation details.
 
-**AI-first outputs (mandatory):**
-- **AI reading path** (state it in `00-ai-index.md` and `README.md`): `00-ai-index.md` (answer from the map) → `99-facts.json` (structured, grep-able facts) → `11-code-map.md` (jump to the exact source files) → deep-read a business file only when narrative is needed.
-- **Mermaid graphs**: embed journey, data-model, lifecycle, and architecture diagrams in the generated files so structure is visible at a glance to humans and AI agents alike.
-- **Token-efficient AI index**: `00-ai-index.md` is a dense one-line-per-item map of the whole set with anchor links — an AI agent answers most questions from this single small file and deep-reads only the linked section.
-- **Machine-readable fact base**: `99-facts.json` holds every fact (journeys, screens, rules, stories, criteria, entities, statuses, limits) as structured data with IDs and doc anchors — deterministic to parse, filter, and grep; no re-reading of Markdown to extract facts.
-- **Code map**: `11-code-map.md` maps every source file to its business purpose and the rules/journeys it implements — an AI can jump from a business question to the exact files without re-scanning the codebase.
-- **Lookup-friendly writing**: stable fixed-width IDs (`BR-###`, `US-###`, `AC-###`, `J-###`, exact screen names), descriptive headings, and tables over prose in every file, so any section can be read in isolation.
+**AI-first outputs (mandatory):** the AI reading path stated in `00-ai-index.md` and `README.md` (`00-ai-index.md` → `99-facts.json` → `11-code-map.md` → deep-read a business file only when narrative is needed); Mermaid journey/data-model/lifecycle/architecture diagrams embedded in the files; a dense one-line-per-item `00-ai-index.md` with anchor links; a machine-readable `99-facts.json` (every fact as structured data with IDs and doc anchors — deterministic to parse, filter, and grep); `11-code-map.md` mapping every source file to its business purpose; stable fixed-width IDs (`BR-###`, `US-###`, `AC-###`, `J-###`, exact screen names) and tables over prose everywhere.
 
 **Lean set principle** — generate only what an AI needs: README, `00-ai-index`, `02-scope-context` (journeys + journey-map diagrams), `10-technical-map` (architecture + Data Model + Status Lifecycle diagrams + command mapping), `11-code-map`, `99-facts.json`. Rules, stories, criteria, entities, statuses, glossary, KPIs, assumptions, constraints, mismatches, and open questions ALWAYS live in `99-facts.json` — no narrative files are generated.
 
@@ -32,17 +25,15 @@ Extract business meaning from source code into a lean, AI-optimized BA document 
 - **Forceful scanning**: search for hidden screens, modal dialogs, and dynamic routes — check every `import` and route definition, not just top-level navigation.
 - **Skip generated/boilerplate code**: `generated` in package/path, `@Generated` annotation, `DO NOT EDIT` headers, `generated-sources/`, `gen/`, `.proto/` output. Record the skip and why.
 - **Feature flags**: if a business rule is conditional on a flag/toggle, document the rule, flag name, default state, and which users/roles see the gated behavior.
-- **Plain business language — scoped per file** (fine in these instructions): `README.md`, `00-ai-index.md`, and `02-scope-context.md` are business-language files and HARD-BAN implementation details: no API endpoint URLs (`/api/users`), HTTP verbs, class/method/function names (`UserService`, `createOrder()`), DTO/entity names, framework terms (controller, service, repository, component, hook, reducer, selector, interceptor, module), DB/table names (`tbl_orders`), or config keys. Translate instead: `UserController` → "User Management feature"; `/api/orders` → "the order submission process". In `99-facts.json`, business-facing fields follow the same hard ban, while only the designated technical and evidence fields (see the JSON field boundary below) may contain implementation identifiers. Exception: `10-technical-map.md` and `11-code-map.md` are for implementers and MAY use technical terms.
-- **Never leave a section blank — TBD is controlled**: mark anything not inferable from code as `TBD`; every `TBD` must be accompanied by the missing fact, the evidence searched, why it could not be determined, the required owner or source, and the impact on confidence. Represent each unresolved fact as one nested record — generate as normal Markdown without the example indentation:
+- **Plain business language — scoped per file**: `README.md`, `00-ai-index.md`, `02-scope-context.md` and the business-facing `99-facts.json` fields (`name`, `statement`, `purpose`, `business_effect`, `user_message`, `assumption`, `constraint`, `question`, acceptance text) HARD-BAN implementation details — no API endpoint URLs (`/api/users`), HTTP verbs, class/method/function names (`UserService`, `createOrder()`), DTO/entity names, framework terms (controller, service, repository, component, hook, reducer, selector, interceptor, module), DB/table names (`tbl_orders`), or config keys. Translate instead: `UserController` → "User Management feature"; `/api/orders` → "the order submission process". Technical terminology is permitted ONLY in `10-technical-map.md`, `11-code-map.md`, and the designated technical/evidence fields (`technical_refs`, `evidence.path`, `evidence.symbol`, `evidence.lines`, `evidence.evidence_type`, `source_part`, `implementation_layer`) — never remove source paths, symbols, routes, schema objects, or technical identifiers from the technical maps. These business-language files must be understandable by a non-technical product owner with no explanation.
+- **Never leave a section blank — TBD is controlled**: mark anything not inferable from code as `TBD`; every `TBD` must be accompanied by the missing fact, the evidence searched, why it could not be determined, the required owner or source, and the impact on confidence. Represent each unresolved fact as one nested record:
 
     - Session timeout: TBD
       - Evidence searched: Application configuration and environment templates
       - Why unresolved: Production identity-provider policy is unavailable
       - Required source: Identity platform owner or production policy
       - Confidence impact: Authentication lifecycle remains unconfirmed
-- The business-language files (`README.md`, `00-ai-index.md`, `02-scope-context.md`, `99-facts.json`) must be understandable by a non-technical product owner with no explanation.
-- **Dual representation for technical references**: business-facing fields stay plain language; technical references (HTTP method, endpoint path, source symbol) appear only in technical outputs (`10-technical-map.md`, `11-code-map.md`) or designated machine fields (e.g. a screen action's `technical_refs` in `99-facts.json`). Never remove source paths, symbols, routes, schema objects, or technical identifiers from the technical maps.
-- **JSON field boundary (schema-driven)**: business-language validation applies to `99-facts.json` fields `name`, `statement`, `purpose`, `business_effect`, `user_message`, `assumption`, `constraint`, `question`, and acceptance text; technical terminology is permitted only in `technical_refs`, `evidence.path`, `evidence.symbol`, `evidence.lines`, `evidence.evidence_type`, `source_part`, and `implementation_layer`.
+
 - **Stable fact-ID lifecycle**: never renumber an existing fact; preserve IDs when meaning remains materially the same; mark removed facts `Deprecated` with `replaced_by` when applicable; assign new IDs only to genuinely new facts; detect possible renames via source evidence and semantic similarity; maintain `docs/ba/<module>/.work/id-registry.json` so regeneration never breaks links from specifications, plans, tasks, or tests. IDs are fixed-width zero-padded: `J-###` (journey), `SJ-###` (system journey), `SCR-###` (screen), `BR-###`, `US-###`, `AC-###`, `ENT-###`, `INT-###`. Authority: `99-facts.json` is authoritative for published business facts; `.work/id-registry.json` is authoritative only for ID allocation, aliases, deprecation history, and replacement relationships — when they disagree, generation is BLOCKED until reconciled.
 
 ## Steps
@@ -50,8 +41,7 @@ Extract business meaning from source code into a lean, AI-optimized BA document 
 ### 1. Discover Parts
 
 - Workspace root = git root or the active workspace folder; if ambiguous, ask the user BEFORE proceeding.
-- If `parts` is provided, use those exact paths. Otherwise scan the root for sub-projects: multiple `package.json` files; multiple `src/main/java` / `app.py` / `Program.cs` roots; folders named `admin|portal|dashboard|api|backend|frontend|client|server|app|web`.
-- Fallback heuristics: a folder with a `main` entry point (`main.py`, `index.js`, `App.java`, `Program.cs`...); a `Dockerfile`/`docker-compose.yml` defining a service; `.html/.css/.jsx/.tsx/.vue/.svelte` alongside `package.json`/`vite.config.*` (frontend); `pyproject.toml|setup.py|Cargo.toml|go.mod|pom.xml|build.gradle|*.csproj` (backend/library). When in doubt, classify each top-level folder by dominant file type.
+- If `parts` is provided, use those exact paths. Otherwise scan the root for sub-projects: multiple `package.json` files; multiple `src/main/java` / `app.py` / `Program.cs` roots; folders named `admin|portal|dashboard|api|backend|frontend|client|server|app|web`. Fallback heuristics: a folder with a `main` entry point (`main.py`, `index.js`, `App.java`, `Program.cs`...); a `Dockerfile`/`docker-compose.yml` defining a service; `.html/.css/.jsx/.tsx/.vue/.svelte` alongside `package.json`/`vite.config.*` (frontend); `pyproject.toml|setup.py|Cargo.toml|go.mod|pom.xml|build.gradle|*.csproj` (backend/library). When in doubt, classify each top-level folder by dominant file type.
 - Label each part: Customer-facing frontend | Admin/back-office panel | Backend API | Shared library. One part only → single-part system.
 - Actively look for cross-part signals: data objects appearing in multiple parts, roles existing in only one part, journeys requiring actions in several parts, backend rules visible in multiple frontends.
 - List every part with its label before Step 2.
@@ -112,96 +102,33 @@ Tests and comments follow the two-pass rule: structurally inventory all of them;
 
 ### 2.5 Pause and Confirm (REQUIRED when frontend exists)
 
-Before generating any file, output a live summary populated with actual discovered data (never placeholders):
-1. `## Discovered Business Picture — <project name>`
-2. **Parts Read**: "Customer App (frontend) | Admin Panel (frontend) | Backend API (backend)" or "Single project — <name>"
-3. **User Journeys** table: Name | Who Does This | Parts Involved | Screens
-4. **System Journeys** table (omit if none): Process | Trigger | Business Effect
-5. **Screens Inventory** table, grouped by part: Part | Screen | Who Can Access | Main Actions
-6. **Backend Business Rules**: count only ("Found N rules; these will be added to Requirements")
-7. **Open Questions** (omit if none)
+Before generating any file, output a live summary populated with actual discovered data (never placeholders): `## Discovered Business Picture — <project name>`; **Parts Read** ("Customer App (frontend) | Admin Panel (frontend) | Backend API (backend)" or "Single project — <name>"); **User Journeys** table (Name | Who Does This | Parts Involved | Screens); **System Journeys** table (Process | Trigger | Business Effect — omit if none); **Screens Inventory** table grouped by part (Part | Screen | Who Can Access | Main Actions); **Backend Business Rules** count only ("Found N rules; these will be added to Requirements"); **Open Questions** (omit if none).
 
 Close with: `Please confirm, correct, or add to this list. Type 'ok' to proceed, or tell me what to change.` — wait for confirmation in `mode=interactive` (skip for backend-only projects). In `mode=auto`, do not pause: present the same summary, mark uncertain findings with `confidence` values and open questions, and continue. In `mode=resume`, continue from the approved checkpoint instead of re-deriving the picture.
 
 ### 2.7 Per-Screen Extraction Records (MANDATORY before generating any file)
 
-Per-screen extraction records are JSON working records — not Markdown:
+JSON working records — not Markdown — saved in the reconciliation checkpoint (`.work/reconciliation.json`), validated against the `99-facts.json` screen schema before generation; human-readable screen summaries are rendered into `00-ai-index.md` and `02-scope-context.md` only when generating those files.
 
-- Save them in the reconciliation checkpoint (`.work/reconciliation.json`).
-- Validate them against the `99-facts.json` screen schema before generation.
-- Render human-readable screen summaries into `00-ai-index.md` and `02-scope-context.md` only when generating those files.
+Screen record fields: `id` (`SCR-###`) · `name` · `source_part` · `roles` · `journey_ids` · `displayed_data` · `fields` (each: `name`, `required`, `rules`, `confidence`, `evidence`) · `actions` · `visible_rule_ids` · `silent_rule_ids` · `errors` · `empty_states` · `confidence` · `evidence`.
 
-Every action declares one `interaction_type` — backend process, client-side interaction, navigation, external integration, or unknown; backend and external actions include the business process and `technical_refs`; client-side actions describe the local state or presentation effect; never invent an API link for actions that do not call a backend.
+Action record fields: `label` · `interaction_type` (exactly one of: backend process, client-side interaction, navigation, external integration, unknown) · `business_effect` · `business_process` (null for client-side) · `technical_refs` (each: `method`, `path`, `symbol`; empty for client-side) · `confidence` · `evidence`. Backend and external actions include the business process and `technical_refs`; client-side actions describe the local state or presentation effect; never invent an API link for actions that do not call a backend.
 
-Build every screen record using this structure — fields: `id` (`SCR-###`) · `name` · `source_part` · `roles` · `journey_ids` · `displayed_data` · `fields` (each: `name`, `required`, `rules`, `confidence`, `evidence`) · `actions` (each: an action record as below) · `visible_rule_ids` · `silent_rule_ids` · `errors` · `empty_states` · `confidence` · `evidence` — generate as normal JSON without the example indentation:
-
-    {
-      "id": "SCR-001",
-      "name": "Order List",
-      "source_part": "Customer App",
-      "roles": ["Customer"],
-      "journey_ids": ["J-001"],
-      "displayed_data": [
-        "Order number",
-        "Submission date",
-        "Current status"
-      ],
-      "fields": [
-        {
-          "name": "Status filter",
-          "required": false,
-          "rules": [],
-          "confidence": "confirmed",
-          "evidence": []
-        }
-      ],
-      "actions": [],
-      "visible_rule_ids": ["BR-003"],
-      "silent_rule_ids": [],
-      "errors": [],
-      "empty_states": [],
-      "confidence": "confirmed",
-      "evidence": []
-    }
-
-**Gate before Step 3** — per screen: ≥1 action documented (else flag as mismatch); every field has a rule (else `TBD` + flag); all displayed data listed; all backend rules captured; client-side and navigation actions are valid — only `unknown` interaction types are flagged for follow-up; every record validates against the screen schema. Backend-only projects: apply the Step C backend-only fallback (rules → BR-###, automated processes → System Journeys, data objects → data_entities, roles → roles, `screens: []` + `screens_note` in `99-facts.json`).
-
-Example action records — fields: `label` · `interaction_type` · `business_effect` · `business_process` (null for client-side) · `technical_refs` (each: `method`, `path`, `symbol`; empty for client-side) · `confidence` · `evidence` — generate as normal JSON without the example indentation. Client-side action:
-
-    {
-      "label": "Filter by status",
-      "interaction_type": "client-side interaction",
-      "business_effect": "Limits displayed records to the selected status",
-      "business_process": null,
-      "technical_refs": [],
-      "confidence": "confirmed",
-      "evidence": [
-        {
-          "path": "src/app/orders/order-list.component.ts",
-          "symbol": "applyStatusFilter",
-          "lines": "72-84",
-          "evidence_type": "business-logic"
-        }
-      ]
-    }
-
-Backend action:
+Compact example (backend action):
 
     {
       "label": "Submit order",
       "interaction_type": "backend process",
       "business_effect": "Sends the completed order for processing",
       "business_process": "Order submission",
-      "technical_refs": [
-        {
-          "method": "POST",
-          "path": "/api/orders",
-          "symbol": "OrderController#create"
-        }
-      ],
+      "technical_refs": [{"method": "POST", "path": "/api/orders", "symbol": "OrderController#create"}],
       "confidence": "confirmed",
-      "evidence": []
+      "evidence": [
+        {"path": "src/app/orders/order-list.component.ts", "symbol": "applyStatusFilter", "lines": "72-84", "evidence_type": "business-logic"}
+      ]
     }
+
+**Gate before Step 3** — per screen: ≥1 action documented (else flag as mismatch); every field has a rule (else `TBD` + flag); all displayed data listed; all backend rules captured; client-side and navigation actions are valid — only `unknown` interaction types are flagged for follow-up; every record validates against the screen schema. Backend-only projects: apply the Step C backend-only fallback (rules → BR-###, automated processes → System Journeys, data objects → data_entities, roles → roles, `screens: []` + `screens_note` in `99-facts.json`).
 
 ### 3. Output Directory
 
@@ -220,7 +147,7 @@ Generate exactly these 6 published files (internal working artifacts under `docs
 
 **Pre-generation check** per file: does not exist → **CREATE**; exists → **UPDATE** only generated regions; accurate and complete → **SKIP**. Report per file at the end: `CREATED` | `UPDATED (sections: ...)` | `SKIPPED (already up to date)`.
 
-**Ownership markers (protect human edits)** — generated content lives inside deterministic regions; human-maintained content lives inside protected regions. Marker prefixes: `SPECKIT:GENERATED:BEGIN` + `SPECKIT:GENERATED:END` delimit generated regions; `SPECKIT:HUMAN:BEGIN` + `SPECKIT:HUMAN:END` delimit human regions; each marker wraps an HTML comment around the prefix plus `section=<stable-section-name>`. Generate these markers as normal text without the example indentation:
+**Ownership markers (protect human edits)** — `SPECKIT:GENERATED:BEGIN` + `SPECKIT:GENERATED:END` delimit generated regions; `SPECKIT:HUMAN:BEGIN` + `SPECKIT:HUMAN:END` delimit human regions; each marker wraps an HTML comment around the prefix plus `section=<stable-section-name>`:
 
     <!-- SPECKIT:GENERATED:BEGIN section=journeys -->
     Generated content
@@ -230,11 +157,9 @@ Generate exactly these 6 published files (internal working artifacts under `docs
     Human-maintained content
     <!-- SPECKIT:HUMAN:END section=business-notes -->
 
-Update rules: replace generated regions deterministically; never overwrite human regions; report conflicts between human assertions and current code evidence; create a backup or diff of the previous version before updating existing documentation (saved under `.work/backups/<timestamp>/`); never silently delete a stable fact ID. Marker failure behavior: a generated BEGIN marker without its matching END marker is BLOCKED; duplicate stable section names in one file are BLOCKED; human regions are never modified; content outside recognized generated regions is treated as human-owned. Marker contract: section names are lowercase kebab-case and unique within one file; nested ownership regions are not allowed; JSON files do not use Markdown comment markers.
+Update rules: replace generated regions deterministically; never overwrite human regions; report conflicts between human assertions and current code evidence; create a backup of the previous version under `.work/backups/<timestamp>/` before updating existing documentation; never silently delete a stable fact ID. Marker contract: section names are lowercase kebab-case and unique within one file; nested ownership regions are not allowed; a generated BEGIN without its matching END is BLOCKED; duplicate stable section names in one file are BLOCKED; content outside recognized generated regions is treated as human-owned. JSON exception (`99-facts.json`): the complete JSON document is generated (HTML comments would make it invalid JSON); human-maintained overrides are preserved in `.work/human-overrides.json`, merged by stable fact ID; conflicts between source evidence and human overrides are reported.
 
-**JSON ownership exception (`99-facts.json`)** — the complete JSON document is generated (HTML comments would make it invalid JSON). Human-maintained overrides are preserved in `.work/human-overrides.json`, merged by stable fact ID; conflicts between source evidence and human overrides are reported; ownership comments are never inserted into JSON.
-
-**Writing rules**: business-language files write for a product owner (see Global rules for the file scoping); every row/bullet says something real (no placeholders); `TBD` only with the controlled accompaniments defined in Global rules; journeys are the top-level structure — screens are steps inside them. Navigation: `README.md` is the documentation home and carries no back-navigation header; `00-ai-index.md` starts `[← Documentation Home](./README.md)`; every other published Markdown file starts `[← Documentation Home](./README.md) · [AI Index](./00-ai-index.md)` and ends with prev/next navigation (none at the ends); `99-facts.json` receives no Markdown navigation links.
+**Writing rules**: business-language files write for a product owner (see Global rules for the file scoping); every row/bullet says something real (no placeholders); `TBD` only with the controlled accompaniments defined in Global rules; journeys are the top-level structure — screens are steps inside them. Navigation: `README.md` is the documentation home and carries no back-navigation header; every other published Markdown file starts `[← Documentation Home](./README.md) · [AI Index](./00-ai-index.md)` and ends with prev/next navigation (none at the ends); `99-facts.json` receives no Markdown navigation links.
 
 #### Templates (inline below — do NOT read example sets under `docs/ba/`)
 
@@ -243,25 +168,18 @@ Update rules: replace generated regions deterministically; never overwrite human
   - **Reading strategy** (the AI reading path, verbatim): 1) answer from this index; 2) for structured lookups load `99-facts.json`; 3) to touch code use `11-code-map.md`; 4) deep-read a business file only when narrative is needed.
   - **Question → location routing table** (Question | Read: file + section anchor) covering at minimum: what the system does; who uses it; all screens and their actions; all input fields and validation; all business rules; why the system refuses/rejects something; data objects and fields; statuses and transitions; journeys end-to-end; automated background processes; integrations; known gaps/risks; glossary; grep-able structured facts (`99-facts.json`); which source file implements a concept (`11-code-map.md`).
   - **One-line inventory tables** with anchor links to detail sections: Journeys (Name | Who | Parts | Screens | Link); System Journeys (Process | Trigger | Effect | Link); Screens (Screen | Part | Roles | #Actions | Link); Business Rules (BR-### | one-line rule | Link); User Stories (ID | one-line story | Link); Data Entities (Entity | Key fields | Link); Roles (Role | Part(s) | What they do | Link); Diagrams (Diagram | Type | File + anchor).
-  - Stable IDs everywhere (`BR-###`, `US-###`, `AC-###`, `J-###`, exact screen names) so AI answers can cite and link precisely.
-  - Every row links to its section anchor; counts match the README Health Summary; no placeholders, no prose paragraphs.
+  - Stable IDs everywhere (`BR-###`, `US-###`, `AC-###`, `J-###`, exact screen names); every row links to its section anchor; counts match the README Health Summary; no placeholders, no prose paragraphs.
 - **99-facts.json** (machine-readable fact base — for deterministic AI parsing, filtering, and grep):
   - Valid JSON, UTF-8. Top-level keys: `module`, `generated`, `parts`, `roles`, `journeys`, `system_journeys`, `screens`, `business_rules`, `user_stories`, `acceptance_criteria`, `data_entities`, `statuses`, `integrations`, `background_processes`, `limits`, `assumptions`, `constraints`, `mismatches`, `kpis`, `glossary`, `open_questions`, `diagrams`.
-  - Every item carries a `doc` field linking back to the human-readable file + anchor (in ai mode, re-homed categories point to `99-facts.json` itself as the authoritative home); IDs match the Markdown set exactly (`BR-###`, `US-###`, `AC-###`, `J-###`, screen names).
+  - Every item carries a `doc` field linking back to the human-readable file + anchor; IDs match the Markdown set exactly (`BR-###`, `US-###`, `AC-###`, `J-###`, screen names).
   - Every fact carries `confidence` (`confirmed | derived | suggested | unknown`) and `evidence` — source references with `path`, `symbol`, `lines`, and `evidence_type` (business-logic, test, configuration, constraint, comment) — so planning commands can weigh the fact.
-  - Strings are one-liners; narrative lives in the Markdown files, never here.
-  - Backend-only modules: `screens: []` plus a `note` field; every other key still fully populated.
-- **11-code-map.md** (technical file map — bridges business concepts to source files; technical language allowed):
-  - Per part: table `File | Purpose (one line) | Key items (routes/classes/tables/stores) | Implements (business concept + rule/journey IDs) | Notes`.
-  - Coverage: every file from the Step 2 inventory appears, or is listed under a "Skipped" section with the reason (generated/boilerplate/non-business).
-  - Purpose: an AI jumps question → rule/journey ID → exact source files without re-scanning the codebase.
+  - Strings are one-liners; narrative lives in the Markdown files, never here. Backend-only modules: `screens: []` plus a `note` field; every other key still fully populated.
+- **11-code-map.md** (technical file map — bridges business concepts to source files; technical language allowed): per part, table `File | Purpose (one line) | Key items (routes/classes/tables/stores) | Implements (business concept + rule/journey IDs) | Notes`. Coverage: every file from the Step 2 inventory appears, or is listed under a "Skipped" section with the reason (generated/boilerplate/non-business).
 - **README.md**: what the system does + who uses it; Health Summary table (counts: journeys, screens, rules, buttons, fields, TBDs, mismatches); Contents table (file | one-line description | status) with `00-ai-index.md` as the first row; a note: "AI agents: start with `00-ai-index.md` — then `99-facts.json` for structured facts, `11-code-map.md` to reach source files."
 - **02-scope-context.md**: `# 2. Scope & Context` — What Is Built (capabilities grouped by part: "**Customer App**: ..."); How It Works Today (As-Is narrative); End-to-End Business Flow (per journey: step table Step | Screen [Part] | User Action | System Response); Journey Map Mermaid diagram (one path per journey, part-labeled); System Journeys; Integration Points; Current Limitations.
-- **10-technical-map.md**: technical architecture overview, Architecture Mermaid diagram (parts + main components + integrations), Background Processes Mermaid diagram (scheduled/event-driven, omit if none), API-to-business mapping table, integration points, background processes, Data Model Mermaid diagram (erDiagram of business objects), Status Lifecycle Mermaid diagrams (stateDiagram-v2 per status-bearing object). (This file MAY use technical terms — it is for implementers.)
+- **10-technical-map.md** (technical language allowed — for implementers): technical architecture overview + Architecture Mermaid diagram (parts + main components + integrations); Background Processes Mermaid diagram (scheduled/event-driven, omit if none); API-to-business mapping table; integration points; background processes; Data Model Mermaid diagram (erDiagram of business objects); Status Lifecycle Mermaid diagrams (stateDiagram-v2 per status-bearing object).
 
 #### Mermaid Diagrams (mandatory, embedded in the files above)
-
-Every document set includes these Mermaid graphs, kept in sync with the tables (no invented data), each ≤ ~15 nodes, labels in plain business language (except `10-technical-map.md`, which may use technical terms):
 
 | Diagram | File | Type | Content |
 |---|---|---|---|
@@ -271,7 +189,7 @@ Every document set includes these Mermaid graphs, kept in sync with the tables (
 | Architecture | `10-technical-map.md` | `flowchart TB` | Parts, main components, integrations |
 | Background Processes | `10-technical-map.md` | `flowchart LR` | Scheduled/event-driven processes, triggers, outcomes (omit if none) |
 
-Diagram writing rules: wrap in ` ```mermaid ` fences; never use `end` as a node/state label (breaks Mermaid — use `Finish`); quote labels containing parentheses, slashes, or commas; a 1-step journey still gets its path; omit a diagram only when its subject does not exist and note the omission in the file; every diagram appears in the `00-ai-index.md` Diagrams table.
+Diagram rules: kept in sync with the tables (no invented data); each ≤ ~15 nodes; labels in plain business language (except `10-technical-map.md`, which may use technical terms); wrap in ` ```mermaid ` fences; never use `end` as a node/state label (breaks Mermaid — use `Finish`); quote labels containing parentheses, slashes, or commas; a 1-step journey still gets its path; omit a diagram only when its subject does not exist and note the omission in the file; every diagram appears in the `00-ai-index.md` Diagrams table.
 
 ### 5. Quality Checks Before Saving
 
@@ -279,7 +197,7 @@ Diagram writing rules: wrap in ` ```mermaid ` fences; never use `end` as a node/
 - **Diagrams**: every required Mermaid diagram present (or omission noted); syntax-safe (no bare `end` labels; special characters quoted); content matches the tables — no invented nodes/edges; all diagrams listed in the `00-ai-index.md` Diagrams table.
 - **Machine-readable**: `99-facts.json` parses as valid JSON; it is the authoritative home for rules, stories, criteria, entities, statuses, glossary, KPIs, assumptions, constraints, mismatches, and open questions; every item has a `doc` anchor; IDs match the Markdown set exactly.
 - **Code map**: every file from the Step 2 inventory appears in `11-code-map.md` or in its Skipped list with a reason; every mapped file references the business concepts (rule/journey IDs) it implements.
-- **Terminology validation (scoped)**: apply the business-language hard ban ONLY to `README.md`, `00-ai-index.md`, `02-scope-context.md`, and business-facing fields in `99-facts.json` — rewrite hits (endpoint URLs, HTTP verbs, class/method names, DTO/entity names, framework terms, table names, config keys) into plain business language before saving. Technical language is allowed and expected in `10-technical-map.md`, `11-code-map.md`, and evidence/source-reference fields in `99-facts.json`; in mixed files validate each field per its declared audience. Do not remove source paths, symbols, routes, schema objects, or technical identifiers from the technical maps.
+- **Terminology validation (scoped)**: apply the business-language hard ban ONLY to `README.md`, `00-ai-index.md`, `02-scope-context.md`, and business-facing fields in `99-facts.json` (exact field boundary in Global rules); rewrite hits into plain business language before saving. Technical language is allowed and expected in `10-technical-map.md`, `11-code-map.md`, and evidence/source-reference fields; in mixed files validate each field per its declared audience. Do not remove source paths, symbols, routes, schema objects, or technical identifiers from the technical maps.
 - **Content**: no blank sections (`TBD` + note only when no code evidence); stories in As a/I want/So that with journey reference; rules note enforcement layer + type; journey steps trace screens/actions/responses with no technical trace; navigation links present; AI-readable and stakeholder-readable.
 
 ### 6. Output Confirmation

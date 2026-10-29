@@ -1,6 +1,6 @@
 ---
 name: speckit-clarify
-description: Ask up to 5 targeted questions to resolve spec or plan ambiguities (mode=spec|plan) and encode answers back; preview-first mutation safety (apply=preview|apply); ends with COMPLETE/PARTIAL/BLOCKED verdict
+description: Ask up to 5 targeted questions to resolve spec or plan ambiguities; preview-first mutation safety
 argument-hint: '[spec="..."] [plan="..."] [mode="spec|plan"] [apply="preview|apply"]'
 allowed-tools:
   - read

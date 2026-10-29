@@ -1,6 +1,6 @@
 ---
 name: speckit-implement
-description: Execute the implementation plan — mode=plan (read-only dry-run runbook under a Mode Safety Invariant, default) or mode=execute (gated execution with branch verification, checklist gate, dirty-worktree auto-block, scope-drift gate, dependency-aware failure handling, Validate commands, [X] tracking, Execution Result verdict). Selectors task_ids/phase/resume/checkpoint choose what runs and when to pause
+description: Execute the plan — mode=plan dry-run runbook (default) or mode=execute gated execution; selectors task_ids/phase/resume/checkpoint
 argument-hint: '[tasks="..."] [mode="plan|execute"] [task_ids="..."] [phase="..."] [resume="true|false"] [checkpoint="phase|failure|none"]'
 allowed-tools:
   - read

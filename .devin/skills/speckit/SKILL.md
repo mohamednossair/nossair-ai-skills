@@ -1,6 +1,6 @@
 ---
 name: speckit
-description: Speckit toolkit orchestrator — lists all /speckit-* subcommands; each also has its own skill (/speckit-specify, /speckit-plan, /speckit-tasks, /speckit-implement, ...)
+description: Speckit orchestrator — lists all /speckit-* subcommands
 allowed-tools:
   - read
   - grep
@@ -20,7 +20,6 @@ You invoked the Speckit orchestrator without a specific subcommand.
 | `/speckit-clarify context="..."` | Ask up to 5 targeted questions; encode answers into the spec |
 | `/speckit-plan spec="..."` | Turn the spec into milestones + research + data model + contracts + machine-readable `## Standards` |
 | `/speckit-tasks plan="..."` | Generate dependency-ordered tasks (`T### [P] [US#]` + `Depends on`/`Covers`/`Validate`); tests in the task graph |
-| `/speckit-validate spec="..." plan="..." tasks="..."` | Cross-artifact consistency and traceability |
 | `/speckit-analyze ... [current_state="..."] [mode="pre|post-implementation"]` | Read-only analysis with severities and a PASS / PASS_WITH_WARNINGS / BLOCKED verdict |
 | `/speckit-checklist domain="..."` | Domain requirement-quality checklist under `checklists/` |
 | `/speckit-implement tasks="..." [mode="plan|execute"]` | `plan` = dry-run runbook (default); `execute` = gated execution with `[X]` tracking |

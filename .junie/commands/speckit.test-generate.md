@@ -6,16 +6,7 @@ description: Generate spec-linked unit tests with AC traceability (canonical tes
 
 Defaults: `action=preview`, `allow_unlinked=false`, `run_tests=false`.
 
-    /speckit.test-generate
-      file="path/to/source"
-      [spec="..."]
-      [plan="..."]
-      [tasks="..."]
-      [task="T012"]
-      [ac="AC-004,AC-005"]
-      [action="preview|write"]
-      [allow_unlinked="false|true"]
-      [run_tests="false|true"]
+> All examples below are format templates — generate real content as normal Markdown without the example indentation.
 
 1. Read the target file to identify the class, function, or module under test.
 2. **Specification resolution** — resolve the spec via the shared resolution priority (explicit `spec` parameter → `.specify/feature.json` → prerequisite script → single-candidate discovery). If no spec resolves: return BLOCKED by default and recommend `/test-generate` for non-spec-linked unit testing; permit unlinked generation only with `allow_unlinked=true` (and say so in the output). When `allow_unlinked=true` and no explicit `spec` is supplied, do NOT perform automatic specification discovery — generate unlinked tests.
@@ -31,7 +22,7 @@ Defaults: `action=preview`, `allow_unlinked=false`, `run_tests=false`.
 10. Apply AAA pattern (Arrange, Act, Assert). Use mocks/spies only for external dependencies — test real behavior wherever possible. Follow the repository's existing test-naming convention; fall back to `should<Behavior>_when<Condition>` only when no convention exists. Annotate each test or describe block with a comment referencing its AC ID in the workflow's zero-padded format (e.g., `// Covers: AC-002`).
 11. **Expected-red generation** — when the selected task declares `Expected result: FAIL`: create the expected test with the exact behavioral intent; do not weaken the assertion to make the test pass; in preview mode, report that the test is expected to fail before implementation; in write mode, do not interpret the expected red result as a generation failure; record the expected failing test and reason in the traceability summary.
 12. **Mutation and execution contract** — `action=preview` (default) reads files and outputs proposed content without writing files or executing tests; `action=write` creates or updates the test file after existing-test inspection and scope checks, preserves unrelated tests, captures the original file content before modification, applies one atomic update when supported, restores the original file if the generated source structure fails validation, never truncates an existing test file, and reports every changed file. Tests are executed only when `run_tests=true` is explicitly supplied: run only the selected task's validation command, interpret the result against `Expected result` per the shared Validation Evidence Contract, and report `Observed result` and `Matched expectation`.
-13. End with a test traceability summary — generate this as normal Markdown without the example indentation:
+13. End with a test traceability summary:
 
     ## Test Traceability
 
@@ -44,7 +35,7 @@ Defaults: `action=preview`, `allow_unlinked=false`, `run_tests=false`.
     - Source file: `src/test/.../DocumentServiceTest.java`
     - Validation command: `./mvnw -Dtest=DocumentServiceTest test`
 
-For more than one generated test under the same AC, number the tests and nest their details — generate this as normal Markdown without the example indentation:
+For more than one generated test under the same AC, number the tests and nest their details:
 
     ### AC-004
 
@@ -57,5 +48,5 @@ For more than one generated test under the same AC, number the tests and nest th
        - Test level: Unit
 
 Follow-ups:
-- Run `/speckit.analyze` (or `/speckit.validate`) to confirm test coverage aligns with spec ACs.
+- Run `/speckit.analyze` to confirm test coverage aligns with spec ACs.
 - Run `/review` or the relevant tech-review command on the generated test file.

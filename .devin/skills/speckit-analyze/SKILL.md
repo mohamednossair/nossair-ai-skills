@@ -1,6 +1,6 @@
 ---
 name: speckit-analyze
-description: Read-only cross-artifact analysis with CRITICAL/HIGH/MEDIUM/LOW severities, mutually exclusive PASS/PASS_WITH_WARNINGS/BLOCKED verdict plus a machine-readable ## Analysis Result summary, semantic-drift and bidirectional traceability checks; post-implementation mode verifies Git diff (base_ref) and test reports
+description: Read-only cross-artifact analysis with severities and a PASS/PASS_WITH_WARNINGS/BLOCKED verdict
 argument-hint: '[spec="..."] [plan="..."] [tasks="..."] [current_state="..."] [mode="pre|post-implementation"] [base_ref="main"] [test_report="..."]'
 allowed-tools:
   - read

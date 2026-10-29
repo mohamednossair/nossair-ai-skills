@@ -4,7 +4,9 @@ description: Read-only cross-artifact consistency and quality analysis
 
 **Usage**: `/speckit.analyze [spec="..."] [plan="..."] [tasks="..."] [current_state="docs/ba/<module>/99-facts.json"] [mode="pre|post-implementation"] [base_ref="main"] [test_report="path/to/report"]`
 
-1. **Artifact resolution** — apply the shared resolution priority: explicit parameter → `.specify/feature.json` → prerequisite script (`.junie/scripts/powershell/check-prerequisites.ps1 -Json` / `.junie/scripts/bash/check-prerequisites.sh --json`) → repository discovery when exactly one candidate exists → structured missing-input error. Never guess when multiple candidates exist.
+> All examples below are format templates — generate real content as normal Markdown without the example indentation.
+
+1. **Artifact resolution** — explicit parameter → `.specify/feature.json` → prerequisite script (`.junie/scripts/powershell/check-prerequisites.ps1 -Json` / `.junie/scripts/bash/check-prerequisites.sh --json`) → single-candidate discovery → structured missing-input error; never guess with multiple candidates.
 2. **STRICTLY READ-ONLY** — Do not modify any files. Output a structured Markdown report only.
 3. Build the traceability matrix in BOTH directions:
    - Forward: Spec AC/NFR → Plan milestone → Tasks (coverage).
@@ -20,9 +22,7 @@ description: Read-only cross-artifact consistency and quality analysis
     - **HIGH**: Duplicate/conflicting requirement, ambiguous security/performance attribute, untestable acceptance criterion, semantic drift on a Must AC, unchanged-rule contradiction (CRITICAL when the unchanged rule is security/privacy/regulatory/constitution-level — see Documentation evidence above).
     - **MEDIUM**: Terminology drift, missing non-functional task coverage, underspecified edge case.
     - **LOW**: Style/wording improvements, minor redundancy.
-11. **Evidence format** — use this structure for every finding.
-
-Generate this as normal Markdown without the example indentation:
+11. **Evidence format** — use this structure for every finding:
 
     ### HIGH-003: AC-014 has no rejection-path test task
 
@@ -39,7 +39,7 @@ Generate this as normal Markdown without the example indentation:
     - **PASS_WITH_WARNINGS** — no CRITICAL findings; one or more HIGH or MEDIUM findings.
     - **PASS** — no CRITICAL, HIGH, or MEDIUM findings; all Must requirements have complete semantic and task coverage. LOW findings may remain under PASS.
 
-End the report with this machine-readable summary — generate it as normal Markdown without the example indentation:
+End the report with this machine-readable summary:
 
     ## Analysis Result
 
@@ -54,12 +54,12 @@ End the report with this machine-readable summary — generate it as normal Mark
     - Conflicting requirements: 0
     - Unverifiable requirements: 1
 
-13. Produce a concise report (max 50 findings; summarize overflow) with prioritized fixes and suggested follow-up commands (`/speckit.clarify`, `/speckit.plan`, `/speckit.tasks`, and `/speckit.validate` for malformed or incomplete specification findings). Represent semantic coverage per requirement with the statuses `COMPLETE | PARTIAL | MISSING | CONFLICTING | UNVERIFIABLE`.
+13. Produce a concise report (max 50 findings; summarize overflow) with prioritized fixes and suggested follow-up commands (`/speckit.clarify`, `/speckit.plan`, `/speckit.tasks` for malformed or incomplete specification findings). Represent semantic coverage per requirement with the statuses `COMPLETE | PARTIAL | MISSING | CONFLICTING | UNVERIFIABLE`.
     In `mode="post-implementation"`: inspect four change categories separately — (1) committed feature changes (`base_ref...HEAD`), (2) staged changes, (3) unstaged changes, (4) relevant untracked files — and compare them to completed tasks; do not assume uncommitted files belong to the selected feature. Inspect cited evidence paths and read `test_report` when supplied. A checked `[X]` box is not proof by itself. Verify completed tasks against their `Done when` and `Evidence` fields, honoring the expectation contract: a task whose `Validate` declares `Expected result: FAIL` is complete when the observed failure matches the expected failing test and reason (`Matched expectation: Yes`) — an intentional red test is not an automatic failure.
     When `test_report` is absent: inspect task `Evidence` fields and available test-result artifacts; never execute tests (analysis is strictly read-only); mark a claimed test result unverifiable when no durable evidence exists — **HIGH** for unverifiable Must-AC completion, **MEDIUM** for other unverifiable test claims.
     When `base_ref` cannot be resolved: do not guess another branch; continue inspecting staged, unstaged, and relevant untracked files; mark committed-change inspection `UNVERIFIABLE`; return at least PASS_WITH_WARNINGS — BLOCKED when committed evidence is required for a Must requirement.
 
-Generate the traceability table as normal Markdown without the example indentation:
+Traceability table format:
 
     | Requirement | Milestone | Tasks | Semantic status | Evidence |
     |---|---|---|---|---|

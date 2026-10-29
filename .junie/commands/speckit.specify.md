@@ -4,6 +4,8 @@ description: Create or update a concise feature spec from a natural language des
 
 **Usage**: `/speckit.specify feature="..." [mode="draft|feature|refine"] [current_state="docs/ba/<module>/99-facts.json"]`
 
+> All examples below are format templates — generate real content as normal Markdown without the example indentation.
+
 **Modes** (default `draft`):
 - `draft` — create or update spec artifacts only. No branch is created; mark the spec `Status: draft`. Use for exploring an idea.
 - `feature` — stable scope required (readiness gate below). Create the branch before writing files.
@@ -11,13 +13,13 @@ description: Create or update a concise feature spec from a natural language des
 
 Branch prefix is resolved from the mode — never hardcoded: `feature` → `feature/spec` · `refine` → `chore/spec` · `draft` → no branch.
 
-1. **Artifact resolution** — apply the shared resolution priority: explicit parameter → `.specify/feature.json` → prerequisite script (`.junie/scripts/powershell/check-prerequisites.ps1 -Json` / `.junie/scripts/bash/check-prerequisites.sh --json`) → repository discovery when exactly one candidate exists → structured missing-input error. Never guess when multiple candidates exist. For `refine`, the existing spec must resolve; for `draft`/`feature`, create `specs/NNN-short-name/` and persist the path to `.specify/feature.json`.
+1. **Artifact resolution** — explicit parameter → `.specify/feature.json` → prerequisite script (`.junie/scripts/powershell/check-prerequisites.ps1 -Json` / `.junie/scripts/bash/check-prerequisites.sh --json`) → single-candidate discovery → structured missing-input error; never guess with multiple candidates. For `refine`, the existing spec must resolve; for `draft`/`feature`, create `specs/NNN-short-name/` and persist the path to `.specify/feature.json`.
 2. Generate a short feature name (2–4 words, action-noun format, e.g. `user-auth`).
 3. Extract goals, non-goals, users, and constraints.
 4. Capture success metrics and non-functional requirements with stable IDs — `NFR-SEC-###`, `NFR-PERF-###`, `NFR-AVL-###`, `NFR-PRV-###`, `NFR-OPS-###`. Each NFR must be measurable (threshold + condition).
 5. Define acceptance criteria with stable IDs (Given/When/Then wording optional, but actor, action, and outcome must be explicit).
 
-Use this structure for every acceptance criterion. Generate this as normal Markdown without the example indentation:
+Use this structure for every acceptance criterion:
 
     ### AC-001: <short name>
     - Statement: <verifiable behavior>
@@ -28,9 +30,7 @@ Use this structure for every acceptance criterion. Generate this as normal Markd
 IDs are stable — never renumber an existing AC; mark removed requirements as `Deprecated` rather than deleting them.
 
 6. Data model: conceptual business entities only — attributes, relationships, lifecycle states. Do NOT select database types, table names, indexes, or persistence frameworks; technical storage representation belongs in `data-model.md` during `/speckit.plan`.
-7. **Current-State References** (required when the feature changes an existing application; link the BA set from `/speckit.document-generate`). Add this section to the spec.
-
-Generate this as normal Markdown without the example indentation:
+7. **Current-State References** (required when the feature changes an existing application; link the BA set from `/speckit.document-generate`). Add this section to the spec:
 
     ## Current-State References
 
@@ -53,9 +53,7 @@ Generate this as normal Markdown without the example indentation:
 No AC may contradict a rule listed as unchanged. If current-state evidence is required but `current_state` cannot be resolved, stop with a structured `MISSING_INPUT` error — never generate claims about an existing application without evidence.
 
 8. Note open questions with `[NEEDS CLARIFICATION]` markers — max 3 total. Use only for decisions that significantly impact scope, security, or UX.
-9. After writing the spec, run **spec-quality validation**: create `specs/<dir>/checklists/requirements.md` and check for testable criteria, measurable success metrics, no implementation leaks, and every AC carrying ID + validation + priority + source. Iterate up to 3 times if items fail. Then set the specification status using this model: `draft` → `ready-for-clarification` → `ready-for-planning` (plus `deprecated`).
-
-Generate the status block as normal Markdown without the example indentation:
+9. After writing the spec, run **spec-quality validation**: create `specs/<dir>/checklists/requirements.md` and check for testable criteria, measurable success metrics, no implementation leaks, and every AC carrying ID + validation + priority + source. Iterate up to 3 times if items fail. Then set the specification status using this model (`draft` → `ready-for-clarification` → `ready-for-planning`, plus `deprecated`):
 
     ## Specification Status
 

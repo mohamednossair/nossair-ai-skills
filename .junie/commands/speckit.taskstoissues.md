@@ -4,7 +4,7 @@ description: Convert existing tasks into actionable GitHub issues
 
 **Usage**: `/speckit.taskstoissues tasks="path/to/tasks.md"`
 
-1. Locate the active feature via the shared resolution priority: explicit `tasks` parameter → `.specify/feature.json` → prerequisite script → repository discovery when exactly one candidate exists → structured missing-input error. Never guess when multiple candidates exist.
+1. Locate the active feature: explicit `tasks` parameter → `.specify/feature.json` → prerequisite script → single-candidate discovery → structured missing-input error; never guess with multiple candidates.
 2. Get the Git remote by running `git config --get remote.origin.url`.
 3. **CAUTION**: Only proceed if the remote is a GitHub URL. Under no circumstances create issues in repositories that do not match the remote URL.
 4. For each task in `tasks.md`, create a GitHub issue with:

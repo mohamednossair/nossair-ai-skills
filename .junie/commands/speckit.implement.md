@@ -12,6 +12,8 @@ description: Execute the implementation plan with governance, gating, and setup 
       [resume="true|false"]
       [checkpoint="phase|failure|none"]
 
+> All examples below are format templates — generate real content as normal Markdown without the example indentation.
+
 **Modes** (default `plan`):
 - `plan` — read-only dry run. Read artifacts and execute read-only inspection commands when necessary; output the execution runbook (phases, order, commands, checkpoints). Do not write files, change Git state, install dependencies, execute hooks, or modify application state.
 - `execute` — perform the work. Requires an explicit `mode="execute"`.
@@ -38,7 +40,7 @@ When `mode=execute`:
 
 - Apply all safety gates (checklist gate, governance context, branch verification, worktree safety, project-setup verification, standards loading, and task parsing/scope selection) before the first write or state-changing command.
 
-1. **Artifact resolution** — apply the shared resolution priority: explicit parameter → `.specify/feature.json` → prerequisite script (`.junie/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks` / `.junie/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks`) → repository discovery when exactly one candidate exists → structured missing-input error. If tasks.md does not resolve, error and ask the user to run `/speckit.tasks` first.
+1. **Artifact resolution** — explicit parameter → `.specify/feature.json` → prerequisite script (`.junie/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks` / `.junie/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks`) → single-candidate discovery → structured missing-input error. If tasks.md does not resolve, error and ask the user to run `/speckit.tasks` first.
 2. **Checklist gate** — Scan `checklists/` under the feature directory. Execute mode: if any REQUIRED checklist has incomplete items, return Verdict BLOCKED — do not perform writes, report the incomplete items, and recommend the responsible command. Do not allow a normal confirmation to bypass a required checklist; only explicitly advisory/non-blocking checklist items may continue after an explicit user override. Never skip silently. Plan mode: record the checklist status in the runbook instead of prompting.
 3. **Load governance context** — Read `/memory/constitution.md` if it exists in the target project and enforce MUST principles during implementation. Skip gracefully if absent.
 4. **Branch verification (execute mode only)** — Run `git branch --show-current`. Branch association with the feature is proven only by: the exact branch recorded in `.specify/feature.json`; a matching issue ID; a matching feature slug; or explicit branch metadata in the feature directory — never solely because a branch is non-protected. Branch resolution priority: (1) the current branch when it is non-protected AND associated by one of those proofs; (2) the branch recorded in `.specify/feature.json`; (3) create ONE `feature/<issue-id>-<short-slug>` implementation branch (`git switch -c ...`) when on `main`, `master`, or `develop`, so implementation work never lands on a protected branch. Create at most ONE implementation branch per run; per-milestone/per-task branch suggestions are advisory only and must not trigger additional branch creation during the same execution.
@@ -66,9 +68,7 @@ When `mode=execute`:
 12. Track Definition of Done and link back to AC/NFR IDs — and to changed `BR-###` rules via their ACs — for end-to-end traceability (`BR-014 → AC-006 → M2 → T017 → test evidence`).
 13. Output a runbook with commands and checkpoints to execute safely (this is the entire output in `plan` mode), separating three sections so proposals are never mistaken for completed work: `## Inspections Performed` (read-only checks actually executed), `## Proposed Commands` (validation, test, and hook commands for execute mode), and `## Commands Not Executed in Plan Mode`.
 14. **Extension hooks (execute mode only)** — If `.specify/extensions.yml` exists, resolve `hooks.before_implement` and `hooks.after_implement`. Display the resolved hook commands in the runbook. A failed `before_implement` hook blocks implementation; `after_implement` runs only when its configured condition is satisfied; retry a failing hook at most once; never execute a hook outside the repository without explicit authorization.
-15. **Final verdict** — end every run with this report, applying precedence when multiple outcomes apply: FAILED_VALIDATION (at least one selected task had an actual validation failure) > BLOCKED (no validation failure occurred, but a blocking gate or unresolved decision prevented execution) > PARTIALLY_COMPLETED (some selected tasks completed and others were skipped or deferred without a validation failure or blocking safety gate) > COMPLETED (every selected task completed with matching evidence).
-
-Generate it as normal Markdown without the example indentation:
+15. **Final verdict** — end every run with this report, applying precedence when multiple outcomes apply: FAILED_VALIDATION (at least one selected task had an actual validation failure) > BLOCKED (no validation failure occurred, but a blocking gate or unresolved decision prevented execution) > PARTIALLY_COMPLETED (some selected tasks completed and others were skipped or deferred without a validation failure or blocking safety gate) > COMPLETED (every selected task completed with matching evidence):
 
     ## Execution Result
 

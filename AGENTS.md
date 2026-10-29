@@ -143,7 +143,7 @@ Copy-Item -Path .devin -Destination C:\your-project-root\ -Recurse
 | `/accessibility` | A11y review for Angular templates and forms |
  `/graphify` | Build/query a codebase knowledge graph with the Graphify CLI (architecture questions, impact analysis, speckit research) |
 | `/speckit` | Orchestrator — lists all `/speckit-*` subcommands; each subcommand also has its own skill |
-| `/speckit-specify` `/speckit-clarify` `/speckit-plan` `/speckit-tasks` `/speckit-validate` `/speckit-analyze` `/speckit-checklist` `/speckit-implement` `/speckit-taskstoissues` `/speckit-document-generate` `/speckit-test-generate` | Individual speckit commands — each follows the matching `.junie/commands/speckit.<name>.md` |
+| `/speckit-specify` `/speckit-clarify` `/speckit-plan` `/speckit-tasks` `/speckit-analyze` `/speckit-checklist` `/speckit-implement` `/speckit-taskstoissues` `/speckit-document-generate` `/speckit-test-generate` | Individual speckit commands — each follows the matching `.junie/commands/speckit.<name>.md` |
 | `/project-standards` | Standards map: which `.junie/skills/` file to load per file type |
 
 ### Usage

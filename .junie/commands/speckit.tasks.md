@@ -4,31 +4,12 @@ description: Generate dependency-ordered tasks grouped by user story
 
 **Usage**: `/speckit.tasks [plan="path/to/plan.md"]`
 
-1. **Artifact resolution** — apply the shared resolution priority: explicit parameter → `.specify/feature.json` → prerequisite script (`.junie/scripts/powershell/check-prerequisites.ps1 -Json` / `.junie/scripts/bash/check-prerequisites.sh --json`) → repository discovery when exactly one candidate exists → structured missing-input error. Never guess when multiple candidates exist. If the plan does not resolve, stop and ask the user.
+> All examples below are format templates — generate real content as normal Markdown without the example indentation.
+
+1. **Artifact resolution** — explicit parameter → `.specify/feature.json` → prerequisite script (`.junie/scripts/powershell/check-prerequisites.ps1 -Json` / `.junie/scripts/bash/check-prerequisites.sh --json`) → single-candidate discovery → structured missing-input error; never guess with multiple candidates. If the plan does not resolve, stop and ask the user.
 2. Load `plan.md` (tech stack, `## Standards`, validation approach) and `spec.md` (user stories with priorities P1, P2, P3..., `AC-###` IDs, `NFR-###` IDs).
 3. Organize tasks by user story — each story becomes its own phase. Map models, services, and interfaces to the story that needs them.
-4. Use the strict task contract — the first line stays checklist-parser compatible; details live in sub-bullets.
-
-Use the following structure for every task. Generate this as normal Markdown without the example indentation:
-
-    - [ ] T014 [P] [US2] Add document status validation in `src/main/.../DocumentService.java`
-      - Depends on: T009
-      - Covers: AC-004, NFR-SEC-002
-      - Capability: backend
-      - Estimate: M
-      - Risk: Medium
-      - Standards: java, spring-boot
-      - Validate:
-        - Command: `./mvnw -Dtest=DocumentServiceTest test`
-        - Expected result: PASS
-      - Done when:
-        - Unsupported transitions are rejected.
-        - Supported transitions remain accepted.
-      - Evidence:
-        - Passing `DocumentServiceTest`
-        - `src/main/.../DocumentService.java`
-
-Field rules:
+4. Use the strict task contract — the first line stays checklist-parser compatible; details live in sub-bullets. Every task follows the exact structure shown in the contract-compliant example pair below. Field rules:
 
 - Every task must contain ALL fields: `Depends on`, `Covers`, `Capability`, `Estimate`, `Risk`, `Standards`, `Validate`, `Done when`, `Evidence`. Use explicit values such as `None` or `Not applicable` rather than omitting a field; `Validate` may be `Not applicable` only for a non-behavioral task, with a reason.
 - `T###` sequential task ID; `[US#]` required in user-story phases (omit for Setup, Foundational, Operational, Polish).
@@ -40,7 +21,7 @@ Field rules:
 
 5. Tests belong in the task graph, not a follow-up. For behavior-changing work: create the test task first, then the implementation task depending on it, and an integration-verification task when needed. `/speckit.test-generate` (canonical; `/test-generate` is its unlinked wrapper) may assist in writing test code during implementation, but test work must already exist in tasks.md.
 
-Test-first completion semantics: a new test task may legitimately end with a FAILING test. Its `Done when` may mean: the new test compiles, fails for the expected missing behavior, existing unrelated tests remain passing, and the failure reason is recorded as evidence. The implementation task then makes the new test pass. Fully contract-compliant example pair — generate this as normal Markdown without the example indentation:
+Test-first completion semantics: a new test task may legitimately end with a FAILING test. Its `Done when` may mean: the new test compiles, fails for the expected missing behavior, existing unrelated tests remain passing, and the failure reason is recorded as evidence. The implementation task then makes the new test pass. Contract-compliant example pair (the exact structure every task must follow):
 
     - [ ] T012 [US2] Add rejection-path tests
       - Depends on: T004
@@ -84,9 +65,7 @@ Test-first completion semantics: a new test task may legitimately end with a FAI
 6. Phase model: Setup → Foundational (blocking prerequisites) → one phase per user story in priority order → Operational (when applicable) → Polish & cross-cutting concerns. Include operational tasks when the change requires them: database migration, monitoring, logging, feature flags, rollback, data backfill, security review, performance verification, deployment configuration, documentation.
 7. `[P]` validation — mark parallel ONLY after confirming all of: tasks do not modify the same file; do not generate the same artifact; neither changes an interface the other consumes; neither shares a required migration sequence. Different file paths alone are not sufficient. When `graphify-out/graph.json` exists (see the `graphify` skill), back the interface-consumer checks with `graphify affected "<symbol>"` (reverse dependency walk) and `graphify path` between the tasks' touch points; treat `EXTRACTED` edges as confirmed conflicts and `INFERRED` edges as needs-verification.
 8. Keep tasks concise; avoid repeating spec/plan text.
-9. **Task Generation Validation** — end with this summary; do not claim success when a Must requirement has no task coverage. The verdict is BLOCKED when any task: omits a mandatory field; references an undefined requirement (AC/NFR/TR) or dependency; sits in a circular dependency; covers a Must requirement without objective validation; uses `Expected result: FAIL` without expected failing test and reason; or lacks a validation command for behavior-changing work.
-
-Generate the validation summary as normal Markdown without the example indentation:
+9. **Task Generation Validation** — end with this summary; do not claim success when a Must requirement has no task coverage. The verdict is BLOCKED when any task: omits a mandatory field; references an undefined requirement (AC/NFR/TR) or dependency; sits in a circular dependency; covers a Must requirement without objective validation; uses `Expected result: FAIL` without expected failing test and reason; or lacks a validation command for behavior-changing work. Summary structure:
 
     ## Task Generation Validation
 
